@@ -1,13 +1,13 @@
+// IMPORTACIONES NECESARIAS
+// Importamos 'ObjectId' de 'mongodb' para poder buscar, actualizar y eliminar documentos por su ID único.
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb'); 
 const app = express();
 
-// Usaremos el puerto que el servidor de Render nos asigne (Ej. 10000).
-// Si corres localmente, usará el 3000 como fallback.
 const port = process.env.PORT || 3000;
 
 // *******************************************************************
-// *** TU CADENA DE CONEXIÓN DE MONGODB ATLAS FINAL ***
+// *** ⚠️ REEMPLAZA ESTA CADENA CON TU URI DE CONEXIÓN DE ATLAS ⚠️ ***
 // *******************************************************************
 const uri = "mongodb+srv://flecharojapracticas_db_user:Viva031120@flecharoja-satisfaccion.ohop4mb.mongodb.net/?retryWrites=true&w=majority&appName=FlechaRoja-Satisfaccion-DB";
 
@@ -17,58 +17,165 @@ const client = new MongoClient(uri);
 const DB_NAME = 'flecha_roja_db'; 
 const COLLECTION_NAME = 'satisfaccion_clientes';
 
-// Middleware para procesar las peticiones JSON (crucial para Google Forms)
+// Middleware para procesar las peticiones JSON
 app.use(express.json());
 
 // *******************************************************************
-// ENDPOINT PRINCIPAL: RECIBE LOS DATOS DEL FORMULARIO
+// 1. ENDPOINT: CREATE (POST /api/save_data) - Desde Google Forms
 // *******************************************************************
 app.post('/api/save_data', async (req, res) => {
-  const datos = req.body;
-  if (!datos || Object.keys(datos).length === 0) {
-    return res.status(400).send('Error: No se recibieron datos.');
-  }
+    const datos = req.body;
+    if (!datos || Object.keys(datos).length === 0) {
+        return res.status(400).send('Error: No se recibieron datos.');
+    }
 
-  try {
-    // 1. Conexión/Reutilización del pool
-    // Usamos el cliente ya conectado globalmente
-    const database = client.db(DB_NAME);
-    const collection = database.collection(COLLECTION_NAME);
+    try {
+        const database = client.db(DB_NAME);
+        const collection = database.collection(COLLECTION_NAME);
 
-    // 2. Prepara el documento para guardar
-    const datosConMarca = { 
-      ...datos, 
-      timestampServidor: new Date() // Añadir fecha y hora del servidor (Auditoría)
-    };
+        const datosConMarca = { 
+            ...datos, 
+            timestampServidor: new Date() // Añadir fecha y hora del servidor
+        };
 
-    // 3. Inserta el documento
-    const resultado = await collection.insertOne(datosConMarca);
-    console.log(`Documento insertado en Atlas con _id: ${resultado.insertedId}`);
+        const resultado = await collection.insertOne(datosConMarca);
+        console.log(`Documento insertado en Atlas con _id: ${resultado.insertedId}`);
 
-    // Respuesta que Google Apps Script recibirá
-    res.status(200).send('Datos guardados correctamente en Atlas.');
+        res.status(200).send('Datos guardados correctamente en Atlas.');
 
-  } catch (error) {
-    console.error("Error al guardar datos en Atlas (Revisar URI o IP en Atlas):", error);
-    res.status(500).send('Error interno del servidor.');
-  }
-  // IMPORTANTE: NO CERRAMOS LA CONEXIÓN (client.close()) AQUÍ 
-  // para mantener el pool de conexiones activo y estable.
+    } catch (error) {
+        console.error("Error al guardar datos en Atlas:", error);
+        res.status(500).send('Error interno del servidor.');
+    }
 });
 
 // *******************************************************************
-// FUNCIÓN PARA VERIFICAR LA CONEXIÓN INICIAL A MONGO DB
+// 2. ENDPOINT: READ ALL (GET /api/data) - Mostrar Todos
+// *******************************************************************
+app.get('/api/data', async (req, res) => {
+    try {
+        const database = client.db(DB_NAME);
+        const collection = database.collection(COLLECTION_NAME);
+
+        // Consulta todos los documentos en la colección
+        const data = await collection.find({}).toArray();
+
+        // Envía los datos como respuesta JSON al cliente (React)
+        res.status(200).json(data);
+
+    } catch (error) {
+        console.error("Error al obtener datos de Atlas:", error);
+        res.status(500).json({ 
+            message: 'Error interno del servidor al obtener datos.',
+            error: error.message 
+        });
+    }
+});
+
+// *******************************************************************
+// 3. ENDPOINT: READ ONE (GET /api/data/:id) - Mostrar Uno por ID
+// *******************************************************************
+app.get('/api/data/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const database = client.db(DB_NAME);
+        const collection = database.collection(COLLECTION_NAME);
+
+        // Búsqueda por ObjectId
+        const data = await collection.findOne({ _id: new ObjectId(id) });
+
+        if (!data) {
+            return res.status(404).json({ message: 'Documento no encontrado.' });
+        }
+
+        res.status(200).json(data);
+
+    } catch (error) {
+        console.error("Error al obtener documento de Atlas:", error);
+        res.status(500).json({ 
+            message: 'Error al obtener el documento.',
+            error: error.message 
+        });
+    }
+});
+
+
+// *******************************************************************
+// 4. ENDPOINT: UPDATE (PUT /api/data/:id) - Actualizar por ID
+// *******************************************************************
+app.put('/api/data/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const newData = req.body;
+        
+        if (!newData || Object.keys(newData).length === 0) {
+            return res.status(400).send('Datos de actualización faltantes.');
+        }
+
+        const database = client.db(DB_NAME);
+        const collection = database.collection(COLLECTION_NAME);
+
+        // Actualiza el documento por ID. $set asegura que solo se actualicen los campos pasados.
+        const result = await collection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: newData }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'Documento no encontrado para actualizar.' });
+        }
+
+        res.status(200).json({ message: 'Documento actualizado correctamente.', updatedCount: result.modifiedCount });
+
+    } catch (error) {
+        console.error("Error al actualizar documento en Atlas:", error);
+        res.status(500).json({ 
+            message: 'Error interno del servidor al actualizar.',
+            error: error.message 
+        });
+    }
+});
+
+
+// *******************************************************************
+// 5. ENDPOINT: DELETE (DELETE /api/data/:id) - Eliminar por ID
+// *******************************************************************
+app.delete('/api/data/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const database = client.db(DB_NAME);
+        const collection = database.collection(COLLECTION_NAME);
+
+        // Elimina el documento por ID
+        const result = await collection.deleteOne({ _id: new ObjectId(id) });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'Documento no encontrado para eliminar.' });
+        }
+
+        res.status(200).json({ message: 'Documento eliminado correctamente.' });
+
+    } catch (error) {
+        console.error("Error al eliminar documento de Atlas:", error);
+        res.status(500).json({ 
+            message: 'Error interno del servidor al eliminar.',
+            error: error.message 
+        });
+    }
+});
+
+
+// *******************************************************************
+// FUNCIÓN PARA VERIFICAR LA CONEXIÓN INICIAL A MONGO DB Y ARRANCAR
 // *******************************************************************
 async function runServer() {
     try {
-        // Intenta conectar el cliente de MongoDB antes de iniciar el servidor HTTP
         await client.connect();
         console.log("Conexión inicial a MongoDB Atlas exitosa. Base de datos lista.");
 
-        // Solo arranca el servidor Express si la conexión a Mongo fue exitosa
         app.listen(port, () => {
             console.log(`Servidor escuchando en el puerto ${port}`);
-            console.log("¡Listo para recibir datos del formulario de Flecha Roja!");
+            console.log("¡API RESTful CRUD para Flecha Roja lista!");
         });
 
     } catch (err) {
@@ -76,9 +183,8 @@ async function runServer() {
         console.error("ERROR FATAL: Fallo al conectar a MongoDB Atlas");
         console.error("===============================================");
         console.error(err);
-        process.exit(1); // Detiene la aplicación si no puede conectar a la BD
+        process.exit(1); 
     }
 }
 
-// Inicia el proceso de conexión y arranque del servidor
 runServer();
