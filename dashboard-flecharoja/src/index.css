@@ -1,0 +1,78 @@
+/* Limpieza y fuentes */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f7f6;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+/* Contenedor principal del dashboard */
+.dashboard-container {
+  max-width: 90%;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+  text-align: center;
+  color: #c0392b; /* Un rojo que evoca a Flecha Roja */
+}
+
+/* Estilos de tabla */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.data-table th, .data-table td {
+  border: 1px solid #ddd;
+  padding: 10px 15px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.data-table th {
+  background-color: #c0392b; /* Fondo rojo */
+  color: white; /* Letra blanca */
+  cursor: pointer;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.data-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.data-table tr:hover {
+  background-color: #ffe0e0;
+}
+
+/* Estilos para mensajes de estado */
+.loading {
+  text-align: center;
+  font-size: 1.5em;
+  color: #2c3e50;
+  padding: 50px;
+}
+
+.error {
+  text-align: center;
+  font-size: 1.5em;
+  color: #e74c3c;
+  padding: 50px;
+  border: 1px solid #e74c3c;
+  background-color: #fdd;
+}
+
+.no-data {
+  text-align: center;
+  font-size: 1.5em;
+  color: #7f8c8d;
+  padding: 50px;
+}

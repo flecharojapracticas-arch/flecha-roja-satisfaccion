@@ -2,6 +2,7 @@
 // Importamos 'ObjectId' de 'mongodb' para poder buscar, actualizar y eliminar documentos por su ID único.
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb'); 
+const cors = require('cors');
 const app = express();
 
 const port = process.env.PORT || 3000;
@@ -19,6 +20,9 @@ const COLLECTION_NAME = 'satisfaccion_clientes';
 
 // Middleware para procesar las peticiones JSON
 app.use(express.json());
+
+app.use(cors());
+
 
 // *******************************************************************
 // 1. ENDPOINT: CREATE (POST /api/save_data) - Desde Google Forms
