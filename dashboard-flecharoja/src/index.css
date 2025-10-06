@@ -19,7 +19,8 @@ body {
 
 h1, h2 {
   text-align: center;
-  color: #c0392b; /* Un rojo que evoca a Flecha Roja */
+  /* CAMBIO DE COLOR AQUÍ */
+  color: #008000; /* Color principal (Verde) */
 }
 
 /* Estilos de tabla */
@@ -27,6 +28,7 @@ h1, h2 {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  overflow-x: auto; /* Para manejo en móviles */
 }
 
 .data-table th, .data-table td {
@@ -34,12 +36,14 @@ h1, h2 {
   padding: 10px 15px;
   text-align: left;
   font-size: 14px;
+  word-wrap: break-word; /* Evita que el contenido largo rompa la celda */
 }
 
 .data-table th {
-  background-color: #c0392b; /* Fondo rojo */
+  /* CAMBIO DE COLOR AQUÍ */
+  background-color: #008000; /* Fondo de la tabla (Verde) */
   color: white; /* Letra blanca */
-  cursor: pointer;
+  cursor: default; /* Eliminamos el cursor si no es clicable */
   position: sticky;
   top: 0;
   z-index: 10;
@@ -50,7 +54,8 @@ h1, h2 {
 }
 
 .data-table tr:hover {
-  background-color: #ffe0e0;
+  /* CAMBIO DE COLOR AQUÍ */
+  background-color: #e0ffe0; /* Hover más claro */
 }
 
 /* Estilos para mensajes de estado */
