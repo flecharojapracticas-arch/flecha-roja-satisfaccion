@@ -6,14 +6,14 @@ const bcrypt = require('bcryptjs');
 // Importar los módulos de ruta y middleware
 const authRouter = require('./routes/auth');
 const authenticateToken = require('./middleware/authMiddleware');
-// Importar la nueva ruta de métricas
-const metricsRouter = require('./routes/metrics'); 
+const metricsRouter = require('./routes/metrics'); // Importamos directamente el router
 
 const app = express();
 
 // *****************************************************************
 // ⚠️ VARIABLES CRÍTICAS ⚠️
 // *****************************************************************
+// (Tus variables se mantienen sin cambios)
 const uri = "mongodb+srv://flecharojapracticas_db_user:Viva031120@flecharoja-satisfaccion.ohop4mb.mongodb.net/?retryWrites=true&w=majority&appName=FlechaRoja-Satisfaccion-DB";
 const port = process.env.PORT || 3000;
 const USER_SECRET = "FlechaRoja_SATISFACCION-Key-R3d-s3cr3t-2025-Qh7gKx9zP5bYt1mJ"; 
@@ -31,30 +31,22 @@ app.use(express.json());
 app.use(cors()); 
 
 // ********************************************
-// *** ENRUTAMIENTO Y CONEXIÓN DE MÓDULOS ***
+// *** ENRUTAMIENTO ***
 // ********************************************
 
-// Función para pasar el cliente de MongoDB a la ruta de métricas
-// Esta función debe existir dentro de server/routes/metrics.js
-metricsRouter.setMongoClient = (mongoClient) => {
-    metricsRouter.client = mongoClient;
-};
-
-
 // Montar el Router de Autenticación
-authRouter.setMongoClient(client); 
+authRouter.setMongoClient(client); // Usa la función de configuración
 app.use('/api/auth', authRouter.router); 
 
 // Montar el Router de Métricas
-metricsRouter.setMongoClient(client); // <-- PASAMOS EL CLIENTE DE MONGO
-app.use('/api/metrics', metricsRouter.router); // <-- USAMOS EL ROUTER EXPORTADO
+// NOTA: Ya NO necesitamos setMongoClient para metricsRouter, ya que usaremos app.locals.client
+app.use('/api/metrics', authenticateToken, metricsRouter); // Usamos el middleware y el router directamente
 
-
-// RUTA PROTEGIDA: Obtener todos los datos (Dejamos la ruta antigua)
-// ... (código de /api/data)
+// RUTA PROTEGIDA: Obtener todos los datos 
 app.get('/api/data', authenticateToken, async (req, res) => {
     try {
-        const database = client.db(DB_NAME);
+        // Accedemos al cliente de MongoDB desde la instancia global
+        const database = app.locals.client.db(DB_NAME);
         const collection = database.collection(COLLECTION_NAME);
         
         const data = await collection.find({}).toArray();
@@ -67,8 +59,7 @@ app.get('/api/data', authenticateToken, async (req, res) => {
 });
 
 
-// RUTA POST: Recibir datos del formulario (Pública, no protegida)
-// ... (código de /api/save_data)
+// RUTA POST: Recibir datos del formulario (Pública)
 app.post('/api/save_data', async (req, res) => {
     const receivedData = req.body;
     receivedData.timestampServidor = new Date().toISOString();
@@ -92,7 +83,7 @@ app.post('/api/save_data', async (req, res) => {
 
 
 // ********************************************
-// *** ARRANQUE DEL SERVIDOR Y CREACIÓN DE ADMIN POR DEFECTO ***
+// *** ARRANQUE DEL SERVIDOR ***
 // ********************************************
 
 async function runServer() {
@@ -100,7 +91,7 @@ async function runServer() {
         await client.connect(); 
         console.log("Conexión inicial a MongoDB Atlas exitosa.");
 
-        // ADJUNTAMOS EL CLIENTE A LA INSTANCIA DE LA APP
+        // **PASO CRÍTICO:** Almacenamos el cliente en la instancia de la aplicación
         app.locals.client = client; 
         
         const database = client.db(DB_NAME);

@@ -1,26 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const authenticateToken = require('../middleware/authMiddleware'); 
+// Nota: authenticateToken ya se usa en server.js, aquí solo lo incluimos si fuera necesario,
+// pero lo quitamos de la exportación final para simplificar el uso en server.js.
 
-// Objeto para mantener la referencia al cliente de MongoDB fuera del router
-let mongoClient = null;
-
-// Exportamos esta función para que server.js pueda pasar el cliente
-const setMongoClient = (client) => {
-    mongoClient = client;
-};
-
-// @route   GET /api/metrics
-router.get('/', authenticateToken, async (req, res) => {
+// @route   GET /api/metrics (Protegido por authenticateToken en server.js)
+router.get('/', async (req, res) => {
     // CAMPO CRÍTICO: Nombre del campo de la Pregunta 1 en la BD
     const CAMPO_EXPERIENCIA = 'Cal_Experiencia_Compra'; 
 
-    const client = mongoClient; // Usamos el cliente pasado por server.js
+    // **PASO CRÍTICO:** Accedemos al cliente que guardamos en app.locals
+    const client = req.app.locals.client; 
     const DB_NAME = 'flecha_roja_db';
     const COLLECTION_NAME = 'satisfaccion_clientes';
 
     if (!client) {
-        console.error("Error: Cliente de MongoDB no disponible en metrics.js");
+        console.error("Error: Cliente de MongoDB no disponible en metrics.js (Fallo al acceder a app.locals)");
         return res.status(500).send({ message: 'Error: Cliente de MongoDB no inicializado.' });
     }
     
@@ -28,9 +22,8 @@ router.get('/', authenticateToken, async (req, res) => {
         const database = client.db(DB_NAME);
         const collection = database.collection(COLLECTION_NAME);
 
-        // --- 1. PIPELINE ÚNICO: Cálcula Promedio y Total al mismo tiempo ---
+        // --- LÓGICA DE AGREGACIÓN SIN CAMBIOS ---
         const pipeline = [
-            // Paso 1: Mapear la respuesta de texto a un valor numérico (1-10)
             {
                 $addFields: {
                     score: {
@@ -47,35 +40,23 @@ router.get('/', authenticateToken, async (req, res) => {
                     }
                 }
             },
-            // Paso 2: Agrupar y calcular métricas
-            {
-                $group: {
-                    _id: null,
-                    totalEncuestas: { $sum: 1 },
-                    satisfaccionPromedioCalculada: { $avg: '$score' }, 
-                }
-            },
-            // Paso 3: Proyectar y redondear
-            {
-                $project: {
-                    _id: 0,
-                    totalEncuestas: 1,
-                    satisfaccionPromedio: { $round: ['$satisfaccionPromedioCalculada', 1] } 
-                }
-            }
+            { $group: {
+                _id: null,
+                totalEncuestas: { $sum: 1 },
+                satisfaccionPromedioCalculada: { $avg: '$score' }, 
+            }},
+            { $project: {
+                _id: 0,
+                totalEncuestas: 1,
+                satisfaccionPromedio: { $round: ['$satisfaccionPromedioCalculada', 1] } 
+            }}
         ];
 
         const metricsResult = await collection.aggregate(pipeline).toArray();
         const totalMetrics = metricsResult[0] || { totalEncuestas: 0, satisfaccionPromedio: 0 };
         
-        // --- 2. ENCONTRAR EL RESULTADO GENERAL ---
         const commonResultPipeline = [
-            {
-                $group: {
-                    _id: `$${CAMPO_EXPERIENCIA}`, 
-                    count: { $sum: 1 } 
-                }
-            },
+            { $group: { _id: `$${CAMPO_EXPERIENCIA}`, count: { $sum: 1 } }},
             { $sort: { count: -1 } }, 
             { $limit: 1 }
         ];
@@ -86,7 +67,7 @@ router.get('/', authenticateToken, async (req, res) => {
                                ? commonResult[0]._id 
                                : 'Sin datos aún';
 
-        // --- 3. Devolver los resultados finales ---
+        // --- Devolver los resultados finales ---
         res.json({
             totalEncuestas: totalMetrics.totalEncuestas || 0,
             satisfaccionPromedio: totalMetrics.totalEncuestas > 0 
@@ -97,9 +78,8 @@ router.get('/', authenticateToken, async (req, res) => {
 
     } catch (err) {
         console.error('Error al calcular métricas (Agregación fallida):', err.message);
-        res.status(500).send({ message: 'Error interno del servidor al calcular métricas. Verifique los nombres de los campos de la BD.' });
+        res.status(500).send({ message: 'Error interno del servidor al calcular métricas. Verifique que los campos de la BD sean correctos.' });
     }
 });
 
-// Exportamos tanto el router como la función de configuración
-module.exports = { router, setMongoClient };
+module.exports = router;
