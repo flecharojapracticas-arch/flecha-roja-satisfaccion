@@ -1,3 +1,5 @@
+// El método dotenv fue removido para usar la configuración directa en el código.
+
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
@@ -6,20 +8,25 @@ const bcrypt = require('bcryptjs');
 // Importar los módulos de ruta y middleware
 const authRouter = require('./routes/auth');
 const authenticateToken = require('./middleware/authMiddleware');
-const metricsRouter = require('./routes/metrics'); // Importamos directamente el router
+const metricsRouter = require('./routes/metrics'); 
 
 const app = express();
 
 // *****************************************************************
-// ⚠️ VARIABLES CRÍTICAS ⚠️
+// *** CONFIGURACIÓN CRÍTICA DIRECTA ***
 // *****************************************************************
-// (Tus variables se mantienen sin cambios)
-const uri = "mongodb+srv://flecharojapracticas_db_user:Viva031120@flecharoja-satisfaccion.ohop4mb.mongodb.net/?retryWrites=true&w=majority&appName=FlechaRoja-Satisfaccion-DB";
-const port = process.env.PORT || 3000;
+// ⚠️ ATENCIÓN: Esta es la NUEVA URI de conexión de MongoDB Atlas.
+// Se recomienda usar variables de entorno para mayor seguridad en producción.
+const uri = "mongodb+srv://flecharoja_app:BXbwrRn5YMNi8hRk@flecha-roja-satisfaccion.bntkyvm.mongodb.net/?retryWrites=true&w=majority&appName=flecha-roja-satisfaccion"; 
+
+// Variables de configuración de la base de datos
+const port = 3000;
 const USER_SECRET = "FlechaRoja_SATISFACCION-Key-R3d-s3cr3t-2025-Qh7gKx9zP5bYt1mJ"; 
 const DB_NAME = 'flecha_roja_db'; 
 const COLLECTION_NAME = 'satisfaccion_clientes';
 const USERS_COLLECTION = 'users'; 
+
+// Credenciales por defecto del admin
 const DEFAULT_ADMIN_USER = "admin";
 const DEFAULT_ADMIN_PASS = "admin123"; 
 // *****************************************************************
@@ -30,22 +37,20 @@ const client = new MongoClient(uri);
 app.use(express.json());
 app.use(cors()); 
 
-// ********************************************
-// *** ENRUTAMIENTO ***
-// ********************************************
+// Establecer el secret key en el router de autenticación
+authRouter.setUserSecret(USER_SECRET); 
 
 // Montar el Router de Autenticación
-authRouter.setMongoClient(client); // Usa la función de configuración
+authRouter.setMongoClient(client); 
 app.use('/api/auth', authRouter.router); 
 
 // Montar el Router de Métricas
-// NOTA: Ya NO necesitamos setMongoClient para metricsRouter, ya que usaremos app.locals.client
-app.use('/api/metrics', authenticateToken, metricsRouter); // Usamos el middleware y el router directamente
+app.use('/api/metrics', authenticateToken, metricsRouter); 
 
-// RUTA PROTEGIDA: Obtener todos los datos 
+
+// RUTA PROTEGIDA: Obtener todos los datos (para el dashboard)
 app.get('/api/data', authenticateToken, async (req, res) => {
     try {
-        // Accedemos al cliente de MongoDB desde la instancia global
         const database = app.locals.client.db(DB_NAME);
         const collection = database.collection(COLLECTION_NAME);
         
@@ -65,7 +70,8 @@ app.post('/api/save_data', async (req, res) => {
     receivedData.timestampServidor = new Date().toISOString();
 
     try {
-        const database = client.db(DB_NAME);
+        // Acceder al cliente a través de app.locals para asegurar que esté conectado
+        const database = app.locals.client.db(DB_NAME); 
         const collection = database.collection(COLLECTION_NAME);
         
         const result = await collection.insertOne(receivedData);
@@ -91,7 +97,7 @@ async function runServer() {
         await client.connect(); 
         console.log("Conexión inicial a MongoDB Atlas exitosa.");
 
-        // **PASO CRÍTICO:** Almacenamos el cliente en la instancia de la aplicación
+        // *** CRÍTICO: Guardar el cliente conectado en app.locals ***
         app.locals.client = client; 
         
         const database = client.db(DB_NAME);
@@ -120,7 +126,7 @@ async function runServer() {
         });
 
     } catch (err) {
-        console.error("ERROR FATAL: Fallo al conectar a MongoDB Atlas", err);
+        console.error("ERROR FATAL: Fallo al conectar a MongoDB Atlas. Verifique la URI y el firewall.", err);
         process.exit(1); 
     }
 }

@@ -14,9 +14,9 @@
    CONTENEDOR BASE
 ----------------------------------------------------------------- */
 .dashboard-container {
-    min-height: 100vh;
+    min-height: 120vh;
     background-color: var(--background-color);
-    padding-top: 110px; /* Espacio para el header fijo */
+    padding-top: 80px; /* Espacio para el header fijo */
 }
 
 /* -----------------------------------------------------------------
@@ -36,12 +36,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 20px;
+    padding: 20px 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header-logo {
-    height: 40px; /* Ajuste el tamaño del logo */
+    height: 60px; /* Ajuste el tamaño del logo */
     width: auto;
 }
 
@@ -82,7 +82,7 @@
 .nav-bar {
     display: flex;
     justify-content: center;
-    padding: 8px 20px;
+    padding: 10px 10px;
     gap: 15px;
     overflow-x: auto;
 }
@@ -114,16 +114,16 @@
    CONTENIDO PRINCIPAL
 ----------------------------------------------------------------- */
 .dashboard-main-content {
-    padding: 30px 20px;
-    max-width: 1400px;
+    padding: 80px 200px;
+    max-width: 1000px;
     margin: 0 auto; /* Centrar el contenido */
 }
 
 /* CAJA DE BIENVENIDA */
 .welcome-box {
     background: white;
-    padding: 30px;
-    margin-bottom: 30px;
+    padding: 10px;
+    margin-bottom: 10px;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     text-align: center;
@@ -133,8 +133,8 @@
 
 .welcome-title {
     font-size: 2.8rem; /* Panel de Control en grande */
-    font-weight: 800;
-    margin-bottom: 10px;
+    font-weight: 8000;
+    margin-bottom: 8px;
 }
 
 .welcome-subtitle {
@@ -147,7 +147,7 @@
 ----------------------------------------------------------------- */
 .metrics-grid {
     display: grid;
-    gap: 25px;
+    gap: 15px;
     grid-template-columns: 1fr; /* Móvil: una columna */
 }
 
@@ -195,7 +195,7 @@
 }
 
 .metric-value {
-    font-size: 4rem; /* El número grande */
+    font-size: 3rem; /* El número grande */
     font-weight: 900;
     margin: 0;
     line-height: 1;
