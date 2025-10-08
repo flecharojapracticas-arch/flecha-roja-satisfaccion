@@ -1,68 +1,80 @@
 const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcryptjs'); 
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// ⚠️ DEBES REEMPLAZAR ESTA CLAVE SECRETA AQUÍ TAMBIÉN ⚠️
-const USER_SECRET = "FlechaRoja_SATISFACCION-Key-R3d-s3cr3t-2025-Qh7gKx9zP5bYt1mJ"; 
-const DB_NAME = 'flecha_roja_db'; 
-const USERS_COLLECTION = 'users';
+const router = express.Router();
+let userSecret; // Se inicializa con setUserSecret desde server.js
+let mongoClient; // Se inicializa con setMongoClient desde server.js
 
-let mongoClient; 
+// **********************************************
+// Funciones de configuración (Settters)
+// **********************************************
 
-// Función para recibir el cliente de Mongo desde server.js
-const setMongoClient = (client) => {
+/**
+ * Establece la clave secreta usada para firmar los JSON Web Tokens (JWT).
+ * @param {string} secret - La clave secreta.
+ */
+function setUserSecret(secret) {
+    userSecret = secret;
+}
+
+/**
+ * Establece el cliente de MongoDB conectado para que las rutas puedan acceder a la DB.
+ * @param {MongoClient} client - El cliente de MongoDB conectado.
+ */
+function setMongoClient(client) {
     mongoClient = client;
-};
+}
 
-// 1. LOGIN: Genera un token si las credenciales son correctas
+// **********************************************
+// Rutas de API
+// **********************************************
+
+// RUTA POST: /api/auth/login
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     
+    if (!mongoClient) {
+        return res.status(500).json({ message: 'Error de servidor: Conexión a DB no inicializada.' });
+    }
+
     try {
-        const database = mongoClient.db(DB_NAME);
-        const users = database.collection(USERS_COLLECTION);
+        const database = mongoClient.db('flecha_roja_db');
+        const usersCollection = database.collection('users');
         
-        const user = await users.findOne({ username });
-        
-        if (user == null) {
-            return res.status(400).send({ message: "Usuario o contraseña inválidos." });
+        const user = await usersCollection.findOne({ username });
+
+        if (!user) {
+            return res.status(401).json({ message: 'Usuario o contraseña inválida.' });
         }
 
-        if (await bcrypt.compare(password, user.passwordHash)) {
-            
-            // Credenciales correctas: Crear un Token Web JSON (JWT)
-            const accessToken = jwt.sign(
-                { username: user.username, role: user.role || 'admin' }, 
-                USER_SECRET, 
-                { expiresIn: '1h' } // Token válido por 1 hora
-            );
-            
-            res.json({ token: accessToken, message: "Inicio de sesión exitoso." });
-        } else {
-            res.status(400).send({ message: "Usuario o contraseña inválidos." });
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Usuario o contraseña inválida.' });
         }
+        
+        // Crear Payload del token
+        const payload = { 
+            id: user._id, 
+            username: user.username, 
+            role: user.role 
+        };
+        
+        // Firmar el token (asegurándose de usar la clave secreta inyectada)
+        const token = jwt.sign(payload, userSecret, { expiresIn: '1h' });
+
+        res.json({ token, username: user.username, role: user.role });
 
     } catch (error) {
-        console.error("Error en el login:", error);
-        res.status(500).send({ message: "Error interno del servidor durante el login." });
+        console.error('Error durante el login:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
     }
 });
 
-// 2. RECUPERACIÓN DE CONTRASEÑA (Simulación)
-router.post('/forgot-password', (req, res) => {
-    res.status(200).send({ 
-        message: "Proceso de recuperación iniciado. Por seguridad, la contraseña ha sido restablecida por defecto y un supervisor será notificado para que te la comunique por un canal seguro." 
-    });
-});
-
-// 3. REGISTRO (Se desactiva el registro público)
-router.post('/register', async (req, res) => {
-    res.status(403).send({ message: "El registro público está deshabilitado. Contacte a su administrador." });
-});
-
-
-module.exports = { 
-    router, 
-    setMongoClient 
+// Exportar el router y las funciones de configuración
+module.exports = {
+    router,
+    setUserSecret,
+    setMongoClient
 };
