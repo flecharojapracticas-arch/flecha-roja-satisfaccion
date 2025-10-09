@@ -12,6 +12,10 @@ const metricsRouter = require('./routes/metrics');
 
 const app = express();
 
+
+// 2. Asegúrate de montar la ruta
+// ...
+
 // *****************************************************************
 // *** CONFIGURACIÓN CRÍTICA DIRECTA ***
 // *****************************************************************
