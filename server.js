@@ -69,19 +69,60 @@ app.get('/api/data', authenticateToken, async (req, res) => {
 
 
 // RUTA POST: Recibir datos del formulario (Pública)
+// RUTA POST: Recibir datos del formulario (Pública)
 app.post('/api/save_data', async (req, res) => {
-    const receivedData = req.body;
-    receivedData.timestampServidor = new Date().toISOString();
+    // 1. Aseguramos que req.body sea un objeto, incluso si está vacío.
+    const receivedData = req.body || {}; 
+    
+    // 2. Mapeo explícito para garantizar que todos los campos existan en MongoDB.
+    // Usamos el operador OR (|| "") para asignar una cadena vacía si el campo es undefined/null.
+    const surveyDocument = {
+        // Campos de Identificación
+        claveEncuestador: receivedData.claveEncuestador || "",
+        fecha: receivedData.fecha || "",
+        noEco: receivedData.noEco || "",
+        folioBoleto: receivedData.folioBoleto || "",
+        origenViaje: receivedData.origenViaje || "",
+        otroDestino: receivedData.otroDestino || "",
+        destinoFinal: receivedData.destinoFinal || "",
+        medioAdquisicion: receivedData.medioAdquisicion || "",
+
+        // Calificaciones y Comentarios (Experiencia de Compra)
+        califExperienciaCompra: receivedData.califExperienciaCompra || "",
+        comentExperienciaCompra: receivedData.comentExperienciaCompra || "",
+        
+        // Calificaciones y Comentarios (Servicio del Conductor)
+        califServicioConductor: receivedData.califServicioConductor || "", // ⬅️ **CORREGIDO**
+        comentServicioConductor: receivedData.comentServicioConductor || "",
+        
+        // Calificaciones y Comentarios (Comodidad a bordo)
+        califComodidad: receivedData.califComodidad || "",
+        comentComodidad: receivedData.comentComodidad || "",
+        
+        // Calificaciones y Comentarios (Limpieza a bordo)
+        califLimpieza: receivedData.califLimpieza || "",
+        comentLimpieza: receivedData.comentLimpieza || "",
+        
+        // Seguridad y Expectativas
+        califSeguridad: receivedData.califSeguridad || "",
+        especifSeguridad: receivedData.especifSeguridad || "",
+        
+        cumplioExpectativas: receivedData.cumplioExpectativas || "", // ⬅️ **CORREGIDO**
+        especificarMotivo: receivedData.especificarMotivo || "",
+        
+        // Datos automáticos
+        timestampServidor: new Date().toISOString(),
+    };
 
     try {
-        // Acceder al cliente a través de app.locals para asegurar que esté conectado
+        // Acceder al cliente a través de app.locals
         const database = app.locals.client.db(DB_NAME); 
         const collection = database.collection(COLLECTION_NAME);
         
-        const result = await collection.insertOne(receivedData);
+        const result = await collection.insertOne(surveyDocument); // <-- Insertamos el documento completo
         
         res.status(200).json({ 
-            message: "Datos recibidos y guardados correctamente.", 
+            message: "Datos recibidos y guardados correctamente con integridad de campos.", 
             insertedId: result.insertedId 
         });
 

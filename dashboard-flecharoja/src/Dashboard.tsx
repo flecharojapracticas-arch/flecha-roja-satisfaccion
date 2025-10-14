@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Dashboard.css'; 
 import { BarChart2 } from "lucide-react"; 
-// 1. Importamos Chart.js directamente
 import Chart from 'chart.js/auto'; 
 
-// La ruta corregida que ahora devuelve TODOS los datos crudos
+// ... (Las interfaces, constantes y funciones ratingToScore/processDataForChart se mantienen igual) ...
+
 const API_METRICS_URL = 'https://flecha-roja-satisfaccion.onrender.com/api/metrics';
 const navItems = ['ENCUESTAS', 'ANÁLISIS', 'RESULTADOS', 'RESUMEN'];
 
 interface Survey {
     claveEncuestador: string;
     fecha: string;
-    // Campos de calificación para el gráfico
     califExperienciaCompra: string;
     califServicioConductor: string;
     califComodidad: string;
@@ -31,7 +30,6 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
       activeTab: 'ENCUESTAS',
     });
     
-    // Mapeo de campos y etiquetas para el gráfico
     const chartLabels: { [key: string]: string } = {
         'califExperienciaCompra': 'Experiencia de Compra',
         'califServicioConductor': 'Servicio del Conductor',
@@ -39,6 +37,8 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         'califLimpieza': 'Limpieza',
         'califSeguridad': 'Seguridad'
     };
+    
+    // ... (Mantén las funciones ratingToScore, processDataForChart, y los useEffects de carga de datos y dibujo de gráfico) ...
 
     /** Convierte la calificación de texto a un valor numérico (1-10) */
     const ratingToScore = (ratingText: string): number => {
@@ -147,9 +147,9 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         
         // 3. Colores basados en el rendimiento (Verde >= 8, Amarillo >= 5, Rojo < 5)
         const backgroundColors = averages.map(avg => {
-            if (avg >= 8.0) return 'rgba(75, 192, 192, 0.8)'; 
-            if (avg >= 5.0) return 'rgba(255, 206, 86, 0.8)'; 
-            return 'rgba(255, 99, 132, 0.8)'; 
+            // El color principal del diseño es #2A655F (verde oscuro)
+            // Usaremos un tono Aqua para las barras, como en la imagen
+            return '#56C5B6'; 
         });
         
         // 4. Crear la nueva instancia del gráfico
@@ -161,7 +161,7 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                     label: 'Puntaje Promedio (Escala 1-10)',
                     data: averages,
                     backgroundColor: backgroundColors,
-                    borderColor: backgroundColors.map(c => c.replace('0.8', '1')),
+                    borderColor: '#2A655F', // Borde verde oscuro
                     borderWidth: 1
                 }]
             },
@@ -172,16 +172,12 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                     y: {
                         beginAtZero: true,
                         max: 10,
-                        title: {
-                            display: true,
-                            text: 'Puntaje Promedio'
-                        }
+                        title: { display: false }, // Ocultar título y hacerlo más limpio
+                        grid: { color: '#E0E0E0' } // Líneas de grid más suaves
                     },
                     x: {
-                        title: {
-                            display: true,
-                            text: 'Categoría de Servicio'
-                        }
+                        title: { display: false },
+                        grid: { display: false } // Ocultar líneas de grid horizontales
                     }
                 },
                 plugins: {
@@ -189,7 +185,8 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                     title: {
                         display: true,
                         text: 'Comparación de Puntaje Promedio por Categoría',
-                        font: { size: 16 }
+                        font: { size: 16, weight: 'bold' },
+                        color: '#2A655F' // Color del título
                     }
                 }
             }
@@ -211,31 +208,24 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         }
     };
   
+    // Componente de la tarjeta de métrica (Ajustado para el nuevo diseño)
     const MetricCard: React.FC<{ title: string; value: string | number; subtext: string }> = ({ title, value, subtext }) => {
-        const iconToRender = BarChart2;
-        const colorClass = title === 'TOTAL DE ENCUESTAS' ? 'metric-color-red' : 'metric-color-default'; 
-        
         const displayValue = metrics.isLoading ? '...' : 
                              metrics.error ? 'ERROR' : 
                              value; 
 
         return (
-            <div className="metric-card">
-                <div className="metric-header">
-                    <h3 className="metric-title">{title}</h3>
-                    <div className={`metric-icon-container ${colorClass}`}>
-                        {metrics.isLoading ? null : (
-                            React.createElement(iconToRender, { className: "metric-icon" })
-                        )}
-                    </div>
+            <div className="metric-card sidebar-card">
+                {/* Título de la tarjeta en una banda superior */}
+                <div className="card-header-band">
+                    {title}
                 </div>
                 
-                <div className="metric-content">
-                    <div className="metric-value-wrapper">
-                        <p className={`metric-value ${colorClass} ${metrics.isLoading ? 'loading-state' : metrics.error ? 'error-state' : ''}`}>
-                            {displayValue}
-                        </p>
-                    </div>
+                {/* Contenido principal: Número y Subtexto */}
+                <div className="card-content-body">
+                    <p className={`metric-value ${metrics.isLoading ? 'loading-state' : metrics.error ? 'error-state-red' : ''}`}>
+                        {displayValue}
+                    </p>
                     <p className="metric-subtext">{subtext}</p>
                 </div>
             </div>
@@ -247,19 +237,24 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         
         <header className="dashboard-header">
           <div className="header-top-bar">
+            {/* Se centra el logo y el título arriba */}
             <div className="header-logo-container">
+              {/* Nota: Usar el logo que tienes en tu proyecto */}
               <img 
                   src="/logo_flecha_roja.png" 
                   alt="Logo Flecha Roja" 
                   className="header-logo"
               />
             </div>
-            <h1 className="header-title">
-                SISTEMA DE SATISFACCION DEL CLIENTE FLECHA ROJA
+            
+            <h1 className="header-title-main">
+                SISTEMA DE SATISFACCION AL CLIENTE FLECHA ROJA
             </h1>
+            
             <button onClick={onLogout} className="btn-logout">Cerrar Sesión</button>
           </div>
   
+          {/* La barra de navegación se mantiene pero el estilo cambia en CSS */}
           <nav className="nav-bar">
             {navItems.map(item => (
               <button
@@ -276,35 +271,38 @@ const Dashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         <main className="dashboard-main-content">
           
           <div className="welcome-box">
-              <h2 className="welcome-title">
-                  Panel de Control
-              </h2>
-              <p className="welcome-subtitle">
-                  Bienvenido al sistema de Satisfacción del Cliente Flecha Roja
-              </p>
+              <h2 className="welcome-title">Panel de Control</h2>
+              <p className="welcome-subtitle">Bienvenido al Sistema de Satisfaccion al Cliente Flecha Roja</p>
           </div>
   
-          <div className="metrics-grid">
+          {/* NUEVO: Contenedor de dos columnas para la tarjeta y la gráfica */}
+          <div className="main-layout-grid">
             
-            <MetricCard 
-              title="TOTAL DE ENCUESTAS"
-              value={metrics.totalEncuestas}
-              subtext="Encuestas Realizadas en Total"
-            />
-          </div>
-
-          <div className="chart-area">
-              {metrics.isLoading ? (
-                  <p className="loading-state">Cargando datos del gráfico...</p>
-              ) : metrics.error ? (
-                  <p className="error-state">Error al cargar la gráfica: {metrics.error}</p>
-              ) : metrics.data && metrics.data.length > 0 ? (
-                  <div className="chart-wrapper">
-                      <canvas ref={chartRef} id="satisfactionChart"></canvas>
-                  </div>
-              ) : (
-                  <p className="no-data-state">No hay datos de encuestas para mostrar el gráfico.</p>
-              )}
+            {/* Columna Izquierda: Tarjeta de Métrica */}
+            <div className="sidebar-metrics">
+                <MetricCard 
+                    title="TOTAL DE ENCUESTAS"
+                    value={metrics.totalEncuestas}
+                    subtext="Encuestas Realizadas"
+                />
+            </div>
+            
+            {/* Columna Derecha: Gráfica */}
+            <div className="chart-container-wrapper">
+                <div className="chart-area">
+                    {metrics.isLoading ? (
+                        <p className="loading-state">Cargando datos del gráfico...</p>
+                    ) : metrics.error ? (
+                        <p className="error-state">Error al cargar la gráfica: {metrics.error}</p>
+                    ) : metrics.data && metrics.data.length > 0 ? (
+                        <div className="chart-wrapper">
+                            <canvas ref={chartRef} id="satisfactionChart"></canvas>
+                        </div>
+                    ) : (
+                        <p className="no-data-state">No hay datos de encuestas para mostrar el gráfico.</p>
+                    )}
+                </div>
+            </div>
           </div>
           
         </main>

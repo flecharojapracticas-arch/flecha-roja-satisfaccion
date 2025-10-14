@@ -1,248 +1,285 @@
-/* -----------------------------------------------------------------
+/* ============================================================
    VARIABLES DE COLOR
------------------------------------------------------------------ */
+============================================================ */
 :root {
-    /* Color principal (Verde Oscuro/Institucional): rgba(42, 101, 95) */
-    --primary-color: #2A655F; 
-    /* Fondo General: rgba(238, 242, 242) */
-    --background-color: #EEF2F2;
-    /* Tono para Hover/Cerrar Sesión */
-    --secondary-color: #1f4e4a;
+    --primary-color: #2A655F;            /* Verde institucional */
+    --secondary-color: #1F4E4A;          /* Verde oscuro */
+    --background-color: #F8F8F8;         /* Fondo gris claro */
+    --chart-bar-color: #56C5B6;          /* Aqua para gráficas */
+    --card-border-color: #E0E0E0;        /* Borde de tarjetas */
+    --text-dark: #444;
+    --text-light: #888;
 }
 
-/* -----------------------------------------------------------------
-   CONTENEDOR BASE
------------------------------------------------------------------ */
-.dashboard-container {
-    min-height: 120vh;
+/* ============================================================
+   BASE GLOBAL
+============================================================ */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
     background-color: var(--background-color);
-    padding-top: 80px; /* Espacio para el header fijo */
+    color: var(--text-dark);
+    line-height: 1.5;
 }
 
-/* -----------------------------------------------------------------
-   HEADER FIJO Y BARRA DE NAVEGACIÓN
------------------------------------------------------------------ */
+h1, h2, h3, h4, h5 {
+    margin: 0;
+}
+
+/* ============================================================
+   CONTENEDOR BASE
+============================================================ */
+.dashboard-container {
+    min-height: 100vh;
+    background-color: var(--background-color);
+    padding-top: 90px; /* Espacio para header fijo */
+}
+
+/* ============================================================
+   HEADER FIJO Y BARRA SUPERIOR
+============================================================ */
 .dashboard-header {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
+    inset: 0 0 auto 0;
+    z-index: 200;
     background-color: var(--primary-color);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
 .header-top-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 30px;
+}
+
+.header-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 80px;
 }
 
 .header-logo {
-    height: 60px; /* Ajuste el tamaño del logo */
+    height: 55px;
     width: auto;
 }
 
-.header-title {
-    color: white;
-    font-size: 1.2rem;
+.logo-name {
     font-weight: 800;
-    text-align: center;
-    flex-grow: 1; /* Permite que tome el espacio central */
-    margin: 0 20px;
-    letter-spacing: 1px;
+    font-size: 1.1rem;
+    color: white;
 }
 
-/* -----------------------------------------------------------------
-   BOTÓN DE CERRAR SESIÓN
------------------------------------------------------------------ */
+.header-title-main {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+    flex-grow: 1;
+    letter-spacing: 1px;
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .header-title-main {
+        display: block;
+    }
+}
+
+/* BOTÓN DE CERRAR SESIÓN */
 .btn-logout {
     background-color: var(--secondary-color);
     color: white;
     font-weight: 600;
-    padding: 8px 15px;
+    padding: 9px 18px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.25s ease;
     font-size: 0.9rem;
-    white-space: nowrap;
 }
 
 .btn-logout:hover {
-    background-color: var(--primary-color);
+    background-color: #173b38;
+    transform: translateY(-1px);
 }
 
-
-/* -----------------------------------------------------------------
-   BARRA DE NAVEGACIÓN (TABS)
------------------------------------------------------------------ */
+/* ============================================================
+   NAVEGACIÓN SECUNDARIA (TABS)
+============================================================ */
 .nav-bar {
     display: flex;
     justify-content: center;
-    padding: 10px 10px;
-    gap: 15px;
-    overflow-x: auto;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    background-color: white;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
 .nav-button {
     background-color: var(--primary-color);
     color: white;
     font-weight: 600;
-    padding: 8px 18px;
-    border: 1px solid var(--primary-color); /* Borde por defecto para consistencia */
-    border-radius: 6px;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
-    white-space: nowrap;
+    transition: all 0.25s ease;
+    font-size: 1rem;
 }
 
 .nav-button:hover:not(.active) {
     background-color: var(--secondary-color);
+    transform: translateY(-1px);
 }
 
 .nav-button.active {
-    background-color: white;
+    background-color: #E6E6E6;
     color: var(--primary-color);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--primary-color); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 
-/* -----------------------------------------------------------------
+/* ============================================================
    CONTENIDO PRINCIPAL
------------------------------------------------------------------ */
+============================================================ */
 .dashboard-main-content {
-    padding: 80px 200px;
-    max-width: 1000px;
-    margin: 0 auto; /* Centrar el contenido */
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 30px 25px;
 }
 
-/* CAJA DE BIENVENIDA */
+/* ============================================================
+   CAJA DE BIENVENIDA
+============================================================ */
 .welcome-box {
     background: white;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    margin-bottom: 35px;
+    border-radius: 15px;
+    border: 1px solid var(--card-border-color);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
     text-align: center;
-    color: var(--primary-color);
-    border: 1px solid #e0e0e0;
 }
 
 .welcome-title {
-    font-size: 2.8rem; /* Panel de Control en grande */
-    font-weight: 8000;
+    font-size: 2.3rem;
+    font-weight: 900;
     margin-bottom: 8px;
+    color: var(--primary-color);
 }
 
 .welcome-subtitle {
-    font-size: 1.4rem;
-    font-weight: 500;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--text-dark);
 }
 
-/* -----------------------------------------------------------------
-   MÉTRICAS (CAJAS)
------------------------------------------------------------------ */
-.metrics-grid {
+/* ============================================================
+   GRID PRINCIPAL (TARJETA + GRÁFICA)
+============================================================ */
+.main-layout-grid {
     display: grid;
-    gap: 15px;
-    grid-template-columns: 1fr; /* Móvil: una columna */
+    gap: 30px;
+    grid-template-columns: 300px 1fr;
+    align-items: start;
 }
 
-/* Tablet y Desktop: tres columnas */
-@media (min-width: 768px) {
-    .metrics-grid {
-        grid-template-columns: repeat(3, 1fr);
+@media (max-width: 1000px) {
+    .main-layout-grid {
+        grid-template-columns: 1fr;
     }
+
+    .sidebar-metrics { order: 1; }
+    .chart-container-wrapper { order: 2; }
 }
 
-.metric-card {
+/* ============================================================
+   TARJETA DE MÉTRICAS
+============================================================ */
+.sidebar-card {
     background: white;
-    padding: 25px;
-    border-radius: 12px;
+    border-radius: 15px;
+    border: 1px solid var(--card-border-color);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
     color: var(--primary-color);
-    border: 1px solid #e0e0e0;
-    transition: transform 0.3s ease-in-out;
-    min-height: 220px;
+    min-height: 250px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
 }
 
-.metric-card:hover {
-    transform: translateY(-5px);
-}
-
-.metric-title {
-    font-size: 0.9rem;
+.card-header-band {
+    background-color: var(--primary-color);
+    color: white;
     font-weight: 700;
+    font-size: 1rem;
     text-transform: uppercase;
-    border-bottom: 2px solid rgba(42, 101, 95, 0.2);
-    padding-bottom: 8px;
-    margin-bottom: 15px;
+    text-align: center;
+    padding: 15px 0;
 }
 
-.metric-content {
-    text-align: center;
-    flex-grow: 1;
+.card-content-body {
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 30px 20px;
 }
 
 .metric-value {
-    font-size: 3rem; /* El número grande */
+    font-size: 4rem;
     font-weight: 900;
-    margin: 0;
-    line-height: 1;
+    color: var(--text-dark);
+    margin: 15px 0 5px;
 }
 
 .metric-subtext {
-    font-size: 0.9rem; /* Letras chicas */
+    font-size: 1.1rem;
     font-weight: 500;
-    opacity: 0.8;
-    margin-top: 10px;
+    color: var(--primary-color);
 }
 
-/* CONTENIDO DE PESTAÑAS */
-.tab-content {
-    margin-top: 30px;
+/* ============================================================
+   ÁREA DE GRÁFICA
+============================================================ */
+.chart-container-wrapper {
     background: white;
     padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e0e0e0;
-    min-height: 300px;
+    border-radius: 15px;
+    border: 1px solid var(--card-border-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.tab-content-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 15px;
+.chart-area {
+    width: 100%;
+    height: 150px;
 }
 
-.tab-content-text {
-    color: #6b7280;
+.loading-state,
+.error-state,
+.no-data-state {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 }
 
-/* Ajustes para pantallas pequeñas */
-@media (max-width: 640px) {
-    .header-title {
-        font-size: 1rem;
-        margin: 0 10px;
-    }
-    .welcome-title {
-        font-size: 2rem;
-    }
-    .welcome-subtitle {
-        font-size: 1.1rem;
-    }
-    .dashboard-container {
-        padding-top: 100px; 
-    }
+/* ============================================================
+   ANIMACIONES SUAVES
+============================================================ */
+.sidebar-card, .chart-container-wrapper, .welcome-box {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sidebar-card:hover,
+.chart-container-wrapper:hover,
+.welcome-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
