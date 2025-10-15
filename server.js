@@ -51,7 +51,14 @@ app.use('/api/auth', authRouter.router);
 
 // Montar el Router de Métricas
 app.use('/api/metrics', authenticateToken, metricsRouter); 
-
+app.use('/api', authenticateToken, (req, res, next) => {
+    // Inyectar la base de datos y el nombre de la colección (necesario para surveys.js)
+    const DB_NAME = 'flecha_roja_db'; 
+    const COLLECTION_NAME = 'satisfaccion_clientes';
+    req.db = req.app.locals.client.db(DB_NAME); 
+    req.COLLECTION_NAME = COLLECTION_NAME; 
+    next();
+}, surveysRouter);
 
 // RUTA PROTEGIDA: Obtener todos los datos (para el dashboard)
 app.get('/api/data', authenticateToken, async (req, res) => {
