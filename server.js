@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 const authRouter = require('./routes/auth');
 const authenticateToken = require('./middleware/authMiddleware');
 const metricsRouter = require('./routes/metrics'); 
-const surveysRouter = require('./routes/surveys'); // 🔑 CRÍTICO: Importar el router de encuestas
+const surveysRouter = require('./routes/surveys'); // Importado correctamente
 
 const app = express();
 
@@ -17,15 +17,13 @@ const app = express();
 // *****************************************************************
 // *** CONFIGURACIÓN CRÍTICA DIRECTA ***
 // *****************************************************************
-// ⚠️ ATENCIÓN: Esta es la NUEVA URI de conexión de MongoDB Atlas.
-// Se recomienda usar variables de entorno para mayor seguridad en producción.
 const uri = "mongodb+srv://flecharoja_app:BXbwrRn5YMNi8hRk@flecha-roja-satisfaccion.bntkyvm.mongodb.net/?retryWrites=true&w=majority&appName=flecha-roja-satisfaccion"; 
 
 // Variables de configuración de la base de datos
 const port = 3000;
 const USER_SECRET = "FlechaRoja_SATISFACCION-Key-R3d-s3cr3t-2025-Qh7gKx9zP5bYt1mJ"; 
 const DB_NAME = 'flecha_roja_db'; 
-const COLLECTION_NAME = 'satisfaccion_clientes';
+const COLLECTION_NAME = 'satisfaccion_clientes'; // Usado en la inyección
 const USERS_COLLECTION = 'users'; 
 // Credenciales por defecto del admin
 const DEFAULT_ADMIN_USER = "admin";
@@ -49,17 +47,22 @@ app.use('/api/auth', authRouter.router);
 app.use('/api/metrics', authenticateToken, metricsRouter); 
 
 // *****************************************************************
-// 🔑 CRÍTICO: Montar el Router de Encuestas (Protegido y con inyección de BD)
+// 🔑 SOLUCIÓN CRÍTICA: Montar el Router de Encuestas
 // *****************************************************************
-app.use('/api/encuestas', authenticateToken, (req, res, next) => {
-    // Inyectar la base de datos para las rutas de encuestas (surveys.js)
+// 🚨 CAMBIO CRÍTICO: Montamos en '/api' para que surveys.js (que tiene /encuestas) 
+// resuelva correctamente a /api/encuestas.
+app.use('/api', authenticateToken, (req, res, next) => {
+    // Inyectar la base de datos para todas las rutas protegidas que lo necesiten
     req.db = app.locals.client.db(DB_NAME); 
+    // 🚨 SOLUCIÓN AL ERROR: Inyectar el nombre de la colección que surveys.js espera
+    req.COLLECTION_NAME = COLLECTION_NAME; 
     next();
 }, surveysRouter);
 // *****************************************************************
 
 
 // RUTA PROTEGIDA: Obtener todos los datos (para el dashboard)
+// NOTA: Esta ruta seguirá usando la forma antigua de obtener la DB (no usa req.db)
 app.get('/api/data', authenticateToken, async (req, res) => {
     try {
         const database = app.locals.client.db(DB_NAME);
@@ -90,7 +93,7 @@ app.post('/api/save_data', async (req, res) => {
         origenViaje: receivedData.origenViaje || "",
         otroDestino: receivedData.otroDestino || "",
         destinoFinal: receivedData.destinoFinal || "",
-        tipoServicio: receivedData.tipoServicio || "", // Añadido
+        tipoServicio: receivedData.tipoServicio || "", 
         medioAdquisicion: receivedData.medioAdquisicion || "",
 
         // Calificaciones y Comentarios (Experiencia de Compra)
@@ -117,14 +120,14 @@ app.post('/api/save_data', async (req, res) => {
         especificarMotivo: receivedData.especificarMotivo || "",
         
         // Campos de estado
-        validado: 'PENDIENTE', // Siempre que entra un formulario nuevo, está PENDIENTE
+        validado: 'PENDIENTE', 
         
         // Datos automáticos
         timestampServidor: new Date().toISOString(),
     };
 
     try {
-        // Acceder al cliente a través de app.locals
+        // Acceder al cliente a través de app.locals (Ruta pública)
         const database = app.locals.client.db(DB_NAME); 
         const collection = database.collection(COLLECTION_NAME);
         
