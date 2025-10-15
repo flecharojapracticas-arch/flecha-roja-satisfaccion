@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 const authRouter = require('./routes/auth');
 const authenticateToken = require('./middleware/authMiddleware');
 const metricsRouter = require('./routes/metrics'); 
-const surveysRouter = require('./routes/surveys'); // 🔑 CRÍTICO: Importar el router de encuestas
+const surveysRouter = require('./routes/surveys'); // 🔑 ADICIÓN: Importar el router de encuestas
 
 const app = express();
 
@@ -32,7 +32,7 @@ const DEFAULT_ADMIN_USER = "admin";
 const DEFAULT_ADMIN_PASS = "admin123"; 
 // *****************************************************************
 
-const client = new MongoClient(uri); // Uso del cliente global para estabilidad
+const client = new MongoClient(uri);
 
 // Middlewares Globales
 app.use(express.json());
@@ -49,21 +49,20 @@ app.use('/api/auth', authRouter.router);
 app.use('/api/metrics', authenticateToken, metricsRouter); 
 
 // *****************************************************************
-// 🔑 CORRECCIÓN DEL DASHBOARD (GET /api/encuestas) - Evita el 404 y fallos de inyección
+// 🔑 ADICIÓN 1: Montar el Router de Encuestas (CRUD)
 // *****************************************************************
-// ✅ AJUSTE 1: Montamos en '/api' para que surveys.js (que tiene /encuestas) 
-// resuelva correctamente a /api/encuestas.
+// Montamos en '/api' e inyectamos la BD y el nombre de la colección que surveys.js necesita
 app.use('/api', authenticateToken, (req, res, next) => {
     // Inyectar la base de datos
     req.db = app.locals.client.db(DB_NAME); 
-    // ✅ AJUSTE 2: Inyectar COLLECTION_NAME, que surveys.js necesita (req.COLLECTION_NAME)
+    // Inyectar el nombre de la colección que surveys.js espera
     req.COLLECTION_NAME = COLLECTION_NAME; 
     next();
 }, surveysRouter);
 // *****************************************************************
 
 
-// RUTA PROTEGIDA: Obtener todos los datos (para el dashboard - Ruta antigua)
+// RUTA PROTEGIDA: Obtener todos los datos (para el dashboard)
 app.get('/api/data', authenticateToken, async (req, res) => {
     try {
         const database = app.locals.client.db(DB_NAME);
@@ -94,6 +93,7 @@ app.post('/api/save_data', async (req, res) => {
         origenViaje: receivedData.origenViaje || "",
         otroDestino: receivedData.otroDestino || "",
         destinoFinal: receivedData.destinoFinal || "",
+        // ✅ ADICIÓN 2: Campo tipoServicio y validado que faltaban en su versión original
         tipoServicio: receivedData.tipoServicio || "", 
         medioAdquisicion: receivedData.medioAdquisicion || "",
 
@@ -121,14 +121,14 @@ app.post('/api/save_data', async (req, res) => {
         especificarMotivo: receivedData.especificarMotivo || "",
         
         // Campos de estado
-        validado: 'PENDIENTE', // Siempre que entra un formulario nuevo, está PENDIENTE
+        validado: 'PENDIENTE', // ✅ ADICIÓN 2: Campo 'validado' que faltaba
         
         // Datos automáticos
         timestampServidor: new Date().toISOString(),
     };
 
     try {
-        // ✅ AJUSTE 3: Usamos el cliente global 'client' para estabilidad en esta ruta pública.
+        // ✅ AJUSTE 3: Usamos el cliente global 'client' para estabilidad de la conexión
         const database = client.db(DB_NAME); 
         const collection = database.collection(COLLECTION_NAME);
         
