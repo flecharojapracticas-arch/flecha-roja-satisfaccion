@@ -51,7 +51,7 @@ app.use('/api/auth', authRouter.router);
 
 // Montar el Router de Métricas
 app.use('/api/metrics', authenticateToken, metricsRouter); 
-app.use('/api', authenticateToken, (req, res, next) => {
+app.use('/api/dashboard', authenticateToken, (req, res, next) => { // ⬅️ NOTA: Ahora usa /api/dashboard
     // Inyectar la base de datos y el nombre de la colección (necesario para surveys.js)
     const DB_NAME = 'flecha_roja_db'; 
     const COLLECTION_NAME = 'satisfaccion_clientes';
