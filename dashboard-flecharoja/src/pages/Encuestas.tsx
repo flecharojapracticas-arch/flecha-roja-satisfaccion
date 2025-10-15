@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import './Encuestas.css'; 
 
 // URL de la API base
@@ -20,11 +20,11 @@ interface Survey {
     califComodidad: string;
     califLimpieza: string;
     califSeguridad: string;
-    validado?: 'VALIDADO' | 'PENDIENTE' | 'ELIMINADO' | string; // Campo para el estado de validación
-    [key: string]: any; // Permite acceder a cualquier propiedad por llave
+    validado?: 'VALIDADO' | 'PENDIENTE' | 'ELIMINADO' | string; 
+    [key: string]: any; 
 }
 
-// Opciones predefinidas para los filtros Select
+// Opciones de Filtro (Se mantienen)
 const terminales = [
     'Acambay', 'Atlacomulco', 'Cadereyta', 'Chalma', 'Cuernavaca', 'El Yaqui',
     'Ixtlahuaca', 'Ixtapan de la Sal', 'Mexico Poniente', 'Mexico Norte', 'Naucalpan',
@@ -50,7 +50,7 @@ const tableHeaders = [
     'Estado', 'Acciones'
 ];
 
-// Mapeo de campos de la interfaz a claves más cortas para la tabla
+// Mapeo de campos
 const tableFieldMap: { [key: string]: keyof Survey } = {
     'ID': '_id',
     'Fecha': 'fecha',
@@ -79,9 +79,18 @@ const Encuestas: React.FC = () => {
     const [filterDestino, setFilterDestino] = useState('');
     const [filterExpectativa, setFilterExpectativa] = useState('');
 
-    // Función que devuelve los headers de la petición
+    /**
+     * FUNCIÓN CRÍTICA DE AUTENTICACIÓN (Solo para PUT/CRUD)
+     */
     const getAuthHeaders = () => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('aut-token');
+        
+        if (!token) {
+            console.error("TOKEN (aut-token) NO ENCONTRADO para operación de CRUD.");
+            // Devolvemos headers vacíos, el backend debería devolver 403
+            return { headers: {} }; 
+        }
+
         return {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -93,7 +102,7 @@ const Encuestas: React.FC = () => {
     const fetchSurveys = useCallback(async () => {
         setLoading(true);
         setError(null);
-        setSurveys([]); // Limpiar encuestas al recargar
+        setSurveys([]); 
 
         try {
             const params = new URLSearchParams();
@@ -102,25 +111,32 @@ const Encuestas: React.FC = () => {
             if (filterDestino) params.append('destinoFinal', filterDestino);
             if (filterExpectativa) params.append('cumplioExpectativas', filterExpectativa);
             
-            // Si no hay filtros, se puede pasar un parámetro para obtener "PENDIENTE" por defecto
-            // params.append('validado', 'PENDIENTE'); // Esto es una opción de negocio
-
             const url = `${API_BASE_URL}/encuestas?${params.toString()}`;
             
-            const response = await axios.get(url, getAuthHeaders());
+            // 🚨 CAMBIO CLAVE: Ya no enviamos getAuthHeaders() para que la tabla cargue
+            const response = await axios.get(url); 
             
-            // Inicializar el estado de editableData y agregar un estado 'validado' por defecto
             const initialSurveys = response.data.map((s: Survey) => ({
                 ...s,
-                // Si la encuesta no tiene el campo 'validado', lo establecemos como 'PENDIENTE'
                 validado: s.validado || 'PENDIENTE', 
             }));
             
             setSurveys(initialSurveys);
             
         } catch (err) {
-            console.error('Error al cargar encuestas:', err);
-            setError('Error al cargar encuestas. Asegúrate de que el backend esté corriendo y tu sesión sea válida.');
+            const axiosError = err as AxiosError;
+            console.error('Error al cargar encuestas:', axiosError);
+            
+            let errorMessage = 'Error al cargar encuestas. Confirma que el servidor de Render esté activo.';
+
+            if (axiosError.response && axiosError.response.status === 403) {
+                 // Este mensaje solo debería aparecer si el backend aún tiene el middleware en el GET
+                 errorMessage = `❌ Error 403: El servidor de Render todavía está protegiendo la ruta de lectura (GET). Sube los cambios del backend.`;
+            } else if (axiosError.response) {
+                errorMessage = `❌ Error ${axiosError.response.status}: Ocurrió un error en el servidor.`;
+            }
+            
+            setError(errorMessage);
             setSurveys([]);
         } finally {
             setLoading(false);
@@ -133,7 +149,7 @@ const Encuestas: React.FC = () => {
     }, [fetchSurveys]);
 
 
-    // --- Lógica de Edición y CRUD ---
+    // --- Lógica de Edición y CRUD (Usa Autenticación) ---
 
     const handleEditChange = (id: string, field: string, value: string) => {
         setEditableData(prev => ({
@@ -148,10 +164,10 @@ const Encuestas: React.FC = () => {
 
     // Función de Guardar/Actualizar
     const handleSave = async (survey: Survey) => {
+        // ... (cálculo de updates)
         const id = survey._id;
         const updates: { [key: string]: any } = {};
         
-        // Comparar datos originales con datos editables
         Object.values(tableFieldMap).forEach(key => {
             const editableKey = `${id}_${key}`;
             if (editableData[editableKey] !== undefined && editableData[editableKey] !== survey[key]) {
@@ -168,7 +184,6 @@ const Encuestas: React.FC = () => {
             const url = `${API_BASE_URL}/encuestas/${id}`;
             await axios.put(url, updates, getAuthHeaders());
             
-            // Limpiar la edición local y recargar
             setEditableData(prev => {
                 const newEdits = { ...prev };
                 Object.keys(updates).forEach(key => delete newEdits[`${id}_${key}`]);
@@ -176,15 +191,16 @@ const Encuestas: React.FC = () => {
             });
 
             alert('Encuesta actualizada correctamente.');
-            fetchSurveys(); // Recargar datos para reflejar los cambios
+            fetchSurveys(); 
 
         } catch (err) {
-            console.error('Error al guardar:', err);
-            alert('Error al guardar la encuesta. Inténtalo de nuevo.');
+             const axiosError = err as AxiosError;
+            console.error('Error al guardar:', axiosError);
+            alert(`Error al guardar la encuesta. Estado: ${axiosError.response?.status || 'Desconocido'}. **Necesitas un token de sesión VÁLIDO para hacer cambios.**`);
         }
     };
 
-    // Función para Validar (cambia el estado a VALIDADO)
+    // Función para Validar
     const handleValidate = async (id: string) => {
         try {
             const url = `${API_BASE_URL}/encuestas/${id}`;
@@ -192,116 +208,54 @@ const Encuestas: React.FC = () => {
             alert('Encuesta marcada como VALIDADA.');
             fetchSurveys();
         } catch (err) {
-            console.error('Error al validar:', err);
-            alert('Error al validar la encuesta. Inténtalo de nuevo.');
+             const axiosError = err as AxiosError;
+            console.error('Error al validar:', axiosError);
+            alert(`Error al validar la encuesta. Estado: ${axiosError.response?.status || 'Desconocido'}. **Necesitas un token de sesión VÁLIDO para hacer cambios.**`);
         }
     };
 
-    // Función para No Validar (cambia el estado a ELIMINADO)
+    // Función para No Validar (ELIMINADO)
     const handleNotValidate = async (id: string) => {
         if (!window.confirm("¿Estás seguro de que quieres NO VALIDAR esta encuesta? Será marcada como ELIMINADA.")) return;
         
         try {
             const url = `${API_BASE_URL}/encuestas/${id}`;
-            // Se usa PUT para cambiar el estado a ELIMINADO, como lo tienes en tu backend.
             await axios.put(url, { validado: 'ELIMINADO' }, getAuthHeaders()); 
             alert('Encuesta marcada como ELIMINADA.');
             fetchSurveys();
         } catch (err) {
-            console.error('Error al no validar (eliminar):', err);
-            alert('Error al no validar la encuesta. Inténtalo de nuevo.');
+             const axiosError = err as AxiosError;
+            console.error('Error al no validar (eliminar):', axiosError);
+            alert(`Error al no validar la encuesta. Estado: ${axiosError.response?.status || 'Desconocido'}. **Necesitas un token de sesión VÁLIDO para hacer cambios.**`);
         }
     };
 
-    // Reiniciar Filtros
+    // ... (El resto de las funciones de soporte se mantienen)
     const handleResetFilters = () => {
         setFolioSearch('');
         setFilterTerminal('');
         setFilterDestino('');
         setFilterExpectativa('');
-        // fetchSurveys se ejecutará automáticamente por el `useEffect`
     };
 
-    // Función auxiliar para obtener la clase de estado
     const getStatusClass = (status: string) => {
         switch (status) {
-            case 'VALIDADO':
-                return 'status-validado';
-            case 'ELIMINADO':
-                return 'status-eliminado';
-            default:
-                return 'status-pendiente';
+            case 'VALIDADO': return 'status-validado';
+            case 'ELIMINADO': return 'status-eliminado';
+            default: return 'status-pendiente';
         }
     };
 
-    // Renderizado de la tabla de encuestas
-    const renderTable = () => {
-        if (loading) return <div className="no-results">Cargando encuestas...</div>;
-        if (error) return <div className="no-results" style={{ color: 'var(--deleted-color)' }}>❌ {error}</div>;
-        if (surveys.length === 0) return <div className="no-results">No se encontraron encuestas con los filtros aplicados.</div>;
-
-        return (
-            <div className="table-container">
-                <table className="surveys-table">
-                    <thead>
-                        <tr>
-                            {tableHeaders.map(header => (
-                                <th key={header}>{header}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {surveys.map(survey => (
-                            <tr key={survey._id}>
-                                {tableHeaders.map(header => {
-                                    const field = tableFieldMap[header];
-                                    if (!field) return <td key={header} className="actions-cell">{renderActions(survey)}</td>;
-
-                                    // Renderizado de las celdas de datos
-                                    const originalValue = survey[field] || 'N/A';
-                                    const displayValue = header === 'ID' ? survey._id.slice(-5) : originalValue;
-
-                                    if (header === 'Estado') {
-                                        return (
-                                            <td key={header}>
-                                                <span className={`validation-status ${getStatusClass(originalValue as string)}`}>
-                                                    {originalValue}
-                                                </span>
-                                            </td>
-                                        );
-                                    }
-
-                                    // Las celdas son editables (excepto ID y Estado)
-                                    return (
-                                        <td key={header} className="editable-cell">
-                                            <input
-                                                type="text"
-                                                value={getEditableValue(survey._id, field, originalValue as string)}
-                                                onChange={(e) => handleEditChange(survey._id, field, e.target.value)}
-                                            />
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
-    };
-
-    // Renderizado de los botones de acción
     const renderActions = (survey: Survey) => {
         const isModified = Object.keys(editableData).some(key => key.startsWith(survey._id) && editableData[key] !== undefined);
         const isPending = survey.validado === 'PENDIENTE';
-        const isValidated = survey.validado === 'VALIDADO';
 
         return (
             <>
                 <button
                     className="action-button btn-save"
                     onClick={() => handleSave(survey)}
-                    disabled={!isModified && !isPending && !isValidated}
+                    disabled={!isModified && !isPending && survey.validado !== 'VALIDADO' && survey.validado !== 'ELIMINADO'}
                     title={isModified ? 'Guardar Cambios' : 'Actualizar Campos'}
                 >
                     {isModified ? 'Guardar' : 'Actualizar'}
@@ -328,17 +282,69 @@ const Encuestas: React.FC = () => {
             </>
         );
     };
-    
-    // Asumiendo que el logo es una imagen en public o assets
-    const logoUrl = '/assets/logo.png'; // AJUSTA ESTA RUTA SEGÚN TU PROYECTO REAL
+
+    const renderTable = () => {
+        if (loading) return <div className="no-results">Cargando encuestas...</div>;
+        if (error) return <div className="no-results error-message">❌ {error}</div>;
+        if (surveys.length === 0) return <div className="no-results">No se encontraron encuestas con los filtros aplicados.</div>;
+
+        return (
+            <div className="table-container">
+                <table className="surveys-table">
+                    <thead>
+                        <tr>
+                            {tableHeaders.map(header => (
+                                <th key={header}>{header}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {surveys.map(survey => (
+                            <tr key={survey._id}>
+                                {tableHeaders.map(header => {
+                                    const field = tableFieldMap[header];
+                                    if (!field) return <td key={header} className="actions-cell">{renderActions(survey)}</td>;
+
+                                    const originalValue = survey[field] || 'N/A';
+                                    const displayValue = header === 'ID' ? survey._id.slice(-5) : originalValue;
+
+                                    if (header === 'Estado') {
+                                        return (
+                                            <td key={header}>
+                                                <span className={`validation-status ${getStatusClass(originalValue as string)}`}>
+                                                    {originalValue}
+                                                </span>
+                                            </td>
+                                        );
+                                    }
+
+                                    return (
+                                        <td key={header} className="editable-cell">
+                                            <input
+                                                type="text"
+                                                value={getEditableValue(survey._id, field, originalValue as string)}
+                                                onChange={(e) => handleEditChange(survey._id, field, e.target.value)}
+                                                disabled={header === 'ID'}
+                                            />
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
+
+    const logoUrl = '/assets/logo.png'; 
 
     return (
         <div className="dashboard-container">
-            {/* Encabezado fijo (según tu plantilla) */}
+            {/* Encabezado fijo */}
             <header className="dashboard-header">
                 <div className="header-top-bar">
                     <div className="header-logo-container">
-                        {/* <Image of Red Arrow Logo> */}
                         <img src={logoUrl} alt="Logo Flecha Roja" className="header-logo" />
                         <span className="logo-name">Flecha Roja S.A. de C.V.</span>
                     </div>
@@ -346,14 +352,13 @@ const Encuestas: React.FC = () => {
                     <button 
                         className="btn-logout" 
                         onClick={() => { 
-                            localStorage.removeItem('token'); 
-                            window.location.reload(); // O usar useNavigate para redirigir al login
+                            localStorage.removeItem('aut-token'); 
+                            window.location.reload(); 
                         }}
                     >
                         Cerrar Sesión
                     </button>
                 </div>
-                {/* NOTA: Se asume que la barra de navegación (nav-bar) está en el componente padre o se omite aquí */}
             </header>
 
             <main className="dashboard-main-content">

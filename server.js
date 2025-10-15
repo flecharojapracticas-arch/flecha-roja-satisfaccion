@@ -12,6 +12,7 @@ const authRouter = require('./routes/auth');
 const authenticateToken = require('./middleware/authMiddleware');
 const metricsRouter = require('./routes/metrics'); 
 const surveysRouter = require('./routes/surveys');
+const { injectDbMiddleware } = require('./middleware/dbMiddleware'); 
 
 const app = express();
 
@@ -36,6 +37,9 @@ const DEFAULT_ADMIN_PASS = "admin123";
 // *****************************************************************
 
 const client = new MongoClient(uri);
+
+app.use('/api/dashboard/encuestas', injectDbMiddleware, surveysRouter);
+
 
 // Middlewares Globales
 app.use(express.json());
