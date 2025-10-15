@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 const authRouter = require('./routes/auth');
 const authenticateToken = require('./middleware/authMiddleware');
 const metricsRouter = require('./routes/metrics'); 
-const surveysRouter = require('./routes/surveys'); // 🔑 MODIFICACIÓN 1: Importar el router de encuestas
+const surveysRouter = require('./routes/surveys'); // 🔑 OBLIGATORIO: Importar el router de encuestas
 
 const app = express();
 
@@ -52,16 +52,13 @@ app.use('/api/auth', authRouter.router);
 // Montar el Router de Métricas
 app.use('/api/metrics', authenticateToken, metricsRouter); 
 
-// *****************************************************************
-// 🔑 MODIFICACIÓN 2: Montaje del Dashboard/CRUD (rutas /api/encuestas)
-// *****************************************************************
+// 🔑 OBLIGATORIO: Montaje del Dashboard/CRUD (rutas /api/encuestas)
 app.use('/api', authenticateToken, (req, res, next) => {
     // Inyectar la base de datos y el nombre de la colección
     req.db = app.locals.client.db(DB_NAME); 
     req.COLLECTION_NAME = COLLECTION_NAME; 
     next();
-}, surveysRouter); // Monta el router surveys.js aquí
-// *****************************************************************
+}, surveysRouter); 
 
 
 // RUTA PROTEGIDA: Obtener todos los datos (para el dashboard - Ruta antigua)
@@ -104,7 +101,7 @@ app.post('/api/save_data', async (req, res) => {
         comentExperienciaCompra: receivedData.comentExperienciaCompra || "",
         
         // Calificaciones y Comentarios (Servicio del Conductor)
-        califServicioConductor: receivedData.califServicioConductor || "", // ⬅️ **CORREGIDO**
+        califServicioConductor: receivedData.califServicioConductor || "", // ⬅️ **TU CÓDIGO ORIGINAL**
         comentServicioConductor: receivedData.comentServicioConductor || "",
         
         // Calificaciones y Comentarios (Comodidad a bordo)
@@ -119,10 +116,8 @@ app.post('/api/save_data', async (req, res) => {
         califSeguridad: receivedData.califSeguridad || "",
         especifSeguridad: receivedData.especifSeguridad || "",
         
-        cumplioExpectativas: receivedData.cumplioExpectativas || "", // ⬅️ **CORREGIDO**
+        cumplioExpectativas: receivedData.cumplioExpectativas || "", // ⬅️ **TU CÓDIGO ORIGINAL**
         especificarMotivo: receivedData.especificarMotivo || "",
-
-        validado: receivedData.validado || "PENDIENTE", // 🔑 MODIFICACIÓN 3: Agregado el campo 'validado'
         
         // Datos automáticos
         timestampServidor: new Date().toISOString(),
