@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios, { AxiosError } from 'axios';
 import './Encuestas.css'; 
+// 
 
-// URL de la API base
 const API_BASE_URL = 'https://flecha-roja-satisfaccion.onrender.com/api/dashboard';
 
-// Definición de la interfaz de la encuesta
+// Interfaz de la Encuesta (Asegura la tipificación de los datos)
 interface Survey {
     _id: string;
     claveEncuestador: string;
@@ -14,7 +14,7 @@ interface Survey {
     folioBoleto: string;
     origenViaje: string;
     destinoFinal: string;
-    cumplioExpectativas: 'Muy Buena' | 'Buena' | 'Regular' | 'Mala' | 'Muy Mala' | string;
+    cumplioExpectativas: string;
     califExperienciaCompra: string;
     califServicioConductor: string;
     califComodidad: string;
@@ -24,7 +24,7 @@ interface Survey {
     [key: string]: any; 
 }
 
-// Opciones de Filtro (Se mantienen)
+// Opciones de Filtro
 const terminales = [
     'Acambay', 'Atlacomulco', 'Cadereyta', 'Chalma', 'Cuernavaca', 'El Yaqui',
     'Ixtlahuaca', 'Ixtapan de la Sal', 'Mexico Poniente', 'Mexico Norte', 'Naucalpan',
@@ -43,14 +43,13 @@ const destinos = [
 
 const expectativas = ['Muy Buena', 'Buena', 'Regular', 'Mala', 'Muy Mala'];
 
-// Definición de las columnas de la tabla
+// Mapeo de columnas para la tabla
 const tableHeaders = [
     'ID', 'Fecha', 'Boleto', 'Origen', 'Destino', 'Expectativa', 
     'Compra', 'Conductor', 'Comodidad', 'Limpieza', 'Seguridad', 
     'Estado', 'Acciones'
 ];
 
-// Mapeo de campos
 const tableFieldMap: { [key: string]: keyof Survey } = {
     'ID': '_id',
     'Fecha': 'fecha',
@@ -80,14 +79,13 @@ const Encuestas: React.FC = () => {
     const [filterExpectativa, setFilterExpectativa] = useState('');
 
     /**
-     * FUNCIÓN CRÍTICA DE AUTENTICACIÓN (Solo para PUT/CRUD)
+     * Obtiene los headers de autorización para operaciones de CRUD (PUT)
      */
     const getAuthHeaders = () => {
         const token = localStorage.getItem('aut-token');
         
         if (!token) {
-            console.error("TOKEN (aut-token) NO ENCONTRADO para operación de CRUD.");
-            // Devolvemos headers vacíos, el backend debería devolver 403
+            console.error("TOKEN (aut-token) NO ENCONTRADO para operación de CRUD. Inicia sesión.");
             return { headers: {} }; 
         }
 
@@ -98,7 +96,7 @@ const Encuestas: React.FC = () => {
         };
     };
 
-    // Función para obtener las encuestas con filtros
+    // Función para obtener las encuestas con filtros (SIN AUTENTICACIÓN)
     const fetchSurveys = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -106,18 +104,20 @@ const Encuestas: React.FC = () => {
 
         try {
             const params = new URLSearchParams();
+            // Mapeo a los nombres de variables del Backend (routes/surveys.js)
             if (folioSearch) params.append('folioBoleto', folioSearch);
-            if (filterTerminal) params.append('origenViaje', filterTerminal);
-            if (filterDestino) params.append('destinoFinal', filterDestino);
-            if (filterExpectativa) params.append('cumplioExpectativas', filterExpectativa);
+            if (filterTerminal) params.append('filterTerminal', filterTerminal); 
+            if (filterDestino) params.append('filterDestino', filterDestino);
+            if (filterExpectativa) params.append('filterExpectativa', filterExpectativa);
             
             const url = `${API_BASE_URL}/encuestas?${params.toString()}`;
             
-            // 🚨 CAMBIO CLAVE: Ya no enviamos getAuthHeaders() para que la tabla cargue
+            // Petición GET sin header de autorización
             const response = await axios.get(url); 
             
             const initialSurveys = response.data.map((s: Survey) => ({
                 ...s,
+                // Asegurar que el campo 'validado' exista, por defecto 'PENDIENTE'
                 validado: s.validado || 'PENDIENTE', 
             }));
             
@@ -127,13 +127,9 @@ const Encuestas: React.FC = () => {
             const axiosError = err as AxiosError;
             console.error('Error al cargar encuestas:', axiosError);
             
-            let errorMessage = 'Error al cargar encuestas. Confirma que el servidor de Render esté activo.';
-
-            if (axiosError.response && axiosError.response.status === 403) {
-                 // Este mensaje solo debería aparecer si el backend aún tiene el middleware en el GET
-                 errorMessage = `❌ Error 403: El servidor de Render todavía está protegiendo la ruta de lectura (GET). Sube los cambios del backend.`;
-            } else if (axiosError.response) {
-                errorMessage = `❌ Error ${axiosError.response.status}: Ocurrió un error en el servidor.`;
+            let errorMessage = 'Error al cargar encuestas. Verifique la conexión con Render.';
+            if (axiosError.response) {
+                errorMessage = `❌ Error ${axiosError.response.status}: Asegúrese que el backend en Render esté corriendo y sin fallos.`;
             }
             
             setError(errorMessage);
@@ -162,16 +158,21 @@ const Encuestas: React.FC = () => {
         return editableData[`${id}_${field}`] !== undefined ? editableData[`${id}_${field}`] : originalValue;
     };
 
-    // Función de Guardar/Actualizar
     const handleSave = async (survey: Survey) => {
-        // ... (cálculo de updates)
         const id = survey._id;
         const updates: { [key: string]: any } = {};
         
         Object.values(tableFieldMap).forEach(key => {
+            // Solo considerar campos que no sean _id
+            if (key === '_id') return; 
+
             const editableKey = `${id}_${key}`;
-            if (editableData[editableKey] !== undefined && editableData[editableKey] !== survey[key]) {
-                updates[key] = editableData[editableKey];
+            const editableValue = editableData[editableKey];
+            const originalValue = survey[key];
+
+            // Si el valor editado es diferente al valor original en la base de datos
+            if (editableValue !== undefined && editableValue !== originalValue) {
+                updates[key] = editableValue;
             }
         });
 
@@ -184,6 +185,7 @@ const Encuestas: React.FC = () => {
             const url = `${API_BASE_URL}/encuestas/${id}`;
             await axios.put(url, updates, getAuthHeaders());
             
+            // Limpiar datos editables después de guardar
             setEditableData(prev => {
                 const newEdits = { ...prev };
                 Object.keys(updates).forEach(key => delete newEdits[`${id}_${key}`]);
@@ -196,11 +198,10 @@ const Encuestas: React.FC = () => {
         } catch (err) {
              const axiosError = err as AxiosError;
             console.error('Error al guardar:', axiosError);
-            alert(`Error al guardar la encuesta. Estado: ${axiosError.response?.status || 'Desconocido'}. **Necesitas un token de sesión VÁLIDO para hacer cambios.**`);
+            alert(`Error al guardar. **Error ${axiosError.response?.status || 'Desconocido'}: Necesitas un token de sesión VÁLIDO para hacer cambios.**`);
         }
     };
 
-    // Función para Validar
     const handleValidate = async (id: string) => {
         try {
             const url = `${API_BASE_URL}/encuestas/${id}`;
@@ -210,27 +211,36 @@ const Encuestas: React.FC = () => {
         } catch (err) {
              const axiosError = err as AxiosError;
             console.error('Error al validar:', axiosError);
-            alert(`Error al validar la encuesta. Estado: ${axiosError.response?.status || 'Desconocido'}. **Necesitas un token de sesión VÁLIDO para hacer cambios.**`);
+            alert(`Error al validar. **Error ${axiosError.response?.status || 'Desconocido'}: Necesitas un token de sesión VÁLIDO para hacer cambios.**`);
         }
     };
 
-    // Función para No Validar (ELIMINADO)
     const handleNotValidate = async (id: string) => {
-        if (!window.confirm("¿Estás seguro de que quieres NO VALIDAR esta encuesta? Será marcada como ELIMINADA.")) return;
+        if (!window.confirm("¿Estás seguro de que quieres NO VALIDAR esta encuesta? Se marcará como ELIMINADA.")) return;
         
+        // Enviamos un flag especial al backend para que sepa que debe borrar el documento
+        const isDeleteConfirmed = window.confirm("¿Confirmas la ELIMINACIÓN PERMANENTE de esta encuesta de la base de datos? (De lo contrario, solo se marcará como ELIMINADO)");
+        
+        const updatePayload = isDeleteConfirmed ? 
+            { validado: 'ELIMINADO_Y_BORRAR' } : 
+            { validado: 'ELIMINADO' };
+
         try {
             const url = `${API_BASE_URL}/encuestas/${id}`;
-            await axios.put(url, { validado: 'ELIMINADO' }, getAuthHeaders()); 
-            alert('Encuesta marcada como ELIMINADA.');
+            const response = await axios.put(url, updatePayload, getAuthHeaders()); 
+            
+            alert(response.data.message.includes("eliminada") 
+                ? 'Encuesta eliminada permanentemente.' 
+                : 'Encuesta marcada como ELIMINADA.');
+
             fetchSurveys();
         } catch (err) {
              const axiosError = err as AxiosError;
             console.error('Error al no validar (eliminar):', axiosError);
-            alert(`Error al no validar la encuesta. Estado: ${axiosError.response?.status || 'Desconocido'}. **Necesitas un token de sesión VÁLIDO para hacer cambios.**`);
+            alert(`Error al no validar. **Error ${axiosError.response?.status || 'Desconocido'}: Necesitas un token de sesión VÁLIDO para hacer cambios.**`);
         }
     };
 
-    // ... (El resto de las funciones de soporte se mantienen)
     const handleResetFilters = () => {
         setFolioSearch('');
         setFilterTerminal('');
@@ -249,16 +259,17 @@ const Encuestas: React.FC = () => {
     const renderActions = (survey: Survey) => {
         const isModified = Object.keys(editableData).some(key => key.startsWith(survey._id) && editableData[key] !== undefined);
         const isPending = survey.validado === 'PENDIENTE';
+        const isEditable = isModified || isPending || survey.validado === 'VALIDADO' || survey.validado === 'ELIMINADO';
 
         return (
             <>
                 <button
                     className="action-button btn-save"
                     onClick={() => handleSave(survey)}
-                    disabled={!isModified && !isPending && survey.validado !== 'VALIDADO' && survey.validado !== 'ELIMINADO'}
+                    disabled={!isModified && isPending}
                     title={isModified ? 'Guardar Cambios' : 'Actualizar Campos'}
                 >
-                    {isModified ? 'Guardar' : 'Actualizar'}
+                    {isModified ? 'Guardar' : 'Editar'}
                 </button>
                 
                 {isPending && (
@@ -303,11 +314,15 @@ const Encuestas: React.FC = () => {
                             <tr key={survey._id}>
                                 {tableHeaders.map(header => {
                                     const field = tableFieldMap[header];
-                                    if (!field) return <td key={header} className="actions-cell">{renderActions(survey)}</td>;
+                                    
+                                    // Columna de Acciones
+                                    if (header === 'Acciones') return <td key={header} className="actions-cell">{renderActions(survey)}</td>;
 
                                     const originalValue = survey[field] || 'N/A';
-                                    const displayValue = header === 'ID' ? survey._id.slice(-5) : originalValue;
+                                    // Mostrar solo los últimos 5 caracteres del ID para ahorrar espacio
+                                    const displayValue = header === 'ID' ? String(survey._id).slice(-5) : originalValue;
 
+                                    // Columna de Estado (Tags de color)
                                     if (header === 'Estado') {
                                         return (
                                             <td key={header}>
@@ -318,13 +333,14 @@ const Encuestas: React.FC = () => {
                                         );
                                     }
 
+                                    // Celdas Editables
                                     return (
                                         <td key={header} className="editable-cell">
                                             <input
                                                 type="text"
                                                 value={getEditableValue(survey._id, field, originalValue as string)}
                                                 onChange={(e) => handleEditChange(survey._id, field, e.target.value)}
-                                                disabled={header === 'ID'}
+                                                disabled={header === 'ID' || header === 'Fecha'} // No se debe editar ID ni Fecha
                                             />
                                         </td>
                                     );
@@ -341,7 +357,7 @@ const Encuestas: React.FC = () => {
 
     return (
         <div className="dashboard-container">
-            {/* Encabezado fijo */}
+            {/* Encabezado fijo (mantiene tu estructura) */}
             <header className="dashboard-header">
                 <div className="header-top-bar">
                     <div className="header-logo-container">
@@ -369,7 +385,7 @@ const Encuestas: React.FC = () => {
                         <h3>Filtros de Encuestas</h3>
                         <div className="filter-grid">
                             
-                            {/* 1. FILTRO POR FOLIO DE BOLETO */}
+                            {/* 1. FILTRO POR FOLIO DE BOLETO (Buscar) */}
                             <div className="filter-group">
                                 <label htmlFor="folioSearch">Buscar por Folio de Boleto</label>
                                 <div className="search-input-group">
@@ -399,7 +415,7 @@ const Encuestas: React.FC = () => {
                                     value={filterTerminal}
                                     onChange={(e) => setFilterTerminal(e.target.value)}
                                 >
-                                    <option value="">-- Seleccionar Terminal --</option>
+                                    <option value="">-- Todas las Terminales --</option>
                                     {terminales.map(t => (
                                         <option key={t} value={t}>{t}</option>
                                     ))}
@@ -414,7 +430,7 @@ const Encuestas: React.FC = () => {
                                     value={filterDestino}
                                     onChange={(e) => setFilterDestino(e.target.value)}
                                 >
-                                    <option value="">-- Seleccionar Destino --</option>
+                                    <option value="">-- Todos los Destinos --</option>
                                     {destinos.map(d => (
                                         <option key={d} value={d}>{d}</option>
                                     ))}
@@ -429,7 +445,7 @@ const Encuestas: React.FC = () => {
                                     value={filterExpectativa}
                                     onChange={(e) => setFilterExpectativa(e.target.value)}
                                 >
-                                    <option value="">-- Seleccionar Experiencia --</option>
+                                    <option value="">-- Todas las Experiencias --</option>
                                     {expectativas.map(e => (
                                         <option key={e} value={e}>{e}</option>
                                     ))}
@@ -437,7 +453,7 @@ const Encuestas: React.FC = () => {
                             </div>
                             
                             {/* BOTÓN DE REINICIAR */}
-                            <div className="filter-group" style={{gridColumn: '4 / 5'}}>
+                            <div className="filter-group">
                                 <button className="btn-reset" onClick={handleResetFilters}>
                                     Reiniciar Filtros
                                 </button>
@@ -446,7 +462,6 @@ const Encuestas: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Tabla de Encuestas */}
                     <h2>Tabla de Encuestas de Satisfacción</h2>
                     {renderTable()}
                 </div>

@@ -1,65 +1,36 @@
 /* ============================================================
-    SISTEMA DE DISEÑO - VARIABLES GLOBALES
-    
-    Este archivo define todas las variables CSS personalizadas
-    que se utilizan en todo el dashboard para mantener
-    consistencia visual y facilitar el mantenimiento.
+   SISTEMA DE DISEÑO - VARIABLES GLOBALES
 ============================================================ */
 :root {
-    /* ========== PALETA DE COLORES ========== */
-    /* Color principal del tema institucional verde */
     --primary-color: #2a655f;
-    /* Color secundario para estados hover y elementos destacados */
     --secondary-color: #1f4e4a;
-    /* Color de fondo general de la aplicación */
     --background-color: #f8f8f8;
-    /* Color para las barras de gráficas */
-    --chart-bar-color: #56c5b6;
-    /* Color de bordes para tarjetas y contenedores */
     --card-border-color: #e0e0e0;
-    /* Colores de texto */
-    --text-dark: #444; /* Texto principal */
-    --text-light: #888; /* Texto secundario/subtítulos */
+    --text-dark: #444;
+    --text-light: #888; 
 
-    /* ========== SISTEMA DE ESPACIADO ========== */
-    /* <AJUSTE> Escala de espaciado - Reduce estos valores para hacer todo más compacto */
-    --spacing-xs: 4px; /* Extra pequeño - espacios mínimos */
-    --spacing-sm: 8px; /* Pequeño - espacios compactos */
-    --spacing-md: 12px; /* Mediano - espaciado estándar */
-    --spacing-lg: 16px; /* Grande - separación entre secciones */
-    --spacing-xl: 20px; /* Extra grande - márgenes principales */
-    --spacing-2xl: 24px; /* Doble extra grande - separaciones mayores */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    
+    --radius-sm: 6px;
+    --radius-lg: 10px;
 
-    /* ========== RADIOS DE BORDE ========== */
-    /* Valores consistentes para esquinas redondeadas */
-    --radius-sm: 6px; /* Pequeño - botones y elementos pequeños */
-    --radius-md: 8px; /* Mediano - tarjetas secundarias */
-    --radius-lg: 10px; /* Grande - tarjetas principales */
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-header: 0 2px 8px rgba(0, 0, 0, 0.15);
 
-    /* ========== SISTEMA DE SOMBRAS ========== */
-    /* Jerarquía de elevación visual mediante sombras */
-    --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06); /* Sombra sutil */
-    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08); /* Sombra media */
-    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12); /* Sombra pronunciada */
-    --shadow-header: 0 2px 8px rgba(0, 0, 0, 0.15); /* Sombra específica para header */
-
-    /* ========== TRANSICIONES ========== */
-    /* Duraciones estándar para animaciones suaves */
-    --transition-fast: 0.2s ease; /* Transición rápida - hover, clicks */
-    --transition-medium: 0.3s ease; /* Transición media - cambios de estado */
-
-    /* COLORES ESPECÍFICOS PARA ESTADOS DE VALIDACIÓN */
-    --validated-color: #28a745; /* Verde para validado */
-    --pending-color: #ffc107; /* Amarillo para pendiente */
-    --deleted-color: #dc3545; /* Rojo para eliminado */
-    --update-color: #007bff; /* Azul para actualizar */
+    --transition-fast: 0.2s ease;
 }
 
 /* ============================================================
-    ESTILOS BASE GLOBALES
+   ESTILOS BASE GLOBALES Y ESTRUCTURA DE PANTALLA
 ============================================================ */
 * {
     box-sizing: border-box;
+    /* Ajuste para 100% de zoom */
+    font-size: 15px; 
 }
 
 body {
@@ -73,27 +44,21 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3 {
     margin: 0;
     line-height: 1.2;
+    color: var(--primary-color);
 }
 
-/* ============================================================
-    CONTENEDOR PRINCIPAL DEL DASHBOARD
-============================================================ */
+/* Contenedor principal del dashboard (mantiene la estructura general) */
 .dashboard-container {
     min-height: 100vh;
     background-color: var(--background-color);
-    padding-top: 90px; 
+    padding-top: 60px; /* Ajustado para un header de una sola barra */
 }
 
 /* ============================================================
-    HEADER FIJO - ESTRUCTURA DE DOS NIVELES
+   HEADER FIJO (Mantenimiento de Estructura Institucional)
 ============================================================ */
 .dashboard-header {
     position: fixed;
@@ -103,33 +68,34 @@ h6 {
     z-index: 200;
     background-color: var(--primary-color);
     box-shadow: var(--shadow-header);
+    height: 60px; /* Altura fija para la barra superior */
 }
 
-/* ========== BARRA SUPERIOR DEL HEADER ========== */
 .header-top-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: var(--spacing-sm) var(--spacing-lg);
     gap: var(--spacing-md);
+    height: 100%;
 }
 
 .header-logo-container {
     display: flex;
     align-items: center;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
     flex-shrink: 0;
 }
 
 .header-logo {
-    height: 40px;
+    height: 35px; /* Ligeramente más compacto */
     width: auto;
     display: block;
 }
 
 .logo-name {
     font-weight: 700;
-    font-size: 0.9375rem;
+    font-size: 0.9375rem; 
     color: white;
     white-space: nowrap;
 }
@@ -141,21 +107,13 @@ h6 {
     text-align: center;
     flex: 1;
     letter-spacing: 0.3px;
-    display: none;
 }
 
-@media (min-width: 768px) {
-    .header-title-main {
-        display: block;
-    }
-}
-
-/* ========== BOTÓN DE CERRAR SESIÓN ========== */
 .btn-logout {
     background-color: var(--secondary-color);
     color: white;
     font-weight: 600;
-    padding: 8px 16px;
+    padding: 6px 14px;
     border: none;
     border-radius: var(--radius-sm);
     cursor: pointer;
@@ -175,66 +133,23 @@ h6 {
     transform: translateY(0);
 }
 
-/* ============================================================
-    BARRA DE NAVEGACIÓN (TABS)
-============================================================ */
-.nav-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background-color: white;
-    box-shadow: var(--shadow-sm);
-}
-
-.nav-button {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: 600;
-    padding: 8px 20px;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-size: 0.875rem;
-    white-space: nowrap;
-}
-
-.nav-button:hover:not(.active) {
-    background-color: var(--secondary-color);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.nav-button:active:not(.active) {
-    transform: translateY(0);
-}
-
-.nav-button.active {
-    background-color: #e6e6e6;
-    color: var(--primary-color);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-}
-
-/* ============================================================
-    CONTENIDO PRINCIPAL
-============================================================ */
+/* Contenido Principal */
 .dashboard-main-content {
-    max-width: 1400px;
+    max-width: 1500px; /* Aumentado para dar espacio a la tabla */
     margin: 0 auto;
     padding: var(--spacing-lg) var(--spacing-md);
 }
 
 /* ============================================================
-    ESTILOS ESPECÍFICOS DE ENCUESTAS
+   ESTILOS DE LA SECCIÓN DE ENCUESTAS (Filtros y Tabla)
 ============================================================ */
-.surveys-section {
-    padding: var(--spacing-lg) 0;
+.surveys-section h2 {
+    margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
-/* ========== CONTENEDOR DE FILTROS ========== */
+/* ========== CAJA DE FILTROS ========== */
 .filter-box {
     background: white;
     padding: var(--spacing-lg);
@@ -244,48 +159,39 @@ h6 {
     box-shadow: var(--shadow-md);
 }
 
+.filter-box h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-dark);
+}
+
 .filter-grid {
     display: grid;
-    /* 4 columnas para escritorio */
-    grid-template-columns: repeat(4, 1fr); 
-    gap: var(--spacing-lg);
+    /* 5 columnas: 4 filtros + 1 botón de reset */
+    grid-template-columns: repeat(5, 1fr); 
+    gap: var(--spacing-md);
     align-items: end;
 }
 
-@media (max-width: 1024px) {
-    /* 2 columnas para tablet */
-    .filter-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 500px) {
-    /* 1 columna para móvil */
-    .filter-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Estilos de los inputs y selects */
 .filter-group {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
 }
 
 .filter-group label {
-    font-weight: 600;
     font-size: 0.875rem;
-    color: var(--text-dark);
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: var(--spacing-xs);
 }
 
 .filter-group input,
 .filter-group select {
-    padding: 8px 12px;
+    padding: 8px;
     border: 1px solid var(--card-border-color);
     border-radius: var(--radius-sm);
-    font-size: 0.9375rem;
-    color: var(--text-dark);
+    font-size: 0.9rem;
     transition: border-color var(--transition-fast);
 }
 
@@ -295,72 +201,93 @@ h6 {
     outline: none;
 }
 
-/* Botón de búsqueda (en la misma fila que el input de folio) */
 .search-input-group {
     display: flex;
-    gap: var(--spacing-sm);
-    align-items: end;
+    gap: var(--spacing-xs);
 }
 
 .search-input-group input {
     flex: 1;
 }
 
+/* Botones de acción y búsqueda */
 .btn-search,
 .btn-reset {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: 600;
-    padding: 9px var(--spacing-lg);
+    padding: 8px 12px;
     border: none;
     border-radius: var(--radius-sm);
+    font-weight: 600;
     cursor: pointer;
     transition: background-color var(--transition-fast);
-    font-size: 0.9375rem;
-    flex-shrink: 0;
+    font-size: 0.9rem;
+    min-width: 80px;
 }
 
-.btn-reset {
-    background-color: var(--text-light);
+.btn-search {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 .btn-search:hover {
     background-color: var(--secondary-color);
 }
 
-.btn-reset:hover {
-    background-color: #6c757d;
+.btn-reset {
+    background-color: #a8a8a8;
+    color: white;
+    width: 100%;
+    margin-top: 20px; /* Separación visual del título */
 }
 
-/* ========== CONTENEDOR DE LA TABLA (Scrollable) ========== */
+.btn-reset:hover {
+    background-color: #888;
+}
+
+/* Responsive para Filtros */
+@media (max-width: 1200px) {
+    .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .filter-group:nth-child(5) { /* Botón Reset */
+        grid-column: span 2;
+    }
+}
+@media (max-width: 768px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+    .filter-group:nth-child(5) {
+        grid-column: span 1;
+    }
+}
+
+
+/* ========== TABLA DE ENCUESTAS ========== */
 .table-container {
-    background: white;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--card-border-color);
-    box-shadow: var(--shadow-md);
-    /* Solución para tablas grandes: contenedor con scroll horizontal */
+    /* CRÍTICO: Permite el desplazamiento horizontal de la tabla */
     overflow-x: auto;
-    margin-bottom: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    background: white;
 }
 
 .surveys-table {
     width: 100%;
-    /* Asegura que la tabla no se colapse al ser ancha */
-    min-width: 1200px; 
     border-collapse: collapse;
+    min-width: 1400px; /* Mínimo para que la tabla no se colapse verticalmente */
 }
 
-/* Encabezado de la tabla */
 .surveys-table thead th {
     background-color: var(--secondary-color);
     color: white;
-    font-weight: 700;
-    font-size: 0.75rem; /* Letra más pequeña para encabezados */
+    padding: var(--spacing-md);
     text-align: left;
-    padding: var(--spacing-md) var(--spacing-lg);
-    white-space: nowrap;
+    font-weight: 700;
+    font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
 }
 
 .surveys-table tbody tr {
@@ -372,99 +299,105 @@ h6 {
     background-color: #f0f0f0;
 }
 
-.surveys-table tbody td {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    font-size: 0.875rem; /* 14px para los datos */
-    color: var(--text-dark);
-    /* Permite editar directamente en la celda */
-    word-break: break-word; 
-    max-width: 200px; /* Limita el ancho de celdas largas */
+.surveys-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+    vertical-align: middle;
+    white-space: nowrap; /* Evita que el texto de la tabla se rompa */
 }
 
-/* Estilos de los inputs editables en la tabla */
+/* Celdas Editables */
 .editable-cell input {
     width: 100%;
-    padding: 4px;
-    border: 1px solid var(--card-border-color);
+    min-width: 80px; /* Mínimo para entradas de texto */
+    padding: 6px;
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
-    font-size: 0.875rem;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+    font-size: inherit;
+    font-weight: 500;
+    background-color: transparent;
 }
 
-/* Columna de acciones (botones) */
+.editable-cell input:hover,
+.editable-cell input:focus {
+    border-color: var(--card-border-color);
+    background-color: #fff;
+}
+
+/* Columna de acciones */
 .actions-cell {
-    white-space: nowrap;
     text-align: center;
+    min-width: 220px; /* Suficiente espacio para los 3 botones */
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
 }
 
-/* ========== ESTILOS DE BOTONES DE ACCIÓN ========== */
 .action-button {
     padding: 6px 10px;
-    margin-right: var(--spacing-sm);
     border: none;
     border-radius: var(--radius-sm);
-    cursor: pointer;
+    font-size: 0.8rem;
     font-weight: 600;
-    font-size: 0.8125rem; /* 13px */
+    cursor: pointer;
     transition: all var(--transition-fast);
 }
 
-/* Botón de Actualizar/Guardar */
+/* Estilos específicos de botones de acción */
 .btn-save {
-    background-color: var(--update-color);
+    background-color: #ff9800; /* Naranja para Guardar */
     color: white;
 }
-.btn-save:hover {
-    background-color: #0056b3;
-}
+.btn-save:hover { background-color: #e68900; }
+.btn-save:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/* Botón de Validar */
 .btn-validate {
-    background-color: var(--validated-color);
+    background-color: #4caf50; /* Verde para Validar */
     color: white;
 }
-.btn-validate:hover {
-    background-color: #1e7e34;
-}
+.btn-validate:hover { background-color: #388e3c; }
 
-/* Botón de No Validar (Eliminar) */
 .btn-delete {
-    background-color: var(--deleted-color);
+    background-color: #f44336; /* Rojo para No Validar/Eliminar */
     color: white;
 }
-.btn-delete:hover {
-    background-color: #bd2130;
-}
+.btn-delete:hover { background-color: #d32f2f; }
 
-/* Estado de Validación en la tabla */
+/* Indicadores de Estado */
 .validation-status {
     padding: 4px 8px;
-    border-radius: var(--radius-sm);
+    border-radius: 4px;
+    font-size: 0.8rem;
     font-weight: 700;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    display: inline-block;
-}
-
-.status-validado {
-    background-color: var(--validated-color);
-    color: white;
+    text-transform: uppercase;
 }
 
 .status-pendiente {
-    background-color: var(--pending-color);
-    color: var(--text-dark);
+    background-color: #fff3e0;
+    color: #ff9800;
+}
+
+.status-validado {
+    background-color: #e8f5e9;
+    color: #4caf50;
 }
 
 .status-eliminado {
-    background-color: var(--deleted-color);
-    color: white;
+    background-color: #ffebee;
+    color: #f44336;
 }
 
-/* ========== ESTADOS VACÍOS / CARGA ========== */
+/* Mensajes de Estado */
 .no-results {
+    padding: var(--spacing-xl);
     text-align: center;
-    padding: var(--spacing-2xl);
-    font-size: 1.125rem;
+    font-size: 1.1rem;
     color: var(--text-light);
-    grid-column: 1 / -1; /* Ocupa todo el ancho si está dentro de un grid */
+}
+
+.error-message {
+    color: #d32f2f;
+    font-weight: 600;
 }
