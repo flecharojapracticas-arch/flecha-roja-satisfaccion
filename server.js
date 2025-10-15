@@ -9,6 +9,8 @@ const bcrypt = require('bcryptjs');
 const authRouter = require('./routes/auth');
 const authenticateToken = require('./middleware/authMiddleware');
 const metricsRouter = require('./routes/metrics'); 
+// 🔑 Importar el nuevo router de encuestas
+const surveysRouter = require('./routes/surveys'); 
 
 const app = express();
 
@@ -51,6 +53,15 @@ app.use('/api/auth', authRouter.router);
 // Montar el Router de Métricas
 app.use('/api/metrics', authenticateToken, metricsRouter); 
 
+// 🔑 NUEVO: Montar el Router de Encuestas (Protegido y con acceso a la BD)
+// Usamos un middleware para inyectar la conexión de la BD en req
+app.use('/api', authenticateToken, (req, res, next) => {
+    // Agregamos la referencia a la base de datos para que las rutas la usen
+    req.db = app.locals.client.db(DB_NAME); 
+    req.COLLECTION_NAME = COLLECTION_NAME;
+    next();
+}, surveysRouter);
+
 
 // RUTA PROTEGIDA: Obtener todos los datos (para el dashboard)
 app.get('/api/data', authenticateToken, async (req, res) => {
@@ -86,13 +97,14 @@ app.post('/api/save_data', async (req, res) => {
         otroDestino: receivedData.otroDestino || "",
         destinoFinal: receivedData.destinoFinal || "",
         medioAdquisicion: receivedData.medioAdquisicion || "",
+        tipoServicio: receivedData.tipoServicio || "", // Asegurar que este campo existe si se usa en la tabla
 
         // Calificaciones y Comentarios (Experiencia de Compra)
         califExperienciaCompra: receivedData.califExperienciaCompra || "",
         comentExperienciaCompra: receivedData.comentExperienciaCompra || "",
         
         // Calificaciones y Comentarios (Servicio del Conductor)
-        califServicioConductor: receivedData.califServicioConductor || "", // ⬅️ **CORREGIDO**
+        califServicioConductor: receivedData.califServicioConductor || "", 
         comentServicioConductor: receivedData.comentServicioConductor || "",
         
         // Calificaciones y Comentarios (Comodidad a bordo)
@@ -107,10 +119,11 @@ app.post('/api/save_data', async (req, res) => {
         califSeguridad: receivedData.califSeguridad || "",
         especifSeguridad: receivedData.especifSeguridad || "",
         
-        cumplioExpectativas: receivedData.cumplioExpectativas || "", // ⬅️ **CORREGIDO**
+        cumplioExpectativas: receivedData.cumplioExpectativas || "", 
         especificarMotivo: receivedData.especificarMotivo || "",
         
-        // Datos automáticos
+        // Datos automáticos y campo de validación
+        validado: 'PENDIENTE', // 🔑 CRÍTICO: Agregar el estado inicial de validación
         timestampServidor: new Date().toISOString(),
     };
 
@@ -119,7 +132,7 @@ app.post('/api/save_data', async (req, res) => {
         const database = app.locals.client.db(DB_NAME); 
         const collection = database.collection(COLLECTION_NAME);
         
-        const result = await collection.insertOne(surveyDocument); // <-- Insertamos el documento completo
+        const result = await collection.insertOne(surveyDocument);
         
         res.status(200).json({ 
             message: "Datos recibidos y guardados correctamente con integridad de campos.", 
