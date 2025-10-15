@@ -1,26 +1,16 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-// Asegúrate de que tu componente principal del dashboard (ej: App.jsx) importe el CSS global
-// import '../Dashboard.css'; 
-import './Encuestas.css'; // Estilos específicos de esta página
-import { LogOut, Save, CheckCircle, XCircle, Search, Edit } from 'lucide-react';
+import './Encuestas.css'; 
+import { Home, Save, CheckCircle, XCircle, Search, Edit } from 'lucide-react';
 
 // =======================================================
 // CONSTANTES Y TIPOS
 // =======================================================
 
-// Define las rutas para la navegación de tabs
-const tabRoutes: { [key: string]: string } = {
-    'RESUMEN': '/dashboard/resumen',
-    'ANÁLISIS': '/dashboard/analisis',
-    'RESULTADOS': '/dashboard/resultados',
-    'ENCUESTAS': '/dashboard/encuestas',
-};
-const navItems = ['RESUMEN', 'ANÁLISIS', 'RESULTADOS', 'ENCUESTAS']; // Ordena tus tabs aquí
-// URL base de tu API alojada en Render
+// URLs y constantes de navegación
 const API_URL_BASE = 'https://flecha-roja-satisfaccion.onrender.com/api'; 
 
-// Terminales y Destinos (simplificados)
+// Terminales, Destinos y Experiencias (Sin Cambios)
 const TERMINALES = [
     'Acambay', 'Atlacomulco', 'Cadereyta', 'Chalma', 'Cuernavaca', 'El Yaqui', 
     'Ixtlahuaca', 'Ixtapan de la Sal', 'Mexico Poniente', 'Mexico Norte', 'Naucalpan', 
@@ -40,22 +30,37 @@ const DESTINOS = [
 const EXPERIENCIAS = ['Muy Buena', 'Buena', 'Regular', 'Mala', 'Muy Mala'];
 
 
-// Tipo para los datos de la encuesta
+// Tipo para los datos de la encuesta (Añadiendo todos los campos que mencionaste)
 interface Survey {
-    _id: string; // ID de MongoDB para las operaciones
+    _id: string; 
     claveEncuestador: string;
     fecha: string;
+    noEco?: string; // Número Económico (puede ser opcional)
     folioBoleto: string;
     origenViaje: string;
     destinoFinal: string;
-    tipoServicio: string;
-    medioAdquisicion: string;
+    tipoServicio?: string; // Nuevo campo
+    medioAdquisicion: string; // Nuevo campo
+    timestampServidor: string; // Marca Temporal
+
     califExperienciaCompra: string;
-    razonExperienciaCompra: string;
+    comentExperienciaCompra: string; // ¿Por qué? 1
+    
     califServicioConductor: string;
-    razonServicioConductor: string;
-    cumplioExpectativas: string; // Campo para el filtro de Experiencias
-    // ... otros campos del formulario que quieras mostrar
+    comentServicioConductor: string; // ¿Por qué? 2
+    
+    califComodidad: string; // 5. Comodidad
+    comentComodidad: string; // ¿Por qué? 4
+    
+    califLimpieza: string; // 6. Limpieza
+    comentLimpieza: string; // ¿Por qué? 5
+    
+    califSeguridad: string; // 7. Seguridad
+    especifSeguridad: string; // Especifique (Seguridad)
+    
+    cumplioExpectativas: string; // 8. Expectativas (Experiencia Gral.)
+    especificarMotivo: string; // Especifique 6
+    
     [key: string]: any; 
     validado: 'VALIDADO' | 'NO_VALIDADO' | 'PENDIENTE';
 }
@@ -73,13 +78,13 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     const navigate = useNavigate();
     const location = useLocation();
     
-    // ESTADOS
+    // ESTADOS (sin cambios)
     const [surveys, setSurveys] = useState<Survey[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [editing, setEditing] = useState<EditableState>({});
     
-    // ESTADOS DE FILTRO (Inputs y Selects)
+    // ESTADOS DE FILTRO (sin cambios)
     const [folioSearch, setFolioSearch] = useState('');
     const [filterTerminal, setFilterTerminal] = useState('');
     const [filterDestino, setFilterDestino] = useState('');
@@ -87,24 +92,22 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
 
     // LÓGICA DE NAVEGACIÓN
-    const handleTabClick = (tab: string) => {
-        navigate(tabRoutes[tab]);
+    const goToDashboard = () => {
+        // 🔑 CORRECCIÓN DE RUTA: Navegamos directamente a la ruta principal del dashboard
+        navigate('/dashboard'); 
     };
-
-    // LÓGICA DE FETCHING DE DATOS (Con Filtros)
+    
+    // LÓGICA DE FETCHING DE DATOS (sin cambios)
     const fetchSurveys = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         const token = localStorage.getItem('auth-token');
         if (!token) {
-            setError('Sesión expirada. Por favor, inicia sesión de nuevo.');
-            setIsLoading(false);
+            onLogout(); 
             return;
         }
 
-        // Construir Query Parameters (filtros)
         const params = new URLSearchParams();
-        // Solo se añade a los params si el valor no es vacío
         if (folioSearch) params.append('folioBoleto', folioSearch);
         if (filterTerminal) params.append('origenViaje', filterTerminal);
         if (filterDestino) params.append('destinoFinal', filterDestino);
@@ -138,23 +141,16 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         }
     }, [folioSearch, filterTerminal, filterDestino, filterExperiencia, onLogout]);
 
-    // Ejecutar fetch al montar y cuando cambian los filtros (Terminal, Destino, Experiencia)
     useEffect(() => {
-        // Ejecutamos el fetch si cambia cualquier filtro de SELECT
-        if (filterTerminal || filterDestino || filterExperiencia) {
-            fetchSurveys();
-        }
+        fetchSurveys();
     }, [filterTerminal, filterDestino, filterExperiencia, fetchSurveys]);
 
-    // Ejecutar fetch solo al cargar la página (para mostrar todo por defecto)
     useEffect(() => {
         fetchSurveys();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); 
 
-    // LÓGICA CRUD EN LA TABLA
-
-    // 1. Manejo del cambio de input en edición (guarda en el estado 'editing')
+    // LÓGICA CRUD EN LA TABLA (sin cambios relevantes)
     const handleInputChange = (id: string, field: string, value: string) => {
         setEditing(prev => ({
             ...prev,
@@ -165,9 +161,7 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         }));
     };
 
-    // 2. Iniciar/Cancelar Edición
     const toggleEdit = (survey: Survey) => {
-        // Si ya está en edición, cancelamos
         if (editing[survey._id]) {
             setEditing(prev => {
                 const newState = { ...prev };
@@ -177,19 +171,18 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             return; 
         }
         
-        // Iniciar edición: copiar solo los campos editables
+        // Iniciar edición (solo los campos que decidamos que son editables)
         setEditing(prev => ({
             ...prev,
             [survey._id]: {
                 claveEncuestador: survey.claveEncuestador,
                 fecha: survey.fecha,
                 folioBoleto: survey.folioBoleto,
-                // Puedes añadir más campos si decides hacerlos editables
+                noEco: survey.noEco || "",
             }
         }));
     };
 
-    // 3. Guardar Actualización (PUT)
     const handleUpdate = async (id: string) => {
         const changes = editing[id];
         if (!changes || Object.keys(changes).length === 0) return;
@@ -209,20 +202,17 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
             if (!response.ok) throw new Error('Fallo al actualizar en el servidor.');
 
-            // Refrescar datos y salir del modo edición
             setEditing(prev => {
                 const newState = { ...prev };
                 delete newState[id];
                 return newState;
             });
             fetchSurveys(); 
-            // alert(`Encuesta ${id} actualizada correctamente.`); // Opcional: Notificación
         } catch (err) {
             setError('Error al guardar los cambios. ' + (err as Error).message);
         }
     };
 
-    // 4. Validar Encuesta (PUT para cambiar estado)
     const handleValidate = async (id: string) => {
         if (!window.confirm('¿Estás seguro de que quieres VALIDAR esta encuesta?')) return;
         
@@ -230,22 +220,18 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         if (!token) return setError('Sesión expirada.');
 
         try {
-            // Usa el endpoint /validar
             const response = await fetch(`${API_URL_BASE}/encuestas/validar/${id}`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
 
             if (!response.ok) throw new Error('Fallo al validar en el servidor.');
-
-            // Refrescar la tabla
             fetchSurveys(); 
         } catch (err) {
             setError('Error al validar la encuesta. ' + (err as Error).message);
         }
     };
 
-    // 5. No Validar/Eliminar Encuesta (DELETE)
     const handleInvalidateAndDelete = async (id: string) => {
         if (!window.confirm('¿Estás seguro de que quieres NO VALIDAR y ELIMINAR esta encuesta? Esta acción es permanente.')) return;
         
@@ -259,35 +245,56 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             });
 
             if (!response.ok) throw new Error('Fallo al eliminar en el servidor.');
-
-            // Refrescar la tabla
             fetchSurveys(); 
         } catch (err) {
             setError('Error al eliminar la encuesta. ' + (err as Error).message);
         }
     };
     
-    // Función de ayuda para obtener el valor editado o el valor original
+    // Función para manejar undefined/null (sin cambios, ya corrige el error)
     const getDisplayValue = (survey: Survey, field: keyof Survey) => {
+        let value;
+
         if (editing[survey._id] && editing[survey._id][field] !== undefined) {
-            return editing[survey._id][field];
+            value = editing[survey._id][field];
+        } else {
+            value = survey[field];
         }
-        return survey[field];
+
+        // Si el valor es null, undefined, o no existe, devuelve una cadena vacía
+        return value === null || value === undefined ? '' : String(value);
     };
 
-    // Columnas de la tabla
+    // 🔑 CAMBIO CRÍTICO: Columnas de la tabla (Añadimos todos los campos solicitados)
     const tableHeaders = useMemo(() => [
-        { key: 'folioBoleto', label: 'Folio Boleto', editable: true },
-        { key: 'fecha', label: 'Fecha', editable: true },
+        { key: 'timestampServidor', label: 'Marca Temporal' }, // Nuevo
         { key: 'claveEncuestador', label: 'Clave Encuestador', editable: true },
+        { key: 'fecha', label: 'Fecha', editable: true },
+        { key: 'noEco', label: 'No. Eco', editable: true }, // Nuevo
+        { key: 'folioBoleto', label: 'No. Boleto', editable: true },
         { key: 'origenViaje', label: 'Terminal Origen' },
         { key: 'destinoFinal', label: 'Destino Final' },
-        { key: 'tipoServicio', label: 'Tipo Servicio' },
-        { key: 'cumplioExpectativas', label: 'Experiencia Gral.' },
-        { key: 'califExperienciaCompra', label: 'Calificación Compra' },
-        { key: 'razonExperienciaCompra', label: 'Razón Compra' },
-        { key: 'califServicioConductor', label: 'Calificación Conductor' },
-        { key: 'razonServicioConductor', label: 'Razón Conductor' },
+        { key: 'tipoServicio', label: 'Tipo de Servicio' }, // Nuevo
+        { key: 'medioAdquisicion', label: 'Medio de Adquisición' }, // Nuevo
+        
+        { key: 'califExperienciaCompra', label: '1. Exp. Compra' },
+        { key: 'comentExperienciaCompra', label: '¿Por qué? 1' },
+        
+        { key: 'califServicioConductor', label: '2. Cal. Conductor' },
+        { key: 'comentServicioConductor', label: '¿Por qué? 2' },
+        
+        { key: 'califComodidad', label: '5. Cal. Comodidad' }, // Nuevo
+        { key: 'comentComodidad', label: '¿Por qué? 4' }, // Nuevo
+        
+        { key: 'califLimpieza', label: '6. Cal. Limpieza' }, // Nuevo
+        { key: 'comentLimpieza', label: '¿Por qué? 5' }, // Nuevo
+        
+        { key: 'califSeguridad', label: '7. Cal. Seguridad' }, // Nuevo
+        { key: 'especifSeguridad', label: 'Especifique (Seguridad)' }, // Nuevo
+        
+        { key: 'cumplioExpectativas', label: '8. Cumplió Expectativas' },
+        { key: 'especificarMotivo', label: 'Especifique 6' }, // Nuevo
+        
         { key: 'validado', label: 'Estado' },
         { key: 'actions', label: 'Acciones' },
     ], []);
@@ -300,27 +307,16 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             <header className="dashboard-header">
                 <div className="header-top-bar">
                     <div className="header-logo-container">
-                        {/* Asegúrate que tu logo esté en la carpeta public */}
                         <img src="/logo_flecha_roja.png" alt="Logo Flecha Roja" className="header-logo" />
                     </div>
                     <h1 className="header-title-main">
                         SISTEMA DE SATISFACCION AL CLIENTE FLECHA ROJA
                     </h1>
-                    <button onClick={onLogout} className="btn-logout">
-                        Cerrar Sesión <LogOut size={16} style={{ marginLeft: '5px' }}/>
+                    {/* 🔑 CAMBIO: Botón con mejor estilo */}
+                    <button onClick={goToDashboard} className="btn-dashboard-nav">
+                        <Home size={18} style={{ marginRight: '5px' }}/> Ir al Dashboard
                     </button>
                 </div>
-                <nav className="nav-bar">
-                    {navItems.map(item => (
-                        <button
-                            key={item}
-                            onClick={() => handleTabClick(item)}
-                            className={`nav-button ${location.pathname === tabRoutes[item] ? 'active' : ''}`}
-                        >
-                            {item}
-                        </button>
-                    ))}
-                </nav>
             </header>
 
             <main className="dashboard-main-content">
@@ -330,10 +326,9 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                     <p className="page-subtitle">En este apartado se muestran las Encuestas para su validación, edición o eliminación.</p>
                 </div>
 
-                {/* Contenedor de Filtros */}
+                {/* Contenedor de Filtros (sin cambios) */}
                 <div className="filters-container">
                     
-                    {/* 1. Buscar por Folio (Input) */}
                     <div className="filter-group">
                         <input
                             type="text"
@@ -341,7 +336,6 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                             className="filter-input"
                             value={folioSearch}
                             onChange={(e) => setFolioSearch(e.target.value)}
-                            // Dispara la búsqueda al presionar Enter
                             onKeyDown={(e) => { if (e.key === 'Enter') fetchSurveys(); }}
                         />
                         <button onClick={fetchSurveys} className="filter-button" title="Buscar">
@@ -349,7 +343,6 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                         </button>
                     </div>
 
-                    {/* 2. Filtro por Terminal de Origen (Select) */}
                     <div className="filter-group">
                         <select
                             className="filter-select"
@@ -361,7 +354,6 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                         </select>
                     </div>
 
-                    {/* 3. Filtro por Destino Final (Select) */}
                     <div className="filter-group">
                         <select
                             className="filter-select"
@@ -373,7 +365,6 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                         </select>
                     </div>
 
-                    {/* 4. Filtro por Experiencia (Select) */}
                     <div className="filter-group">
                         <select
                             className="filter-select"
@@ -416,59 +407,24 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                                                 const field = header.key as keyof Survey;
                                                 const value = getDisplayValue(survey, field);
 
+                                                // ... Lógica de Renderizado (sin cambios críticos)
                                                 if (field === 'actions') {
+                                                    // Renderizado de botones de acción
                                                     return (
                                                         <td key={field}>
                                                             <div className="actions-cell">
                                                                 {isEditing ? (
                                                                     <>
-                                                                        {/* Botón Guardar */}
-                                                                        <button 
-                                                                            onClick={() => handleUpdate(survey._id)} 
-                                                                            className="action-button" 
-                                                                            title="Guardar Cambios"
-                                                                        >
-                                                                            <Save className="update-icon" />
-                                                                        </button>
-                                                                        {/* Botón Cancelar */}
-                                                                        <button 
-                                                                            onClick={() => toggleEdit(survey)} 
-                                                                            className="action-button" 
-                                                                            title="Cancelar Edición"
-                                                                        >
-                                                                            <XCircle className="delete-icon" />
-                                                                        </button>
+                                                                        <button onClick={() => handleUpdate(survey._id)} className="action-button" title="Guardar Cambios"><Save className="update-icon" /></button>
+                                                                        <button onClick={() => toggleEdit(survey)} className="action-button" title="Cancelar Edición"><XCircle className="delete-icon" /></button>
                                                                     </>
                                                                 ) : (
                                                                     <>
-                                                                        {/* Botón de Edición (Inicia/Cancela) */}
-                                                                        <button 
-                                                                            onClick={() => toggleEdit(survey)} 
-                                                                            className="action-button" 
-                                                                            title="Editar Datos"
-                                                                        >
-                                                                            <Edit className="update-icon" />
-                                                                        </button>
-
-                                                                        {/* Botón Validar (Solo si NO ha sido VALIDADO) */}
+                                                                        <button onClick={() => toggleEdit(survey)} className="action-button" title="Editar Datos"><Edit className="update-icon" /></button>
                                                                         {survey.validado !== 'VALIDADO' && (
-                                                                            <button 
-                                                                                onClick={() => handleValidate(survey._id)} 
-                                                                                className="action-button" 
-                                                                                title="Validar Encuesta"
-                                                                            >
-                                                                                <CheckCircle className="validate-icon" />
-                                                                            </button>
+                                                                            <button onClick={() => handleValidate(survey._id)} className="action-button" title="Validar Encuesta"><CheckCircle className="validate-icon" /></button>
                                                                         )}
-
-                                                                        {/* Botón No Validar/Eliminar */}
-                                                                        <button 
-                                                                            onClick={() => handleInvalidateAndDelete(survey._id)} 
-                                                                            className="action-button" 
-                                                                            title="No Validar y Eliminar"
-                                                                        >
-                                                                            <XCircle className="delete-icon" />
-                                                                        </button>
+                                                                        <button onClick={() => handleInvalidateAndDelete(survey._id)} className="action-button" title="No Validar y Eliminar"><XCircle className="delete-icon" /></button>
                                                                     </>
                                                                 )}
                                                             </div>
@@ -476,7 +432,6 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                                                     );
                                                 }
                                                 
-                                                // Campo de Estado
                                                 if (field === 'validado') {
                                                     return (
                                                         <td key={field}>
@@ -487,9 +442,7 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                                                     );
                                                 }
 
-                                                // Campos Editables (con Input si estamos en modo edición)
                                                 if (header.editable && isEditing) {
-                                                    // Asume que 'fecha' es un campo editable de tipo date
                                                     const inputType = field === 'fecha' ? 'date' : 'text';
                                                     return (
                                                         <td key={field}>
@@ -503,8 +456,7 @@ const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                                                     );
                                                 }
 
-                                                // Campos de Solo Lectura
-                                                return <td key={field}>{String(value)}</td>;
+                                                return <td key={field}>{value}</td>;
                                             })}
                                         </tr>
                                     );

@@ -9,14 +9,10 @@ const bcrypt = require('bcryptjs');
 const authRouter = require('./routes/auth');
 const authenticateToken = require('./middleware/authMiddleware');
 const metricsRouter = require('./routes/metrics'); 
-// 🔑 Importar el nuevo router de encuestas
-const surveysRouter = require('./routes/surveys'); 
+const surveysRouter = require('./routes/surveys'); // 🔑 CRÍTICO: Importar el router de encuestas
 
 const app = express();
 
-
-// 2. Asegúrate de montar la ruta
-// ...
 
 // *****************************************************************
 // *** CONFIGURACIÓN CRÍTICA DIRECTA ***
@@ -31,7 +27,6 @@ const USER_SECRET = "FlechaRoja_SATISFACCION-Key-R3d-s3cr3t-2025-Qh7gKx9zP5bYt1m
 const DB_NAME = 'flecha_roja_db'; 
 const COLLECTION_NAME = 'satisfaccion_clientes';
 const USERS_COLLECTION = 'users'; 
-
 // Credenciales por defecto del admin
 const DEFAULT_ADMIN_USER = "admin";
 const DEFAULT_ADMIN_PASS = "admin123"; 
@@ -53,14 +48,15 @@ app.use('/api/auth', authRouter.router);
 // Montar el Router de Métricas
 app.use('/api/metrics', authenticateToken, metricsRouter); 
 
-// 🔑 NUEVO: Montar el Router de Encuestas (Protegido y con acceso a la BD)
-// Usamos un middleware para inyectar la conexión de la BD en req
-app.use('/api', authenticateToken, (req, res, next) => {
-    // Agregamos la referencia a la base de datos para que las rutas la usen
+// *****************************************************************
+// 🔑 CRÍTICO: Montar el Router de Encuestas (Protegido y con inyección de BD)
+// *****************************************************************
+app.use('/api/encuestas', authenticateToken, (req, res, next) => {
+    // Inyectar la base de datos para las rutas de encuestas (surveys.js)
     req.db = app.locals.client.db(DB_NAME); 
-    req.COLLECTION_NAME = COLLECTION_NAME;
     next();
 }, surveysRouter);
+// *****************************************************************
 
 
 // RUTA PROTEGIDA: Obtener todos los datos (para el dashboard)
@@ -80,13 +76,11 @@ app.get('/api/data', authenticateToken, async (req, res) => {
 
 
 // RUTA POST: Recibir datos del formulario (Pública)
-// RUTA POST: Recibir datos del formulario (Pública)
 app.post('/api/save_data', async (req, res) => {
     // 1. Aseguramos que req.body sea un objeto, incluso si está vacío.
     const receivedData = req.body || {}; 
     
     // 2. Mapeo explícito para garantizar que todos los campos existan en MongoDB.
-    // Usamos el operador OR (|| "") para asignar una cadena vacía si el campo es undefined/null.
     const surveyDocument = {
         // Campos de Identificación
         claveEncuestador: receivedData.claveEncuestador || "",
@@ -96,8 +90,8 @@ app.post('/api/save_data', async (req, res) => {
         origenViaje: receivedData.origenViaje || "",
         otroDestino: receivedData.otroDestino || "",
         destinoFinal: receivedData.destinoFinal || "",
+        tipoServicio: receivedData.tipoServicio || "", // Añadido
         medioAdquisicion: receivedData.medioAdquisicion || "",
-        tipoServicio: receivedData.tipoServicio || "", // Asegurar que este campo existe si se usa en la tabla
 
         // Calificaciones y Comentarios (Experiencia de Compra)
         califExperienciaCompra: receivedData.califExperienciaCompra || "",
@@ -122,8 +116,10 @@ app.post('/api/save_data', async (req, res) => {
         cumplioExpectativas: receivedData.cumplioExpectativas || "", 
         especificarMotivo: receivedData.especificarMotivo || "",
         
-        // Datos automáticos y campo de validación
-        validado: 'PENDIENTE', // 🔑 CRÍTICO: Agregar el estado inicial de validación
+        // Campos de estado
+        validado: 'PENDIENTE', // Siempre que entra un formulario nuevo, está PENDIENTE
+        
+        // Datos automáticos
         timestampServidor: new Date().toISOString(),
     };
 
