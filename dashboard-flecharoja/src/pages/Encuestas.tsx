@@ -1,353 +1,469 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import './Encuestas.css';
-// ❌ ELIMINAMOS la importación fallida del logo
-// import logo from '../assets/images/logo-flecha-roja.png'; 
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import './Encuestas.css'; 
+import { Home, Save, CheckCircle, XCircle, Search, Edit } from 'lucide-react';
 
-// Definición de tipos para la encuesta (ajusta según tu esquema de MongoDB)
+// =======================================================
+// CONSTANTES Y TIPOS
+// =======================================================
+
+// URLs y constantes de navegación
+const API_URL_BASE = 'https://flecha-roja-satisfaccion.onrender.com/api'; 
+// 🔑 CAMBIO CRÍTICO: Nueva URL aislada para las rutas del Dashboard
+const API_URL_DASHBOARD = `${API_URL_BASE}/dashboard/encuestas`; 
+
+// Terminales, Destinos y Experiencias (Sin Cambios)
+const TERMINALES = [
+    'Acambay', 'Atlacomulco', 'Cadereyta', 'Chalma', 'Cuernavaca', 'El Yaqui', 
+    'Ixtlahuaca', 'Ixtapan de la Sal', 'Mexico Poniente', 'Mexico Norte', 'Naucalpan', 
+    'Querétaro', 'San Juan del Rio', 'Taxco', 'Tenancingo', 'Tepotzotlán', 
+    'Tenango', 'Temoaya', 'Toluca', 'Santiago Tianguistengo', 'San Mateo Atenco', 
+    'Xalatlaco', 'Villa Victoria'
+];
+
+const DESTINOS = [
+    'Acambay', 'Atlacomulco', 'Cadereyta', 'Chalma', 'Cuernavaca', 'El Yaqui', 
+    'Ixtlahuaca', 'México Poniente Zona Sur', 'Ixtapan de la Sal', 'México Poniente Zona Centro', 
+    'Mexico Norte', 'Naucalpan', 'Querétaro', 'San Juan del Rio', 'Taxco', 
+    'Tenancingo', 'Tepotzotlán', 'Tenango', 'Temoaya', 'Toluca', 'Santiago Tianguistengo', 
+    'San Mateo Atenco', 'Xalatlaco'
+];
+
+const EXPERIENCIAS = ['Muy Buena', 'Buena', 'Regular', 'Mala', 'Muy Mala'];
+
+
+// Tipo para los datos de la encuesta
 interface Survey {
-    _id: string;
-    folioBoleto: string;
-    origenViaje: string;
-    destinoFinal: string;
-    cumplioExpectativas: 'Muy Buena' | 'Buena' | 'Regular' | 'Mala' | 'Muy Mala' | string;
-    califExperienciaCompra: string;
-    califServicioConductor: string;
-    califComodidad: string;
-    califLimpieza: string;
-    timestampServidor: string;
-    // Campo que manejaremos en el frontend/backend para el estado de validación
-    validado: boolean; 
+    _id: string; 
+    claveEncuestador: string;
+    fecha: string;
+    noEco?: string; 
+    folioBoleto: string;
+    origenViaje: string;
+    destinoFinal: string;
+    tipoServicio?: string; 
+    medioAdquisicion: string; 
+    timestampServidor: string; 
+
+    califExperienciaCompra: string;
+    comentExperienciaCompra: string; 
+    
+    califServicioConductor: string;
+    comentServicioConductor: string; 
+    
+    califComodidad: string; 
+    comentComodidad: string; 
+    
+    califLimpieza: string; 
+    comentLimpieza: string; 
+    
+    califSeguridad: string; 
+    especifSeguridad: string; 
+    
+    cumplioExpectativas: string; 
+    especificarMotivo: string; 
+    
+    [key: string]: any; 
+    validado: 'VALIDADO' | 'NO_VALIDADO' | 'PENDIENTE' | 'ELIMINADO'; // Agregamos 'ELIMINADO' para reflejar el backend
 }
 
-// Lista de opciones para los filtros (sin números)
-const terminales = [
-    "Acambay", "Atlacomulco", "Cadereyta", "Chalma", "Cuernavaca", "El Yaqui", 
-    "Ixtlahuaca", "Ixtapan de la Sal", "Mexico Poniente", "Mexico Norte", 
-    "Naucalpan", "Querétaro", "San Juan del Rio", "Taxco", "Tenancingo", 
-    "Tepotzotlán", "Tenango", "Temoaya", "Toluca", "Santiago Tianguistengo", 
-    "San Mateo Atenco", "Xalatlaco", "Villa Victoria"
-];
+// Tipo para el estado de edición
+interface EditableState {
+    [id: string]: { [field: string]: string | number };
+}
 
-const destinos = [
-    "Acambay", "Atlacomulco", "Cadereyta", "Chalma", "Cuernavaca", "El Yaqui", 
-    "Ixtlahuaca", "México Poniente Zona Sur", "Ixtapan de la Sal", 
-    "México Poniente Zona Centro", "Mexico Norte", "Naucalpan", "Querétaro", 
-    "San Juan del Rio", "Taxco", "Tenancingo", "Tepotzotlán", "Tenango", 
-    "Temoaya", "Toluca", "Santiago Tianguistengo", "San Mateo Atenco", "Xalatlaco"
-];
+// =======================================================
+// COMPONENTE PRINCIPAL: ENCUESTAS PAGE
+// =======================================================
 
-const experiencias = ["Muy Buena", "Buena", "Regular", "Mala", "Muy Mala"];
+const EncuestasPage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    
+    // ESTADOS
+    const [surveys, setSurveys] = useState<Survey[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [editing, setEditing] = useState<EditableState>({});
+    
+    // ESTADOS DE FILTRO
+    const [folioSearch, setFolioSearch] = useState('');
+    const [filterTerminal, setFilterTerminal] = useState('');
+    const [filterDestino, setFilterDestino] = useState('');
+    const [filterExperiencia, setFilterExperiencia] = useState('');
 
-const API_BASE_URL = '/api/dashboard/surveys'; // Se define en server.js
+    // LÓGICA DE NAVEGACIÓN
+    const goToDashboard = () => {
+        navigate('/dashboard'); 
+    };
+    
+    // LÓGICA DE FETCHING DE DATOS
+    const fetchSurveys = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        const token = localStorage.getItem('auth-token');
+        if (!token) {
+            onLogout(); 
+            return;
+        }
 
-export const Encuestas: React.FC = () => {
-    const [surveys, setSurveys] = useState<Survey[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+        const params = new URLSearchParams();
+        if (folioSearch) params.append('folioBoleto', folioSearch);
+        if (filterTerminal) params.append('origenViaje', filterTerminal);
+        if (filterDestino) params.append('destinoFinal', filterDestino);
+        if (filterExperiencia) params.append('cumplioExpectativas', filterExperiencia);
+        
+        // 🔑 CAMBIO CRÍTICO 1: Usar la URL aislada del dashboard
+        const url = `${API_URL_DASHBOARD}?${params.toString()}`;
 
-    // Estados para los filtros
-    const [ticketFilter, setTicketFilter] = useState('');
-    const [terminalFilter, setTerminalFilter] = useState('');
-    const [destinationFilter, setDestinationFilter] = useState('');
-    const [experienceFilter, setExperienceFilter] = useState('');
-    const [searchTicketInput, setSearchTicketInput] = useState(''); // Input temporal
+        try {
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
 
-    // Simula el uso del token de autenticación (Reemplaza con tu lógica real)
-    const token = 'YOUR_AUTH_TOKEN_HERE'; 
+            if (response.status === 401) {
+                onLogout(); 
+                return;
+            }
 
-    // Función principal para obtener encuestas con filtros
-    const fetchSurveys = useCallback(async () => {
-        setLoading(true);
-        setError(null);
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: No se pudieron obtener las encuestas.`);
+            }
 
-        // Construir la cadena de consulta (query string) para la API
-        const params = new URLSearchParams();
-        if (ticketFilter) params.append('folioBoleto', ticketFilter);
-        if (terminalFilter) params.append('origenViaje', terminalFilter);
-        if (destinationFilter) params.append('destinoFinal', destinationFilter);
-        if (experienceFilter) params.append('cumplioExpectativas', experienceFilter);
-        
-        const url = `${API_BASE_URL}?${params.toString()}`;
+            const data: Survey[] = await response.json();
+            // Filtramos las encuestas marcadas como 'ELIMINADO' para no mostrarlas
+            const filteredData = data.filter(s => s.validado !== 'ELIMINADO'); 
+            setSurveys(filteredData);
+            setEditing({}); 
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Error desconocido al cargar encuestas.';
+            console.error(errorMessage);
+            setError(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [folioSearch, filterTerminal, filterDestino, filterExperiencia, onLogout]);
 
-        try {
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+    useEffect(() => {
+        fetchSurveys();
+    }, [filterTerminal, filterDestino, filterExperiencia, fetchSurveys]);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Error al cargar las encuestas');
-            }
+    useEffect(() => {
+        fetchSurveys();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); 
 
-            const data: Survey[] = await response.json();
-            setSurveys(data);
-        } catch (err: any) {
-            console.error('Error fetching surveys:', err);
-            setError(err.message || 'Fallo la conexión con el servidor.');
-        } finally {
-            setLoading(false);
-        }
-    }, [token, ticketFilter, terminalFilter, destinationFilter, experienceFilter]);
+    // LÓGICA CRUD EN LA TABLA
+    const handleInputChange = (id: string, field: string, value: string) => {
+        setEditing(prev => ({
+            ...prev,
+            [id]: {
+                ...(prev[id] || {}),
+                [field]: value
+            }
+        }));
+    };
 
-    // Ejecutar la búsqueda al cargar el componente y cuando cambian los filtros
-    useEffect(() => {
-        fetchSurveys();
-    }, [fetchSurveys]); 
+    const toggleEdit = (survey: Survey) => {
+        // Si ya está editando, cancelamos la edición (borramos el estado)
+        if (editing[survey._id]) {
+            setEditing(prev => {
+                const newState = { ...prev };
+                delete newState[survey._id];
+                return newState;
+            });
+            return; 
+        }
+        
+        // Iniciar edición (solo los campos que son editables)
+        setEditing(prev => ({
+            ...prev,
+            [survey._id]: {
+                claveEncuestador: survey.claveEncuestador,
+                fecha: survey.fecha,
+                folioBoleto: survey.folioBoleto,
+                noEco: survey.noEco || "",
+            }
+        }));
+    };
 
-    // Función para manejar el botón de "Buscar" boleto
-    const handleTicketSearch = () => {
-        setTicketFilter(searchTicketInput); // Actualiza el filtro y dispara fetchSurveys
-        // Limpia otros filtros si se busca por boleto
-        setTerminalFilter('');
-        setDestinationFilter('');
-        setExperienceFilter('');
-    };
+    const handleUpdate = async (id: string, newStatus?: 'VALIDADO') => {
+        // Si se está validando, los cambios son solo el estado.
+        const changes = newStatus ? { validado: newStatus } : editing[id];
+        
+        if (!changes || Object.keys(changes).length === 0) return;
 
-    // Función para manejar las acciones CRUD
-    const handleAction = async (id: string, action: 'update' | 'validate' | 'delete') => {
-        // Lógica de confirmación
-        if (action === 'delete' && !window.confirm('¿Está seguro de que desea eliminar esta encuesta? (Esta acción no se puede deshacer).')) {
-            return;
-        }
+        const token = localStorage.getItem('auth-token');
+        if (!token) return setError('Sesión expirada.');
 
-        if (action === 'validate' && !window.confirm('¿Desea validar permanentemente esta encuesta?')) {
-            return;
-        }
+        try {
+            // 🔑 CAMBIO CRÍTICO 2: Usar la URL aislada para PUT
+            const response = await fetch(`${API_URL_DASHBOARD}/${id}`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify(changes),
+            });
 
-        // Determinar el endpoint, el método y el cuerpo de la petición
-        let url = `${API_BASE_URL}/${id}`;
-        let method = 'PUT'; 
-        let body: any = {}; 
+            if (!response.ok) throw new Error('Fallo al actualizar en el servidor.');
 
-        if (action === 'delete') {
-            method = 'DELETE';
-            body = undefined;
-        } else if (action === 'update') {
-            // Lógica para abrir modal/formulario de edición. 
-            alert('Funcionalidad de Edición (Update) aún no implementada. Necesita un modal o formulario para ingresar nuevos datos.');
-            return;
-        } else if (action === 'validate') {
-             body = { validado: true }; 
-        }
+            setEditing(prev => {
+                const newState = { ...prev };
+                delete newState[id];
+                return newState;
+            });
+            fetchSurveys(); 
+        } catch (err) {
+            setError('Error al guardar los cambios. ' + (err as Error).message);
+        }
+    };
 
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: body ? JSON.stringify(body) : undefined,
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Error en la acción ${action}`);
-            }
-
-            // Recargar la lista después de la acción
-            alert(`Encuesta ${id.substring(18)}... ${action === 'delete' ? 'eliminada' : 'actualizada'} con éxito.`);
-            fetchSurveys(); 
-
-        } catch (err) {
-            console.error(`Error al ${action} la encuesta:`, err);
-            alert(`Error al ${action} la encuesta. Consulte la consola.`);
-        }
-    };
+    // 🔑 CAMBIO CRÍTICO 3: Reemplazo de la función handleValidate
+    const handleValidate = (id: string) => {
+        if (!window.confirm('¿Estás seguro de que quieres VALIDAR esta encuesta?')) return;
+        // Usamos la función handleUpdate para enviar el nuevo estado 'VALIDADO'
+        handleUpdate(id, 'VALIDADO');
+    };
     
-    // Función para renderizar el estado de la tabla
-    const renderTableContent = () => {
-        if (loading) {
-            return <div className="table-empty-state">Cargando encuestas...</div>;
-        }
+    const handleInvalidateAndDelete = async (id: string) => {
+        if (!window.confirm('¿Estás seguro de que quieres NO VALIDAR y ELIMINAR esta encuesta? Esta acción la marca como "ELIMINADO".')) return;
+        
+        const token = localStorage.getItem('auth-token');
+        if (!token) return setError('Sesión expirada.');
 
-        if (error) {
-            return <div className="table-empty-state" style={{ color: '#f44336' }}>Error: {error}</div>;
-        }
+        try {
+            // 🔑 CAMBIO CRÍTICO 4: Usar la URL aislada para DELETE
+            const response = await fetch(`${API_URL_DASHBOARD}/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
 
-        if (surveys.length === 0) {
-            return <div className="table-empty-state">No se encontraron encuestas con los filtros seleccionados.</div>;
-        }
+            if (!response.ok) throw new Error('Fallo al eliminar en el servidor.');
+            fetchSurveys(); 
+        } catch (err) {
+            setError('Error al eliminar la encuesta. ' + (err as Error).message);
+        }
+    };
+    
+    // Función para manejar undefined/null (sin cambios)
+    const getDisplayValue = (survey: Survey, field: keyof Survey) => {
+        let value;
 
-        return (
-            <div className="surveys-table-wrapper">
-                <table className="surveys-table">
-                    <thead>
-                        <tr>
-                            <th>ID (Reciente)</th>
-                            <th>Folio Boleto</th>
-                            <th>Origen</th>
-                            <th>Destino</th>
-                            <th>Expectativa</th>
-                            <th>Compra</th>
-                            <th>Conductor</th>
-                            <th>Comodidad</th>
-                            <th>Limpieza</th>
-                            <th>Fecha/Hora</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {surveys.map((survey) => (
-                            <tr key={survey._id}>
-                                <td>{survey._id.substring(18)}...</td>
-                                <td>{survey.folioBoleto}</td>
-                                <td>{survey.origenViaje}</td>
-                                <td>{survey.destinoFinal}</td>
-                                <td>{survey.cumplioExpectativas}</td>
-                                <td>{survey.califExperienciaCompra}</td>
-                                <td>{survey.califServicioConductor}</td>
-                                <td>{survey.califComodidad}</td>
-                                <td>{survey.califLimpieza}</td>
-                                <td>{new Date(survey.timestampServidor).toLocaleString()}</td>
-                                <td>
-                                    <span className={`validation-status status-${survey.validado ? 'validado' : 'pendiente'}`}>
-                                        {survey.validado ? 'Validada' : 'Pendiente'}
-                                    </span>
-                                </td>
-                                <td className="actions-cell">
-                                    <button 
-                                        className="btn-action btn-edit" 
-                                        onClick={() => handleAction(survey._id, 'update')}
-                                        title="Modificar los datos de la encuesta"
-                                    >
-                                        Editar
-                                    </button>
-                                    <button 
-                                        className="btn-action btn-validate" 
-                                        onClick={() => handleAction(survey._id, 'validate')}
-                                        disabled={survey.validado}
-                                        title="Validar la encuesta (Conservar)"
-                                    >
-                                        Validar
-                                    </button>
-                                    <button 
-                                        className="btn-action btn-delete" 
-                                        onClick={() => handleAction(survey._id, 'delete')}
-                                        disabled={survey.validado} // No permitir eliminar si ya está validada (opcional)
-                                        title="Eliminar la encuesta (No Validar)"
-                                    >
-                                        No Validar (Eliminar)
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
-    };
+        if (editing[survey._id] && editing[survey._id][field] !== undefined) {
+            value = editing[survey._id][field];
+        } else {
+            value = survey[field];
+        }
 
-    return (
-        <div className="dashboard-container">
-            {/* -------------------- HEADER FIJO -------------------- */}
-            <header className="dashboard-header">
-                <div className="header-top-bar">
-                    <div className="header-logo-container">
-                        {/* ✅ RUTA CORREGIDA: Usando la ruta absoluta para la carpeta 'public' */}
-                        <img 
-                            src="/logo_flecha_roja.png" // <--- Aquí la ruta corregida
-                            alt="Logo Flecha Roja" 
-                            className="header-logo" 
-                        />
-                        <span className="logo-name">Flecha Roja</span>
-                    </div>
-                    <h1 className="header-title-main">Dashboard - Encuestas de Satisfacción</h1>
-                    <button className="btn-logout" /*onClick={logout}*/>
-                        Cerrar Sesión
-                    </button>
-                </div>
-                {/* Aquí iría la barra de navegación (nav-bar) si hubiera más pestañas */}
-            </header>
+        // Si el valor es null, undefined, o no existe, devuelve una cadena vacía
+        return value === null || value === undefined ? '' : String(value);
+    };
 
-            {/* -------------------- CONTENIDO PRINCIPAL -------------------- */}
-            <main className="dashboard-main-content">
-                <div className="surveys-page-container">
-                    
-                    {/* Caja de Filtros */}
-                    <div className="filters-box">
-                        
-                        {/* 1. Filtro por Folio de Boleto */}
-                        <div className="filter-group" style={{ flexGrow: 0, minWidth: 'unset' }}>
-                            <label htmlFor="ticket-search">Buscar por Boleto</label>
-                            <input
-                                id="ticket-search"
-                                type="text"
-                                placeholder="Escriba el Folio"
-                                value={searchTicketInput}
-                                onChange={(e) => setSearchTicketInput(e.target.value)}
-                                // Limpia el filtro de folio al escribir para preparar la nueva búsqueda
-                                onFocus={() => setTicketFilter('')} 
-                            />
-                        </div>
-                        <button className="btn-search-ticket" onClick={handleTicketSearch}>
-                            Buscar
-                        </button>
-                        
-                        {/* 2. Filtro por Terminal (origenViaje) */}
-                        <div className="filter-group">
-                            <label htmlFor="terminal-filter">Todas las Terminales</label>
-                            <select
-                                id="terminal-filter"
-                                value={terminalFilter}
-                                onChange={(e) => {
-                                    setTerminalFilter(e.target.value);
-                                    // Limpia el filtro de boleto si se usa otro filtro
-                                    setTicketFilter(''); 
-                                    setSearchTicketInput('');
-                                }}
-                            >
-                                <option value="">--- Todas ---</option>
-                                {terminales.map(t => <option key={t} value={t}>{t}</option>)}
-                            </select>
-                        </div>
+    // Columnas de la tabla (sin cambios en la estructura)
+    const tableHeaders = useMemo(() => [
+        { key: 'timestampServidor', label: 'Marca Temporal' }, 
+        { key: 'claveEncuestador', label: 'Clave Encuestador', editable: true },
+        { key: 'fecha', label: 'Fecha', editable: true },
+        { key: 'noEco', label: 'No. Eco', editable: true }, 
+        { key: 'folioBoleto', label: 'No. Boleto', editable: true },
+        { key: 'origenViaje', label: 'Terminal Origen' },
+        { key: 'destinoFinal', label: 'Destino Final' },
+        { key: 'tipoServicio', label: 'Tipo de Servicio' }, 
+        { key: 'medioAdquisicion', label: 'Medio de Adquisición' }, 
+        
+        { key: 'califExperienciaCompra', label: '1. Exp. Compra' },
+        { key: 'comentExperienciaCompra', label: '¿Por qué? 1' },
+        
+        { key: 'califServicioConductor', label: '2. Cal. Conductor' },
+        { key: 'comentServicioConductor', label: '¿Por qué? 2' },
+        
+        { key: 'califComodidad', label: '5. Cal. Comodidad' }, 
+        { key: 'comentComodidad', label: '¿Por qué? 4' }, 
+        
+        { key: 'califLimpieza', label: '6. Cal. Limpieza' }, 
+        { key: 'comentLimpieza', label: '¿Por qué? 5' }, 
+        
+        { key: 'califSeguridad', label: '7. Cal. Seguridad' }, 
+        { key: 'especifSeguridad', label: 'Especifique (Seguridad)' }, 
+        
+        { key: 'cumplioExpectativas', label: '8. Cumplió Expectativas' },
+        { key: 'especificarMotivo', label: 'Especifique 6' }, 
+        
+        { key: 'validado', label: 'Estado' },
+        { key: 'actions', label: 'Acciones' },
+    ], []);
 
-                        {/* 3. Filtro por Destino (destinoFinal) */}
-                        <div className="filter-group">
-                            <label htmlFor="destination-filter">Todos los Destinos</label>
-                            <select
-                                id="destination-filter"
-                                value={destinationFilter}
-                                onChange={(e) => {
-                                    setDestinationFilter(e.target.value);
-                                    setTicketFilter('');
-                                    setSearchTicketInput('');
-                                }}
-                            >
-                                <option value="">--- Todos ---</option>
-                                {destinos.map(d => <option key={d} value={d}>{d}</option>)}
-                            </select>
-                        </div>
 
-                        {/* 4. Filtro por Experiencia (cumplioExpectativas) */}
-                        <div className="filter-group">
-                            <label htmlFor="experience-filter">Todas las Experiencias</label>
-                            <select
-                                id="experience-filter"
-                                value={experienceFilter}
-                                onChange={(e) => {
-                                    setExperienceFilter(e.target.value);
-                                    setTicketFilter('');
-                                    setSearchTicketInput('');
-                                }}
-                            >
-                                <option value="">--- Todas ---</option>
-                                {experiencias.map(e => <option key={e} value={e}>{e}</option>)}
-                            </select>
-                        </div>
+    // RENDERIZADO
+    return (
+        <div className="dashboard-container">
+            {/* HEADER FIJO */}
+            <header className="dashboard-header">
+                <div className="header-top-bar">
+                    <div className="header-logo-container">
+                        <img src="/logo_flecha_roja.png" alt="Logo Flecha Roja" className="header-logo" />
+                    </div>
+                    <h1 className="header-title-main">
+                        SISTEMA DE SATISFACCION AL CLIENTE FLECHA ROJA
+                    </h1>
+                    {/* Botón con mejor estilo */}
+                    <button onClick={goToDashboard} className="btn-dashboard-nav">
+                        <Home size={18} style={{ marginRight: '5px' }}/> Ir al Dashboard
+                    </button>
+                </div>
+            </header>
 
-                    </div>
-                    
-                    {/* Contenedor de la Tabla */}
-                    {renderTableContent()}
+            <main className="dashboard-main-content">
+                {/* Encabezado de la Página */}
+                <div className="page-header-encuestas">
+                    <h2 className="page-title">ENCUESTAS REALIZADAS GENERALES</h2>
+                    <p className="page-subtitle">En este apartado se muestran las Encuestas para su validación, edición o eliminación.</p>
+                </div>
 
-                </div>
-            </main>
-        </div>
-    );
+                {/* Contenedor de Filtros (sin cambios) */}
+                <div className="filters-container">
+                    
+                    <div className="filter-group">
+                        <input
+                            type="text"
+                            placeholder="Buscar por Folio de Boleto"
+                            className="filter-input"
+                            value={folioSearch}
+                            onChange={(e) => setFolioSearch(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') fetchSurveys(); }}
+                        />
+                        <button onClick={fetchSurveys} className="filter-button" title="Buscar">
+                            <Search size={18} />
+                        </button>
+                    </div>
+
+                    <div className="filter-group">
+                        <select
+                            className="filter-select"
+                            value={filterTerminal}
+                            onChange={(e) => setFilterTerminal(e.target.value)}
+                        >
+                            <option value="">TODAS LAS TERMINALES</option>
+                            {TERMINALES.map(t => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <select
+                            className="filter-select"
+                            value={filterDestino}
+                            onChange={(e) => setFilterDestino(e.target.value)}
+                        >
+                            <option value="">TODOS LOS DESTINOS</option>
+                            {DESTINOS.map(d => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <select
+                            className="filter-select"
+                            value={filterExperiencia}
+                            onChange={(e) => setFilterExperiencia(e.target.value)}
+                        >
+                            <option value="">TODAS LAS EXPERIENCIAS</option>
+                            {EXPERIENCIAS.map(e => <option key={e} value={e}>{e}</option>)}
+                        </select>
+                    </div>
+                </div>
+
+                {/* Visualización de la Tabla */}
+                <div className="table-responsive-container">
+                    {error && <div className="error-state">{error}</div>}
+                    {isLoading && <div className="loading-state">Cargando encuestas...</div>}
+                    {!isLoading && !error && surveys.length === 0 && (
+                        <div className="no-data-state">No se encontraron encuestas con los filtros aplicados.</div>
+                    )}
+                    
+                    {!isLoading && surveys.length > 0 && (
+                        <table className="surveys-table">
+                            <thead>
+                                <tr>
+                                    {tableHeaders.map(header => (
+                                        <th key={header.key}>{header.label}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {surveys.map((survey) => {
+                                    const isEditing = !!editing[survey._id];
+                                    const statusClass = 
+                                        survey.validado === 'VALIDADO' ? 'valid' : 
+                                        survey.validado === 'NO_VALIDADO' ? 'invalid' : 'pending';
+
+                                    return (
+                                        <tr key={survey._id}>
+                                            {tableHeaders.map(header => {
+                                                const field = header.key as keyof Survey;
+                                                const value = getDisplayValue(survey, field);
+
+                                                // Renderizado de botones de acción
+                                                if (field === 'actions') {
+                                                    return (
+                                                        <td key={field}>
+                                                            <div className="actions-cell">
+                                                                {isEditing ? (
+                                                                    <>
+                                                                        <button onClick={() => handleUpdate(survey._id)} className="action-button" title="Guardar Cambios"><Save className="update-icon" /></button>
+                                                                        <button onClick={() => toggleEdit(survey)} className="action-button" title="Cancelar Edición"><XCircle className="delete-icon" /></button>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <button onClick={() => toggleEdit(survey)} className="action-button" title="Editar Datos"><Edit className="update-icon" /></button>
+                                                                        {/* Botón de Validar: Solo visible si NO está validado */}
+                                                                        {survey.validado !== 'VALIDADO' && (
+                                                                            <button onClick={() => handleValidate(survey._id)} className="action-button" title="Validar Encuesta"><CheckCircle className="validate-icon" /></button>
+                                                                        )}
+                                                                        <button onClick={() => handleInvalidateAndDelete(survey._id)} className="action-button" title="No Validar y Eliminar"><XCircle className="delete-icon" /></button>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    );
+                                                }
+                                                
+                                                if (field === 'validado') {
+                                                    return (
+                                                        <td key={field}>
+                                                            <span className={`status-badge ${statusClass}`}>
+                                                                {value}
+                                                            </span>
+                                                        </td>
+                                                    );
+                                                }
+
+                                                if (header.editable && isEditing) {
+                                                    const inputType = field === 'fecha' ? 'date' : 'text';
+                                                    return (
+                                                        <td key={field}>
+                                                            <input
+                                                                type={inputType}
+                                                                className="table-input"
+                                                                value={String(value)}
+                                                                onChange={(e) => handleInputChange(survey._id, field, e.target.value)}
+                                                            />
+                                                        </td>
+                                                    );
+                                                }
+
+                                                return <td key={field}>{value}</td>;
+                                            })}
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            </main>
+        </div>
+    );
 };
+
+export default EncuestasPage;
