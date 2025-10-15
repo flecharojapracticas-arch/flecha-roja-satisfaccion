@@ -47,22 +47,21 @@ app.use('/api/auth', authRouter.router);
 app.use('/api/metrics', authenticateToken, metricsRouter); 
 
 // *****************************************************************
-// 🔑 SOLUCIÓN CRÍTICA: Montar el Router de Encuestas
+// 🔑 MONTAJE CRÍTICO DEL CRUD DE ENCUESTAS (Protegido)
 // *****************************************************************
-// 🚨 CAMBIO CRÍTICO: Montamos en '/api' para que surveys.js (que tiene /encuestas) 
-// resuelva correctamente a /api/encuestas.
+// Esta es la inyección que surveys.js necesita para funcionar, y evita el error 404.
 app.use('/api', authenticateToken, (req, res, next) => {
-    // Inyectar la base de datos para todas las rutas protegidas que lo necesiten
+    // 1. Inyectar la base de datos
     req.db = app.locals.client.db(DB_NAME); 
-    // 🚨 SOLUCIÓN AL ERROR: Inyectar el nombre de la colección que surveys.js espera
+    // 2. Inyectar el nombre de la colección que surveys.js espera (getCollection)
     req.COLLECTION_NAME = COLLECTION_NAME; 
     next();
 }, surveysRouter);
 // *****************************************************************
 
 
-// RUTA PROTEGIDA: Obtener todos los datos (para el dashboard)
-// NOTA: Esta ruta seguirá usando la forma antigua de obtener la DB (no usa req.db)
+// RUTA PROTEGIDA: Obtener todos los datos (para el dashboard principal)
+// Mantenemos esta ruta tal como la tenías originalmente, usando app.locals.client
 app.get('/api/data', authenticateToken, async (req, res) => {
     try {
         const database = app.locals.client.db(DB_NAME);
@@ -79,11 +78,10 @@ app.get('/api/data', authenticateToken, async (req, res) => {
 
 
 // RUTA POST: Recibir datos del formulario (Pública)
+// 🚨 REPARACIÓN: Aseguramos que el acceso a app.locals.client se haga correctamente.
 app.post('/api/save_data', async (req, res) => {
-    // 1. Aseguramos que req.body sea un objeto, incluso si está vacío.
     const receivedData = req.body || {}; 
     
-    // 2. Mapeo explícito para garantizar que todos los campos existan en MongoDB.
     const surveyDocument = {
         // Campos de Identificación
         claveEncuestador: receivedData.claveEncuestador || "",
@@ -96,26 +94,17 @@ app.post('/api/save_data', async (req, res) => {
         tipoServicio: receivedData.tipoServicio || "", 
         medioAdquisicion: receivedData.medioAdquisicion || "",
 
-        // Calificaciones y Comentarios (Experiencia de Compra)
+        // Calificaciones y Comentarios
         califExperienciaCompra: receivedData.califExperienciaCompra || "",
         comentExperienciaCompra: receivedData.comentExperienciaCompra || "",
-        
-        // Calificaciones y Comentarios (Servicio del Conductor)
         califServicioConductor: receivedData.califServicioConductor || "", 
         comentServicioConductor: receivedData.comentServicioConductor || "",
-        
-        // Calificaciones y Comentarios (Comodidad a bordo)
         califComodidad: receivedData.califComodidad || "",
         comentComodidad: receivedData.comentComodidad || "",
-        
-        // Calificaciones y Comentarios (Limpieza a bordo)
         califLimpieza: receivedData.califLimpieza || "",
         comentLimpieza: receivedData.comentLimpieza || "",
-        
-        // Seguridad y Expectativas
         califSeguridad: receivedData.califSeguridad || "",
         especifSeguridad: receivedData.especifSeguridad || "",
-        
         cumplioExpectativas: receivedData.cumplioExpectativas || "", 
         especificarMotivo: receivedData.especificarMotivo || "",
         
@@ -127,7 +116,7 @@ app.post('/api/save_data', async (req, res) => {
     };
 
     try {
-        // Acceder al cliente a través de app.locals (Ruta pública)
+        // 🔑 REPARACIÓN: Acceso al cliente a través de app.locals, tal como lo tenías.
         const database = app.locals.client.db(DB_NAME); 
         const collection = database.collection(COLLECTION_NAME);
         
