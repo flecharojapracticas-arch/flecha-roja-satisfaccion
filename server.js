@@ -97,8 +97,6 @@ app.post('/api/save_data', async (req, res) => {
         origenViaje: receivedData.origenViaje || "",
         otroDestino: receivedData.otroDestino || "",
         destinoFinal: receivedData.destinoFinal || "",
-        // 🚀 MODIFICACIÓN 3: Agregar campo tipoServicio y validado para la consistencia del schema
-        tipoServicio: receivedData.tipoServicio || "", // ⬅️ Campo FALTANTE agregado
         medioAdquisicion: receivedData.medioAdquisicion || "",
 
         // Calificaciones y Comentarios (Experiencia de Compra)
@@ -106,7 +104,7 @@ app.post('/api/save_data', async (req, res) => {
         comentExperienciaCompra: receivedData.comentExperienciaCompra || "",
         
         // Calificaciones y Comentarios (Servicio del Conductor)
-        califServicioConductor: receivedData.califServicioConductor || "", 
+        califServicioConductor: receivedData.califServicioConductor || "", // ⬅️ **CORREGIDO**
         comentServicioConductor: receivedData.comentServicioConductor || "",
         
         // Calificaciones y Comentarios (Comodidad a bordo)
@@ -121,17 +119,17 @@ app.post('/api/save_data', async (req, res) => {
         califSeguridad: receivedData.califSeguridad || "",
         especifSeguridad: receivedData.especifSeguridad || "",
         
-        cumplioExpectativas: receivedData.cumplioExpectativas || "", 
+        cumplioExpectativas: receivedData.cumplioExpectativas || "", // ⬅️ **CORREGIDO**
         especificarMotivo: receivedData.especificarMotivo || "",
 
-        validado: receivedData.validado || "PENDIENTE", // ⬅️ Campo FALTANTE agregado (o se toma del formulario)
+        validado: receivedData.validado || "PENDIENTE", // 🔑 MODIFICACIÓN 3: Agregado el campo 'validado'
         
         // Datos automáticos
         timestampServidor: new Date().toISOString(),
     };
 
     try {
-        // Acceder al cliente a través de app.locals (conexión que ya te funcionó)
+        // Acceder al cliente a través de app.locals
         const database = app.locals.client.db(DB_NAME); 
         const collection = database.collection(COLLECTION_NAME);
         
