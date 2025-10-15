@@ -2,14 +2,22 @@ const express = require('express');
 const { ObjectId } = require('mongodb');
 const router = express.Router(); 
 
+// NOTA: Usamos el cliente global de app.locals para asegurar la conexión
 const getCollection = (req) => {
-    if (!req.db || !req.COLLECTION_NAME) {
-        throw new Error('Database or Collection name not injected into request object.');
+    // Definiciones de la DB conocidas por server.js
+    const DB_NAME = 'flecha_roja_db'; 
+    const COLLECTION_NAME = 'satisfaccion_clientes';
+    
+    if (!req.app.locals.client) {
+        // Esto solo ocurriría si el servidor no se conectó correctamente al inicio.
+        throw new Error('Database connection client not available in app.locals.');
     }
-    return req.db.collection(req.COLLECTION_NAME);
+    return req.app.locals.client.db(DB_NAME).collection(COLLECTION_NAME);
 };
 
-// RUTA GET: Obtener Encuestas (Resuelve a /api/encuestas)
+// ----------------------------------------------------
+// 1. RUTA GET: Obtener Encuestas (Resuelve a /api/encuestas)
+// ----------------------------------------------------
 router.get('/encuestas', async (req, res) => {
     try {
         const collection = getCollection(req);
@@ -17,7 +25,7 @@ router.get('/encuestas', async (req, res) => {
         
         const filter = {};
         if (validado) {
-            filter.validado = validado;
+            filter.validado = validado; 
         }
 
         const data = await collection.find(filter).sort({ timestampServidor: -1 }).toArray();
@@ -29,7 +37,10 @@ router.get('/encuestas', async (req, res) => {
     }
 });
 
-// RUTA PUT: Actualizar una encuesta (Edición y Validar)
+// ----------------------------------------------------
+// 2. RUTA PUT: Actualizar una encuesta (Edición y Validar)
+// Resuelve a /api/encuestas/:id
+// ----------------------------------------------------
 router.put('/encuestas/:id', async (req, res) => {
     try {
         const collection = getCollection(req);
@@ -56,7 +67,10 @@ router.put('/encuestas/:id', async (req, res) => {
 });
 
 
-// RUTA DELETE: Eliminar una encuesta (Marca como ELIMINADO)
+// ----------------------------------------------------
+// 3. RUTA DELETE: Eliminar una encuesta (Marca como ELIMINADO)
+// Resuelve a /api/encuestas/:id
+// ----------------------------------------------------
 router.delete('/encuestas/:id', async (req, res) => {
     try {
         const collection = getCollection(req);
