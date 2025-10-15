@@ -1,129 +1,99 @@
 const express = require('express');
-const { ObjectId } = require('mongodb'); // Necesario para trabajar con _id
 const router = express.Router();
+const { ObjectId } = require('mongodb');
 
-// Middleware para validar el ObjectId
-const validateObjectId = (req, res, next) => {
-    if (!ObjectId.isValid(req.params.id)) {
-        return res.status(400).send({ message: 'ID de encuesta no válido.' });
-    }
-    next();
-};
-
-/**
- * RUTA GET /api/dashboard/surveys
- * Obtiene todas las encuestas con opción de filtrado.
- */
+// =======================================================
+// RUTA 1: GET /api/dashboard/surveys
+// Obtener encuestas con filtros
+// =======================================================
 router.get('/surveys', async (req, res) => {
+    // La inyección de req.db y req.COLLECTION_NAME ocurre en server.js
+    const db = req.db; 
+    const COLLECTION_NAME = req.COLLECTION_NAME;
+
+    if (!db || !COLLECTION_NAME) {
+        return res.status(500).json({ message: "Error interno: Base de datos no inicializada en el request." });
+    }
+
     try {
-        const db = req.db; // Inyectado desde server.js
-        const collectionName = req.COLLECTION_NAME; // Inyectado desde server.js
-        const collection = db.collection(collectionName);
-
-        // Crear el objeto de filtro dinámicamente
+        const collection = db.collection(COLLECTION_NAME);
+        const { folioBoleto, origenViaje, destinoFinal, cumplioExpectativas } = req.query;
+        
+        // Construir el objeto de filtros
         const filter = {};
+        if (folioBoleto) filter.folioBoleto = folioBoleto;
+        if (origenViaje) filter.origenViaje = origenViaje;
+        if (destinoFinal) filter.destinoFinal = destinoFinal;
+        if (cumplioExpectativas) filter.cumplioExpectativas = cumplioExpectativas;
+
+        // CRÍTICO: Ordenar por timestamp para mostrar lo más reciente primero
+        const sortOptions = { timestampServidor: -1 }; 
+
+        const data = await collection.find(filter).sort(sortOptions).toArray();
         
-        // ** Filtros **
-        // 1. folioBoleto (Búsqueda exacta)
-        if (req.query.folioBoleto) {
-            filter.folioBoleto = req.query.folioBoleto;
-        }
-
-        // 2. origenViaje (Terminal)
-        if (req.query.origenViaje) {
-            filter.origenViaje = req.query.origenViaje;
-        }
-
-        // 3. destinoFinal
-        if (req.query.destinoFinal) {
-            filter.destinoFinal = req.query.destinoFinal;
-        }
-
-        // 4. cumplioExpectativas (Experiencia)
-        if (req.query.cumplioExpectativas) {
-            filter.cumplioExpectativas = req.query.cumplioExpectativas;
-        }
-        
-        // Opción: Muestra las no validadas primero por defecto si no hay filtros específicos
-        // Si el filtro está vacío, ordenamos por validado (false primero) y luego por fecha
-        const sortOptions = { 
-             validado: 1, // 1: ascendente (false va antes de true)
-             timestampServidor: -1 // -1: descendente (más reciente primero)
-        };
-
-        const surveys = await collection.find(filter).sort(sortOptions).toArray();
-        
-        // Aseguramos que el campo 'validado' exista, por defecto es false si no está
-        const safeSurveys = surveys.map(s => ({
-            ...s,
-            validado: s.validado === true 
-        }));
-
-        res.json(safeSurveys);
+        // Éxito: devolver JSON
+        res.json(data);
 
     } catch (error) {
-        console.error('Error al obtener encuestas:', error);
-        res.status(500).send({ message: 'Error interno del servidor al obtener encuestas.' });
+        console.error('Error al obtener encuestas con filtros:', error);
+        // CRÍTICO: Devolver un error JSON, no HTML
+        res.status(500).json({ message: 'Error interno del servidor al obtener las encuestas.', details: error.message });
     }
 });
 
+// =======================================================
+// RUTA 2: PUT /api/dashboard/surveys/:id (Validar Encuesta)
+// =======================================================
+router.put('/surveys/:id', async (req, res) => {
+    const db = req.db;
+    const COLLECTION_NAME = req.COLLECTION_NAME;
+    const { id } = req.params;
+    const { validado } = req.body; 
 
-/**
- * RUTA PUT /api/dashboard/surveys/:id
- * Actualiza una encuesta (usado para validación y edición).
- */
-router.put('/surveys/:id', validateObjectId, async (req, res) => {
     try {
-        const db = req.db;
-        const collection = db.collection(req.COLLECTION_NAME);
-        const { id } = req.params;
+        if (typeof validado !== 'boolean') {
+            return res.status(400).json({ message: "El campo 'validado' es requerido y debe ser booleano." });
+        }
         
-        // Solo permitimos la actualización de los campos relevantes (validado, o campos de edición)
-        const updateFields = req.body;
+        const collection = db.collection(COLLECTION_NAME);
         
-        // Previene la actualización de campos críticos o inyectados
-        delete updateFields._id; 
-        delete updateFields.timestampServidor;
-
         const result = await collection.updateOne(
             { _id: new ObjectId(id) },
-            { $set: updateFields }
+            { $set: { validado: validado, timestampValidacion: new Date().toISOString() } }
         );
 
         if (result.matchedCount === 0) {
-            return res.status(404).send({ message: 'Encuesta no encontrada.' });
+            return res.status(404).json({ message: "Encuesta no encontrada." });
         }
 
-        res.status(200).send({ message: 'Encuesta actualizada correctamente.' });
-
+        res.json({ message: `Encuesta ${id} actualizada a validado: ${validado}.` });
     } catch (error) {
-        console.error('Error al actualizar encuesta:', error);
-        res.status(500).send({ message: 'Error interno del servidor al actualizar encuesta.' });
+        console.error('Error al validar/actualizar encuesta:', error);
+        res.status(500).json({ message: 'Error interno del servidor al actualizar la encuesta.', details: error.message });
     }
 });
 
+// =======================================================
+// RUTA 3: DELETE /api/dashboard/surveys/:id (Eliminar)
+// =======================================================
+router.delete('/surveys/:id', async (req, res) => {
+    const db = req.db;
+    const COLLECTION_NAME = req.COLLECTION_NAME;
+    const { id } = req.params;
 
-/**
- * RUTA DELETE /api/dashboard/surveys/:id
- * Elimina una encuesta (Usado para 'No Validar').
- */
-router.delete('/surveys/:id', validateObjectId, async (req, res) => {
     try {
-        const db = req.db;
-        const collection = db.collection(req.COLLECTION_NAME);
-        const { id } = req.params;
+        const collection = db.collection(COLLECTION_NAME);
         
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
         if (result.deletedCount === 0) {
-            return res.status(404).send({ message: 'Encuesta no encontrada.' });
+            return res.status(404).json({ message: "Encuesta no encontrada para eliminar." });
         }
 
-        res.status(200).send({ message: 'Encuesta eliminada correctamente.' });
-
+        res.json({ message: `Encuesta ${id} eliminada con éxito.` });
     } catch (error) {
         console.error('Error al eliminar encuesta:', error);
-        res.status(500).send({ message: 'Error interno del servidor al eliminar encuesta.' });
+        res.status(500).json({ message: 'Error interno del servidor al eliminar la encuesta.', details: error.message });
     }
 });
 

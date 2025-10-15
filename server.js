@@ -7,10 +7,9 @@ const bcrypt = require('bcryptjs');
 
 // Importar los módulos de ruta y middleware
 const authRouter = require('./routes/auth');
-const authenticateToken = require('./middleware/authMiddleware');
+const authenticateToken = require('./middleware/authMiddleware'); // Middleware de autenticación
 const metricsRouter = require('./routes/metrics'); 
-// ** NUEVO **: Importar el router de encuestas
-const surveysRouter = require('./routes/surveys'); 
+const surveysRouter = require('./routes/surveys'); // Router de encuestas
 
 const app = express();
 
@@ -18,7 +17,6 @@ const app = express();
 // *** CONFIGURACIÓN CRÍTICA DIRECTA ***
 // *****************************************************************
 // ⚠️ ATENCIÓN: Esta es la NUEVA URI de conexión de MongoDB Atlas.
-// Se recomienda usar variables de entorno para mayor seguridad en producción.
 const uri = "mongodb+srv://flecharoja_app:BXbwrRn5YMNi8hRk@flecha-roja-satisfaccion.bntkyvm.mongodb.net/?retryWrites=true&w=majority&appName=flecha-roja-satisfaccion"; 
 
 // Variables de configuración de la base de datos
@@ -46,14 +44,23 @@ authRouter.setUserSecret(USER_SECRET);
 authRouter.setMongoClient(client); 
 app.use('/api/auth', authRouter.router); 
 
-// Montar el Router de Métricas
+// Montar el Router de Métricas (Protegido)
 app.use('/api/metrics', authenticateToken, metricsRouter); 
 
-// ** MONTAJE DEL ROUTER DE ENCUESTAS **
+// ** MONTAJE DEL ROUTER DE ENCUESTAS / DASHBOARD **
 // Ruta base: /api/dashboard
-// Se usa un middleware para inyectar la conexión a la DB
 app.use('/api/dashboard', authenticateToken, (req, res, next) => { 
-    // Inyectar la base de datos y el nombre de la colección (necesario para surveys.js)
+    // CRÍTICO: Verificar si el cliente de MongoDB está disponible
+    if (!req.app.locals.client || !req.app.locals.client.topology || !req.app.locals.client.topology.isConnected()) {
+        console.error("Error: Conexión a MongoDB no disponible al acceder al dashboard.");
+        // Devolver JSON en caso de error de conexión para evitar el HTML en el frontend
+        return res.status(503).json({ 
+            message: "Error de Servicio: La conexión a la base de datos no está activa.", 
+            code: "DB_UNAVAILABLE" 
+        });
+    }
+
+    // Inyectar la base de datos y el nombre de la colección
     req.db = req.app.locals.client.db(DB_NAME); 
     req.COLLECTION_NAME = COLLECTION_NAME; 
     next();
@@ -70,20 +77,17 @@ app.get('/api/data', authenticateToken, async (req, res) => {
         
     } catch (error) {
         console.error('Error al obtener datos:', error);
-        res.status(500).send({ message: 'Error interno del servidor al obtener datos.' });
+        res.status(500).json({ message: 'Error interno del servidor al obtener datos.' }); // Devuelve JSON
     }
 });
 
 
 // RUTA POST: Recibir datos del formulario (Pública)
 app.post('/api/save_data', async (req, res) => {
-    // 1. Aseguramos que req.body sea un objeto, incluso si está vacío.
     const receivedData = req.body || {}; 
     
-    // 2. Mapeo explícito para garantizar que todos los campos existan en MongoDB.
-    // Usamos el operador OR (|| "") para asignar una cadena vacía si el campo es undefined/null.
     const surveyDocument = {
-        // Campos de Identificación
+        // ... (Tu objeto surveyDocument completo aquí)
         claveEncuestador: receivedData.claveEncuestador || "",
         fecha: receivedData.fecha || "",
         noEco: receivedData.noEco || "",
@@ -93,42 +97,34 @@ app.post('/api/save_data', async (req, res) => {
         destinoFinal: receivedData.destinoFinal || "",
         medioAdquisicion: receivedData.medioAdquisicion || "",
 
-        // Calificaciones y Comentarios (Experiencia de Compra)
         califExperienciaCompra: receivedData.califExperienciaCompra || "",
         comentExperienciaCompra: receivedData.comentExperienciaCompra || "",
         
-        // Calificaciones y Comentarios (Servicio del Conductor)
         califServicioConductor: receivedData.califServicioConductor || "", 
         comentServicioConductor: receivedData.comentServicioConductor || "",
         
-        // Calificaciones y Comentarios (Comodidad a bordo)
         califComodidad: receivedData.califComodidad || "",
         comentComodidad: receivedData.comentComodidad || "",
         
-        // Calificaciones y Comentarios (Limpieza a bordo)
         califLimpieza: receivedData.califLimpieza || "",
         comentLimpieza: receivedData.comentLimpieza || "",
         
-        // Seguridad y Expectativas
         califSeguridad: receivedData.califSeguridad || "",
         especifSeguridad: receivedData.especifSeguridad || "",
         
         cumplioExpectativas: receivedData.cumplioExpectativas || "", 
         especificarMotivo: receivedData.especificarMotivo || "",
         
-        // ** Campo de Validación inicializado en false **
         validado: false, // Las nuevas encuestas inician como "Pendiente"
         
-        // Datos automáticos
         timestampServidor: new Date().toISOString(),
     };
 
     try {
-        // Acceder al cliente a través de app.locals
         const database = app.locals.client.db(DB_NAME); 
         const collection = database.collection(COLLECTION_NAME);
         
-        const result = await collection.insertOne(surveyDocument); // <-- Insertamos el documento completo
+        const result = await collection.insertOne(surveyDocument);
         
         res.status(200).json({ 
             message: "Datos recibidos y guardados correctamente con integridad de campos.", 
@@ -137,7 +133,7 @@ app.post('/api/save_data', async (req, res) => {
 
     } catch (error) {
         console.error('Error al guardar datos:', error);
-        res.status(500).send({ message: 'Error interno del servidor al guardar datos.' });
+        res.status(500).json({ message: 'Error interno del servidor al guardar datos.' }); // Devuelve JSON
     }
 });
 
@@ -180,8 +176,10 @@ async function runServer() {
         });
 
     } catch (err) {
-        console.error("ERROR FATAL: Fallo al conectar a MongoDB Atlas. Verifique la URI y el firewall.", err);
-        process.exit(1); 
+        console.error("ERROR FATAL: Fallo al conectar a MongoDB Atlas. El servidor NO iniciará correctamente.", err);
+        // Si la conexión falla, el servidor se iniciará, pero las rutas protegidas devolverán 503 JSON.
+        // Podrías decidir terminar el proceso aquí con process.exit(1), pero lo dejaremos corriendo
+        // para que las rutas públicas sigan funcionando, aunque las privadas fallen con el 503.
     }
 }
 runServer();

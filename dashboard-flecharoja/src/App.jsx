@@ -6,7 +6,11 @@ import './App.css';
 import Login from './Login'; 
 import Dashboard from './Dashboard'; 
 import AnalisisPage from './pages/Analisis'; 
-import EncuestasPage from './pages/Encuestas'; 
+
+// ✅ CORRECCIÓN APLICADA: Usamos la importación nombrada { Encuestas } 
+// y le damos el alias 'EncuestasPage' para que coincida con tu código.
+import { Encuestas as EncuestasPage } from './pages/Encuestas'; 
+
 import ResultadosPage from './pages/Resultados'; 
 import ResumenPage from './pages/Resumen'; 
 
@@ -119,7 +123,7 @@ function App() {
                     } 
                 />
                 
-                {/* 4. RUTAS SECUNDARIAS (Ahora incluyendo ANÁLISIS correctamente) */}
+                {/* 4. RUTAS SECUNDARIAS */}
                 
                 {/* ANÁLISIS: Carga el componente AnalisisPage.tsx */}
                 <Route 

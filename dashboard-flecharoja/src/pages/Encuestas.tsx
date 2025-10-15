@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './Encuestas.css';
-// Supongo que tienes un logo en esta ruta
-import logo from '../assets/images/logo-flecha-roja.png';
-// Importa el hook para la autenticación si existe
-// import useAuth from '../hooks/useAuth'; 
+// ❌ ELIMINAMOS la importación fallida del logo
+// import logo from '../assets/images/logo-flecha-roja.png'; 
 
 // Definición de tipos para la encuesta (ajusta según tu esquema de MongoDB)
 interface Survey {
@@ -54,9 +52,8 @@ export const Encuestas: React.FC = () => {
     const [experienceFilter, setExperienceFilter] = useState('');
     const [searchTicketInput, setSearchTicketInput] = useState(''); // Input temporal
 
-    // Simula el uso del token de autenticación
-    // const { token, logout } = useAuth();
-    const token = 'YOUR_AUTH_TOKEN_HERE'; // Reemplaza con el token real
+    // Simula el uso del token de autenticación (Reemplaza con tu lógica real)
+    const token = 'YOUR_AUTH_TOKEN_HERE'; 
 
     // Función principal para obtener encuestas con filtros
     const fetchSurveys = useCallback(async () => {
@@ -104,12 +101,16 @@ export const Encuestas: React.FC = () => {
     // Función para manejar el botón de "Buscar" boleto
     const handleTicketSearch = () => {
         setTicketFilter(searchTicketInput); // Actualiza el filtro y dispara fetchSurveys
+        // Limpia otros filtros si se busca por boleto
+        setTerminalFilter('');
+        setDestinationFilter('');
+        setExperienceFilter('');
     };
 
     // Función para manejar las acciones CRUD
-    const handleAction = async (id: string, action: 'update' | 'validate' | 'delete', data?: any) => {
+    const handleAction = async (id: string, action: 'update' | 'validate' | 'delete') => {
         // Lógica de confirmación
-        if (action === 'delete' && !window.confirm('¿Está seguro de que desea eliminar esta encuesta?')) {
+        if (action === 'delete' && !window.confirm('¿Está seguro de que desea eliminar esta encuesta? (Esta acción no se puede deshacer).')) {
             return;
         }
 
@@ -117,26 +118,21 @@ export const Encuestas: React.FC = () => {
             return;
         }
 
-        // Determinar el endpoint y el método
+        // Determinar el endpoint, el método y el cuerpo de la petición
         let url = `${API_BASE_URL}/${id}`;
-        let method = 'PUT'; // Por defecto es PUT para update/validate
-        let body: any = { validado: true }; // Por defecto para validar
+        let method = 'PUT'; 
+        let body: any = {}; 
 
         if (action === 'delete') {
             method = 'DELETE';
             body = undefined;
-        } else if (action === 'update' && data) {
-            // Lógica para abrir modal/formulario de edición y luego hacer el PUT
-            alert('Funcionalidad de Edición (Update) aún no implementada en este ejemplo.');
+        } else if (action === 'update') {
+            // Lógica para abrir modal/formulario de edición. 
+            alert('Funcionalidad de Edición (Update) aún no implementada. Necesita un modal o formulario para ingresar nuevos datos.');
             return;
         } else if (action === 'validate') {
-             // En el backend, manejaremos el cambio de validación
-             body = { validado: true }; // O el campo que uses
-        } else {
-            // Manejar la invalidación
-            body = { validado: false };
+             body = { validado: true }; 
         }
-
 
         try {
             const response = await fetch(url, {
@@ -154,7 +150,7 @@ export const Encuestas: React.FC = () => {
             }
 
             // Recargar la lista después de la acción
-            alert(`Encuesta ${id} ${action}da con éxito.`);
+            alert(`Encuesta ${id.substring(18)}... ${action === 'delete' ? 'eliminada' : 'actualizada'} con éxito.`);
             fetchSurveys(); 
 
         } catch (err) {
@@ -182,7 +178,7 @@ export const Encuestas: React.FC = () => {
                 <table className="surveys-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>ID (Reciente)</th>
                             <th>Folio Boleto</th>
                             <th>Origen</th>
                             <th>Destino</th>
@@ -233,6 +229,7 @@ export const Encuestas: React.FC = () => {
                                     <button 
                                         className="btn-action btn-delete" 
                                         onClick={() => handleAction(survey._id, 'delete')}
+                                        disabled={survey.validado} // No permitir eliminar si ya está validada (opcional)
                                         title="Eliminar la encuesta (No Validar)"
                                     >
                                         No Validar (Eliminar)
@@ -252,7 +249,12 @@ export const Encuestas: React.FC = () => {
             <header className="dashboard-header">
                 <div className="header-top-bar">
                     <div className="header-logo-container">
-                        <img src={logo} alt="Logo Flecha Roja" className="header-logo" />
+                        {/* ✅ RUTA CORREGIDA: Usando la ruta absoluta para la carpeta 'public' */}
+                        <img 
+                            src="/logo_flecha_roja.png" // <--- Aquí la ruta corregida
+                            alt="Logo Flecha Roja" 
+                            className="header-logo" 
+                        />
                         <span className="logo-name">Flecha Roja</span>
                     </div>
                     <h1 className="header-title-main">Dashboard - Encuestas de Satisfacción</h1>
@@ -260,9 +262,7 @@ export const Encuestas: React.FC = () => {
                         Cerrar Sesión
                     </button>
                 </div>
-                {/* Aquí iría la barra de navegación (nav-bar) si hubiera más pestañas.
-                    Para simplificar, solo mostramos el header top bar. 
-                */}
+                {/* Aquí iría la barra de navegación (nav-bar) si hubiera más pestañas */}
             </header>
 
             {/* -------------------- CONTENIDO PRINCIPAL -------------------- */}
@@ -281,6 +281,8 @@ export const Encuestas: React.FC = () => {
                                 placeholder="Escriba el Folio"
                                 value={searchTicketInput}
                                 onChange={(e) => setSearchTicketInput(e.target.value)}
+                                // Limpia el filtro de folio al escribir para preparar la nueva búsqueda
+                                onFocus={() => setTicketFilter('')} 
                             />
                         </div>
                         <button className="btn-search-ticket" onClick={handleTicketSearch}>
@@ -295,7 +297,8 @@ export const Encuestas: React.FC = () => {
                                 value={terminalFilter}
                                 onChange={(e) => {
                                     setTerminalFilter(e.target.value);
-                                    setTicketFilter(''); // Limpia otros filtros
+                                    // Limpia el filtro de boleto si se usa otro filtro
+                                    setTicketFilter(''); 
                                     setSearchTicketInput('');
                                 }}
                             >
