@@ -1,74 +1,129 @@
 const express = require('express');
+const { ObjectId } = require('mongodb'); // Necesario para trabajar con _id
 const router = express.Router();
-const { ObjectId } = require('mongodb'); 
-const authenticateToken = require('../middleware/authMiddleware'); // Necesario para proteger PUT
 
-// RUTA GET (Lectura y Filtrado) - SIN AUTENTICACIÓN
-router.get('/', async (req, res) => {
+// Middleware para validar el ObjectId
+const validateObjectId = (req, res, next) => {
+    if (!ObjectId.isValid(req.params.id)) {
+        return res.status(400).send({ message: 'ID de encuesta no válido.' });
+    }
+    next();
+};
+
+/**
+ * RUTA GET /api/dashboard/surveys
+ * Obtiene todas las encuestas con opción de filtrado.
+ */
+router.get('/surveys', async (req, res) => {
     try {
-        const filters = {};
+        const db = req.db; // Inyectado desde server.js
+        const collectionName = req.COLLECTION_NAME; // Inyectado desde server.js
+        const collection = db.collection(collectionName);
+
+        // Crear el objeto de filtro dinámicamente
+        const filter = {};
         
-        // 1. Filtro por Folio de Boleto (folioBoleto)
+        // ** Filtros **
+        // 1. folioBoleto (Búsqueda exacta)
         if (req.query.folioBoleto) {
-             // Búsqueda exacta
-            filters.folioBoleto = req.query.folioBoleto; 
+            filter.folioBoleto = req.query.folioBoleto;
         }
 
-        // 2. Filtro por Terminal (origenViaje)
-        if (req.query.filterTerminal) {
-            filters.origenViaje = req.query.filterTerminal;
+        // 2. origenViaje (Terminal)
+        if (req.query.origenViaje) {
+            filter.origenViaje = req.query.origenViaje;
         }
 
-        // 3. Filtro por Destino (destinoFinal)
-        if (req.query.filterDestino) {
-            filters.destinoFinal = req.query.filterDestino;
+        // 3. destinoFinal
+        if (req.query.destinoFinal) {
+            filter.destinoFinal = req.query.destinoFinal;
+        }
+
+        // 4. cumplioExpectativas (Experiencia)
+        if (req.query.cumplioExpectativas) {
+            filter.cumplioExpectativas = req.query.cumplioExpectativas;
         }
         
-        // 4. Filtro por Experiencia (cumplioExpectativas)
-        if (req.query.filterExpectativa) {
-            filters.cumplioExpectativas = req.query.filterExpectativa;
-        }
+        // Opción: Muestra las no validadas primero por defecto si no hay filtros específicos
+        // Si el filtro está vacío, ordenamos por validado (false primero) y luego por fecha
+        const sortOptions = { 
+             validado: 1, // 1: ascendente (false va antes de true)
+             timestampServidor: -1 // -1: descendente (más reciente primero)
+        };
+
+        const surveys = await collection.find(filter).sort(sortOptions).toArray();
         
-        // Obtener datos de la colección 'satisfaccion_clientes'
-        const surveys = await req.db.collection(req.COLLECTION_NAME).find(filters).toArray();
-        
-        res.json(surveys);
+        // Aseguramos que el campo 'validado' exista, por defecto es false si no está
+        const safeSurveys = surveys.map(s => ({
+            ...s,
+            validado: s.validado === true 
+        }));
+
+        res.json(safeSurveys);
+
     } catch (error) {
-        console.error("Error al obtener encuestas:", error);
-        res.status(500).json({ message: "Error interno del servidor al cargar datos" });
+        console.error('Error al obtener encuestas:', error);
+        res.status(500).send({ message: 'Error interno del servidor al obtener encuestas.' });
     }
 });
 
-// RUTA PUT (Actualizar/Validar/No Validar) - CON AUTENTICACIÓN
-router.put('/:id', authenticateToken, async (req, res) => {
-    // Los campos a actualizar deben ser enviados en el cuerpo (req.body)
-    const updates = req.body;
-    
-    // Si la solicitud es para "No Validar", eliminamos el documento
-    if (updates.validado === 'ELIMINADO_Y_BORRAR') {
-         try {
-            const result = await req.db.collection(req.COLLECTION_NAME).deleteOne(
-                { _id: new ObjectId(req.params.id) }
-            );
-            if (result.deletedCount === 0) return res.status(404).json({ message: "Encuesta no encontrada para eliminar" });
-            return res.json({ message: "Encuesta eliminada correctamente" });
-        } catch (error) {
-            console.error("Error al eliminar:", error);
-            return res.status(500).json({ message: "Error al intentar eliminar la encuesta" });
-        }
-    }
 
-    // Para cualquier otra actualización (Validar, o editar campos)
+/**
+ * RUTA PUT /api/dashboard/surveys/:id
+ * Actualiza una encuesta (usado para validación y edición).
+ */
+router.put('/surveys/:id', validateObjectId, async (req, res) => {
     try {
-        const result = await req.db.collection(req.COLLECTION_NAME).updateOne(
-            { _id: new ObjectId(req.params.id) }, 
-            { $set: updates }
+        const db = req.db;
+        const collection = db.collection(req.COLLECTION_NAME);
+        const { id } = req.params;
+        
+        // Solo permitimos la actualización de los campos relevantes (validado, o campos de edición)
+        const updateFields = req.body;
+        
+        // Previene la actualización de campos críticos o inyectados
+        delete updateFields._id; 
+        delete updateFields.timestampServidor;
+
+        const result = await collection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: updateFields }
         );
-        if (result.matchedCount === 0) return res.status(404).json({ message: "Encuesta no encontrada" });
-        res.json({ message: "Encuesta actualizada correctamente" });
+
+        if (result.matchedCount === 0) {
+            return res.status(404).send({ message: 'Encuesta no encontrada.' });
+        }
+
+        res.status(200).send({ message: 'Encuesta actualizada correctamente.' });
+
     } catch (error) {
-        console.error("Error al actualizar:", error);
-        res.status(500).json({ message: "Error al actualizar" });
+        console.error('Error al actualizar encuesta:', error);
+        res.status(500).send({ message: 'Error interno del servidor al actualizar encuesta.' });
+    }
+});
+
+
+/**
+ * RUTA DELETE /api/dashboard/surveys/:id
+ * Elimina una encuesta (Usado para 'No Validar').
+ */
+router.delete('/surveys/:id', validateObjectId, async (req, res) => {
+    try {
+        const db = req.db;
+        const collection = db.collection(req.COLLECTION_NAME);
+        const { id } = req.params;
+        
+        const result = await collection.deleteOne({ _id: new ObjectId(id) });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).send({ message: 'Encuesta no encontrada.' });
+        }
+
+        res.status(200).send({ message: 'Encuesta eliminada correctamente.' });
+
+    } catch (error) {
+        console.error('Error al eliminar encuesta:', error);
+        res.status(500).send({ message: 'Error interno del servidor al eliminar encuesta.' });
     }
 });
 
