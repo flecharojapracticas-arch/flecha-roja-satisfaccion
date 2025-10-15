@@ -6,208 +6,200 @@
     consistencia visual y facilitar el mantenimiento.
 ============================================================ */
 :root {
-  /* ========== PALETA DE COLORES ========== */
-  /* Color principal del tema institucional verde */
-  --primary-color: #2a655f;
-  /* Color secundario para estados hover y elementos destacados */
-  --secondary-color: #1f4e4a;
-  /* Color de fondo general de la aplicación */
-  --background-color: #f8f8f8;
-  /* Color de bordes para tarjetas y contenedores */
-  --card-border-color: #e0e0e0;
-  /* Colores de texto */
-  --text-dark: #444; /* Texto principal */
-  --text-light: #888; /* Texto secundario/subtítulos */
-  
-  /* Colores de Acciones y Estados */
-  --color-valid: #17B874; /* Verde para Validar/Éxito */
-  --color-invalid: #E74C3C; /* Rojo para No Validar/Error */
-  --color-update: #F9A825; /* Amarillo para Actualizar */
+    /* ========== PALETA DE COLORES ========== */
+    /* Color principal del tema institucional verde */
+    --primary-color: #2a655f;
+    /* Color secundario para estados hover y elementos destacados */
+    --secondary-color: #1f4e4a;
+    /* Color de fondo general de la aplicación */
+    --background-color: #f8f8f8;
+    /* Color de bordes para tarjetas y contenedores */
+    --card-border-color: #e0e0e0;
+    /* Colores de texto */
+    --text-dark: #444; /* Texto principal */
+    --text-light: #888; /* Texto secundario/subtítulos */
+    
+    /* Colores de Acciones y Estados */
+    --color-valid: #17B874; /* Verde para Validar/Éxito */
+    --color-invalid: #E74C3C; /* Rojo para No Validar/Error */
+    --color-update: #F9A825; /* Amarillo para Actualizar */
+    --color-delete: #E74C3C; /* Rojo para Eliminar */
+    --color-pending: #4A90E2; /* Azul para Pendiente */
 
-  /* ========== SISTEMA DE ESPACIADO ========== */
-  --spacing-xs: 4px; /* Extra pequeño - espacios mínimos */
-  --spacing-sm: 8px; /* Pequeño - espacios compactos */
-  --spacing-md: 12px; /* Mediano - espaciado estándar */
-  --spacing-lg: 16px; /* Grande - separación entre secciones */
-  --spacing-xl: 20px; /* Extra grande - márgenes principales */
-  --spacing-2xl: 24px; /* Doble extra grande - separaciones mayores */
+    /* ========== SISTEMA DE ESPACIADO ========== */
+    --spacing-xs: 4px; /* Extra pequeño - espacios mínimos */
+    --spacing-sm: 8px; /* Pequeño - espacios compactos */
+    --spacing-md: 12px; /* Mediano - espaciado estándar */
+    --spacing-lg: 16px; /* Grande - separación entre secciones */
+    --spacing-xl: 20px; /* Extra grande - márgenes principales */
+    --spacing-2xl: 24px; /* Doble extra grande - separaciones mayores */
 
-  /* ========== RADIOS DE BORDE ========== */
-  --radius-sm: 6px; /* Pequeño - botones y elementos pequeños */
-  --radius-md: 8px; /* Mediano - tarjetas secundarias */
-  --radius-lg: 10px; /* Grande - tarjetas principales */
+    /* ========== RADIOS DE BORDE ========== */
+    --radius-sm: 6px; /* Pequeño - botones y elementos pequeños */
+    --radius-md: 8px; /* Mediano - tarjetas secundarias */
+    --radius-lg: 10px; /* Grande - tarjetas principales */
 
-  /* ========== SISTEMA DE SOMBRAS ========== */
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06); /* Sombra sutil */
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08); /* Sombra media */
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12); /* Sombra pronunciada */
-  --shadow-header: 0 2px 8px rgba(0, 0, 0, 0.15); /* Sombra específica para header */
+    /* ========== SISTEMA DE SOMBRAS ========== */
+    --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06); /* Sombra sutil */
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08); /* Sombra media */
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12); /* Sombra pronunciada */
+    --shadow-header: 0 2px 8px rgba(0, 0, 0, 0.15); /* Sombra específica para header */
 
-  /* ========== TRANSICIONES ========== */
-  --transition-fast: 0.2s ease; /* Transición rápida - hover, clicks */
-  --transition-medium: 0.3s ease; /* Transición media - cambios de estado */
+    /* ========== TRANSICIONES ========== */
+    --transition-fast: 0.2s ease; /* Transición rápida - hover, clicks */
+    --transition-medium: 0.3s ease; /* Transición media - cambios de estado */
 }
 
 /* ============================================================
     ESTILOS BASE GLOBALES
 ============================================================ */
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: var(--background-color);
-  color: var(--text-dark);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-dark);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-  line-height: 1.2;
+    margin: 0;
+    line-height: 1.2;
 }
 
 /* ============================================================
     CONTENEDOR PRINCIPAL DEL DASHBOARD (Layout General)
 ============================================================ */
 .dashboard-container {
-  min-height: 100vh;
-  background-color: var(--background-color);
-  padding-top: 90px; 
+    min-height: 100vh;
+    background-color: var(--background-color);
+    padding-top: 90px; 
 }
 
 /* ============================================================
     HEADER FIJO - ESTRUCTURA DE DOS NIVELES
 ============================================================ */
 .dashboard-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  background-color: var(--primary-color);
-  box-shadow: var(--shadow-header);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background-color: var(--primary-color);
+    box-shadow: var(--shadow-header);
 }
 
 /* ========== BARRA SUPERIOR DEL HEADER ========== */
 .header-top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  gap: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    gap: var(--spacing-md);
 }
 
 .header-logo-container {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    flex-shrink: 0;
 }
 
 .header-logo {
-  height: 40px;
-  width: auto;
-  display: block;
+    height: 40px;
+    width: auto;
+    display: block;
 }
 
 .header-title-main {
-  color: white;
-  font-size: 1.125rem;
-  font-weight: 700;
-  text-align: center;
-  flex: 1;
-  letter-spacing: 0.3px;
-  display: none;
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 700;
+    text-align: center;
+    flex: 1;
+    letter-spacing: 0.3px;
+    display: none;
 }
 
 @media (min-width: 768px) {
-  .header-title-main {
-    display: block;
-  }
+    .header-title-main {
+        display: block;
+    }
 }
 
-/* ========== BOTÓN DE CERRAR SESIÓN ========== */
-.btn-logout {
-  background-color: var(--secondary-color);
-  color: white;
-  font-weight: 600;
-  padding: 8px 16px;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  font-size: 0.875rem;
-  white-space: nowrap;
-  flex-shrink: 0;
+/* ========== BOTÓN DE NAVEGACIÓN (Ir al Dashboard) ========== */
+.btn-dashboard-nav {
+    display: flex;
+    align-items: center;
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
-.btn-logout:hover {
-  background-color: #173b38;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+.btn-dashboard-nav:hover {
+    background-color: #173b38;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-.btn-logout:active {
-  transform: translateY(0);
+.btn-dashboard-nav:active {
+    transform: translateY(0);
 }
 
-/* ============================================================
-    BARRA DE NAVEGACIÓN (TABS)
-============================================================ */
-.nav-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background-color: white;
-  box-shadow: var(--shadow-sm);
-}
-
-/* ========== BOTONES DE NAVEGACIÓN ========== */
-.nav-button {
-  background-color: var(--primary-color);
-  color: white;
-  font-weight: 600;
-  padding: 8px 20px;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  font-size: 0.875rem;
-  white-space: nowrap;
-}
-
-.nav-button:hover:not(.active) {
-  background-color: var(--secondary-color);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.nav-button:active:not(.active) {
-  transform: translateY(0);
-}
-
-.nav-button.active {
-  background-color: #e6e6e6;
-  color: var(--primary-color);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
 
 /* ============================================================
     CONTENIDO PRINCIPAL
 ============================================================ */
 .dashboard-main-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: var(--spacing-lg) var(--spacing-md);
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-lg) var(--spacing-md);
 }
+
+/* ============================================================
+    MENSAJES DE ESTADO (Carga, Error, Sin Datos)
+============================================================ */
+.loading-message, .error-message, .no-data-message {
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.loading-message {
+    background-color: #e6f7ff;
+    color: #1890ff;
+}
+
+.error-message {
+    background-color: #fff1f0;
+    color: var(--color-invalid);
+    border: 1px solid #ffccc7;
+}
+
+.no-data-message {
+    background-color: #ffffff;
+    color: var(--text-light);
+    border: 1px solid var(--card-border-color);
+}
+
 
 /* ============================================================
     HEADER ESPECÍFICO DE LA PÁGINA (Encuestas)
@@ -242,7 +234,7 @@ h1, h2, h3, h4, h5, h6 {
 ============================================================ */
 .filters-container {
     display: flex;
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan */
     gap: var(--spacing-md);
     background: white;
     padding: var(--spacing-lg);
@@ -251,15 +243,15 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid var(--card-border-color);
     box-shadow: var(--shadow-md);
     align-items: center;
-    justify-content: flex-start; /* Alinea los filtros a la izquierda */
+    justify-content: flex-start;
 }
 
 .filter-group {
     display: flex;
     gap: var(--spacing-sm);
     align-items: center;
-    flex-grow: 1; /* Permite que crezcan para llenar el espacio */
-    min-width: 250px; /* Ancho mínimo para cada grupo de filtro */
+    flex-grow: 1; 
+    min-width: 250px;
 }
 
 /* Estilo general para inputs y selects */
@@ -268,7 +260,7 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid var(--card-border-color);
     border-radius: var(--radius-sm);
     font-size: 0.9375rem;
-    flex: 1; /* Ocupa el espacio dentro del grupo */
+    flex: 1; 
     min-width: 100px;
     transition: border-color var(--transition-fast);
 }
@@ -279,44 +271,45 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 0 2px rgba(42, 101, 95, 0.2);
 }
 
-.filter-button {
+/* Botón de búsqueda (Search) */
+.btn-search {
     background-color: var(--primary-color);
     color: white;
-    font-weight: 600;
-    padding: 10px 15px;
+    padding: 10px;
     border: none;
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all var(--transition-fast);
-    font-size: 0.9375rem;
     flex-shrink: 0;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.filter-button:hover {
+.btn-search:hover {
     background-color: var(--secondary-color);
-    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
 }
 
 .filter-select {
-    appearance: none; /* Oculta la flecha por defecto en algunos navegadores */
+    appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%232a655f'%3E%3Cpath d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
-    padding-right: 30px; /* Espacio para la flecha */
+    padding-right: 30px;
 }
-
 
 /* ============================================================
     CONTENEDOR DE LA TABLA (SCROLL HORIZONTAL)
 ============================================================ */
-.table-responsive-container {
+/* Clase corregida y usada en Encuestas.tsx */
+.table-responsive {
     background: white;
     border-radius: var(--radius-lg);
     border: 1px solid var(--card-border-color);
     box-shadow: var(--shadow-md);
     padding: var(--spacing-md);
-    overflow-x: auto; /* Permite scroll horizontal */
+    overflow-x: auto;
     width: 100%;
 }
 
@@ -324,7 +317,7 @@ h1, h2, h3, h4, h5, h6 {
 .surveys-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1800px; /* Ancho mínimo para garantizar que todo el contenido quepa */
+    min-width: 2000px; /* Incrementado para el número de columnas */
 }
 
 .surveys-table th, .surveys-table td {
@@ -332,23 +325,24 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
     vertical-align: middle;
     border-bottom: 1px solid var(--card-border-color);
-    white-space: nowrap; /* Evita que el texto se envuelva */
+    white-space: nowrap;
+    font-size: 0.875rem;
 }
 
 .surveys-table th {
     background-color: var(--secondary-color);
     color: white;
     font-weight: 700;
-    font-size: 0.8125rem; /* 13px */
+    font-size: 0.8125rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    position: sticky; /* Fija el encabezado si el contenido del contenedor es scrollable */
+    position: sticky;
     top: 0;
     z-index: 10;
 }
 
 .surveys-table tbody tr:nth-child(even) {
-    background-color: #f4f4f4; /* Rayado para mejor lectura */
+    background-color: #f7f7f7;
 }
 
 .surveys-table tbody tr:hover {
@@ -356,67 +350,84 @@ h1, h2, h3, h4, h5, h6 {
     transition: background-color var(--transition-fast);
 }
 
+/* ESTADOS DE LA FILA (Validación) */
+.surveys-table tbody tr.status-validado {
+    background-color: #e6fae8; /* Verde muy claro */
+}
+
+.surveys-table tbody tr.status-pendiente {
+    background-color: #fff9e6; /* Amarillo muy claro */
+}
+
+.surveys-table tbody tr.status-no-validado {
+    background-color: #feebe8; /* Rojo muy claro */
+}
+
 /* Estilo para inputs de edición en la tabla */
-.table-input {
+.editable-input { /* Clase utilizada en Encuestas.tsx */
     padding: 5px 8px;
     border: 1px solid var(--card-border-color);
     border-radius: var(--radius-sm);
     text-align: center;
-    width: 90%;
+    width: 100%;
+    font-size: 0.875rem;
     transition: border-color var(--transition-fast);
 }
 
-.table-input:focus {
+.editable-input:focus {
     border-color: var(--color-update);
     outline: none;
+    box-shadow: 0 0 0 1px var(--color-update);
 }
-
-/* Colores de estado (Ej: Tipo Servicio) */
-.status-badge {
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    font-size: 0.75rem;
-    display: inline-block;
-}
-
-.status-badge.valid { background-color: #d4edda; color: var(--color-valid); } /* Validado */
-.status-badge.pending { background-color: #fff3cd; color: var(--color-update); } /* Pendiente */
-.status-badge.invalid { background-color: #f8d7da; color: var(--color-invalid); } /* No Validado */
-
 
 /* ============================================================
     BOTONES DE ACCIÓN EN TABLA
 ============================================================ */
-.actions-cell {
+.action-buttons { /* Contenedor de botones usado en Encuestas.tsx */
     display: flex;
     gap: var(--spacing-sm);
     justify-content: center;
     align-items: center;
 }
 
-.action-button {
+.btn-action { /* Clase general para los botones de acción */
     background: none;
     border: none;
     cursor: pointer;
-    padding: 5px;
+    padding: 6px;
     border-radius: var(--radius-sm);
     transition: all var(--transition-fast);
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
-.action-button:hover {
-    background-color: #e0e0e0;
-    transform: scale(1.1);
+.btn-action svg {
+    width: 18px;
+    height: 18px;
 }
 
-.action-button svg {
-    width: 20px;
-    height: 20px;
+/* Botones específicos */
+.btn-edit { color: var(--color-update); }
+.btn-validate { color: var(--color-valid); }
+.btn-delete { color: var(--color-delete); }
+.btn-save { 
+    color: white; 
+    background-color: var(--color-update); 
+}
+.btn-cancel { 
+    color: white; 
+    background-color: var(--color-invalid); 
 }
 
-.update-icon { color: var(--color-update); }
-.validate-icon { color: var(--color-valid); }
-.delete-icon { color: var(--color-invalid); }
+
+/* Estados Hover */
+.btn-edit:hover { background-color: rgba(249, 168, 37, 0.1); }
+.btn-validate:hover { background-color: rgba(23, 184, 116, 0.1); }
+.btn-delete:hover { background-color: rgba(231, 76, 60, 0.1); }
+
+.btn-save:hover, .btn-cancel:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-sm);
+}

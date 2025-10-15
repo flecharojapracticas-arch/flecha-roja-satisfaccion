@@ -1,3 +1,4 @@
+// surveys.js
 const express = require('express');
 const { ObjectId } = require('mongodb');
 const router = express.Router(); 
@@ -12,34 +13,57 @@ const getCollection = (req) => {
         // Esto solo ocurriría si el servidor no se conectó correctamente al inicio.
         throw new Error('Database connection client not available in app.locals.');
     }
+    // Devuelve la colección donde están guardadas las encuestas
     return req.app.locals.client.db(DB_NAME).collection(COLLECTION_NAME);
 };
 
 // ----------------------------------------------------
-// 1. RUTA GET: Obtener Encuestas (Resuelve a /api/encuestas)
+// 1. 🔑 CORRECCIÓN CRÍTICA: RUTA GET: Obtener Encuestas y Manejo de Filtros
 // ----------------------------------------------------
 router.get('/encuestas', async (req, res) => {
     try {
         const collection = getCollection(req);
-        const { validado } = req.query;
         
-        const filter = {};
-        if (validado) {
-            filter.validado = validado; 
+        // 1. EXTRAER TODOS LOS PARÁMETROS DE FILTRO (req.query)
+        const { folioBoleto, origenViaje, cumplioExpectativas, validado } = req.query;
+
+        // 2. CONSTRUIR EL OBJETO DE FILTRO PARA MONGODB
+        // Incluir siempre el filtro para excluir eliminados
+        let filter = { validado: { $ne: 'ELIMINADO' } }; 
+
+        // Filtro por Folio de Boleto
+        if (folioBoleto) {
+            filter.folioBoleto = folioBoleto; 
         }
 
+        // Filtro por Origen del Viaje (Terminal)
+        if (origenViaje) {
+            filter.origenViaje = origenViaje; 
+        }
+
+        // Filtro por Expectativas
+        if (cumplioExpectativas) {
+            filter.cumplioExpectativas = cumplioExpectativas; 
+        }
+
+        // Filtro por Estado de Validación (Si se pasa un estado específico)
+        // Sobrescribe el filtro si no es 'ELIMINADO', que ya se maneja arriba
+        if (validado && validado !== 'ELIMINADO') {
+            filter.validado = validado; 
+        }
+        
         const data = await collection.find(filter).sort({ timestampServidor: -1 }).toArray();
         
         res.status(200).json(data);
     } catch (error) {
-        console.error('Error al obtener encuestas:', error);
+        console.error('Error al obtener encuestas con filtros:', error);
         res.status(500).json({ message: 'Error interno del servidor.' });
     }
 });
 
 // ----------------------------------------------------
 // 2. RUTA PUT: Actualizar una encuesta (Edición y Validar)
-// Resuelve a /api/encuestas/:id
+// Resuelve a /api/dashboard/encuestas/:id
 // ----------------------------------------------------
 router.put('/encuestas/:id', async (req, res) => {
     try {
@@ -69,7 +93,7 @@ router.put('/encuestas/:id', async (req, res) => {
 
 // ----------------------------------------------------
 // 3. RUTA DELETE: Eliminar una encuesta (Marca como ELIMINADO)
-// Resuelve a /api/encuestas/:id
+// Resuelve a /api/dashboard/encuestas/:id
 // ----------------------------------------------------
 router.delete('/encuestas/:id', async (req, res) => {
     try {
