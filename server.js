@@ -89,7 +89,7 @@ const injectDbMiddleware = (req, res, next) => {
 // Monta surveysRouter en la ruta /api/dashboard. 
 // Esto mapea router.get('/encuestas') en surveys.js a /api/dashboard/encuestas
 // *****************************************************************************
-app.use('/api/dashboard', authenticateToken, injectDbMiddleware, surveysRouter); 
+app.use('/api/dashboard/encuestas', authenticateToken, injectDbMiddleware, surveysRouter); 
 // *****************************************************************************
 
 
