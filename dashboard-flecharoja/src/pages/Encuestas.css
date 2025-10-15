@@ -1,214 +1,66 @@
-/* Importa las variables globales y estilos base del dashboard si es necesario */
-/* @import './DashboardGlobal.css'; */
+/* ============================================================
+   SISTEMA DE DISEÑO - VARIABLES GLOBALES
+============================================================ */
+:root {
+    /* ========== PALETA DE COLORES ========== */
+    --primary-color: #2a655f;
+    --secondary-color: #1f4e4a;
+    --background-color: #f8f8f8;
+    --card-border-color: #e0e0e0;
+    --text-dark: #444;
+    --text-light: #888; 
+
+    /* ========== SISTEMA DE ESPACIADO ========== */
+    --spacing-xs: 4px; 
+    --spacing-sm: 8px; 
+    --spacing-md: 12px; 
+    --spacing-lg: 16px; 
+    --spacing-xl: 20px; 
+    
+    /* ========== RADIOS DE BORDE ========== */
+    --radius-sm: 6px; 
+    --radius-lg: 10px; 
+
+    /* ========== SISTEMA DE SOMBRAS ========== */
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-header: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    /* ========== TRANSICIONES ========== */
+    --transition-fast: 0.2s ease;
+}
 
 /* ============================================================
-    ESTILOS ESPECÍFICOS: PANTALLA DE ENCUESTAS
+   ESTILOS BASE GLOBALES Y ESTRUCTURA DE PANTALLA
 ============================================================ */
-
-/* ------------------------------------
-   Contenedor Principal de la Pantalla
------------------------------------- */
-.surveys-page-container {
-    /* Utiliza el padding del contenido principal */
-    /* Este div se colocará dentro de .dashboard-main-content */
-    padding: var(--spacing-md) 0; /* Ajuste para mantener la armonía */
+* {
+    box-sizing: border-box;
+    font-size: 15px; 
 }
 
-/* ------------------------------------
-   Caja de Filtros (Top Bar)
------------------------------------- */
-.filters-box {
-    background: white;
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--card-border-color);
-    box-shadow: var(--shadow-md);
-    display: flex;
-    flex-wrap: wrap; /* Permite que los elementos bajen en móvil */
-    gap: var(--spacing-md);
-    align-items: flex-end; /* Alinea los elementos en la parte inferior */
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
-    flex-grow: 1;
-    min-width: 180px; /* Ancho mínimo para cada grupo de filtro */
-}
-
-.filter-group label {
-    font-weight: 600;
-    font-size: 0.875rem; /* 14px */
+body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
     color: var(--text-dark);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.filter-group input,
-.filter-group select {
-    padding: 10px;
-    border: 1px solid var(--card-border-color);
-    border-radius: var(--radius-sm);
-    font-size: 1rem;
-    color: var(--text-dark);
-    transition: border-color var(--transition-fast);
+h1, h2, h3 {
+    margin: 0;
+    line-height: 1.2;
+    color: var(--primary-color);
 }
 
-.filter-group input:focus,
-.filter-group select:focus {
-    border-color: var(--primary-color);
-    outline: none;
+.dashboard-container {
+    min-height: 100vh;
+    background-color: var(--background-color);
+    padding-top: 60px; /* Espacio para el header fijo */
 }
 
-/* Botón de búsqueda específico para folioBoleto */
-.btn-search-ticket {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: 600;
-    padding: 10px var(--spacing-lg);
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-size: 1rem;
-    height: 40px; /* Mismo alto que los inputs/selects */
-    margin-top: auto; /* Alinea el botón en la parte inferior del flex container */
-}
-
-.btn-search-ticket:hover {
-    background-color: var(--secondary-color);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
-}
-
-/* ------------------------------------
-   Tabla de Encuestas (Solución al Overflow)
------------------------------------- */
-
-.surveys-table-wrapper {
-    /* Solución de Overflow: Crea un contenedor horizontalmente escroleable */
-    overflow-x: auto;
-    width: 100%;
-    /* Mantiene los estilos de la tarjeta para el contenedor general de la tabla */
-    background: white;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--card-border-color);
-    box-shadow: var(--shadow-md);
-    transition: all var(--transition-fast);
-    min-height: 500px; /* Altura mínima para mostrar el contenido */
-}
-
-/* Estilos de la tabla real */
-.surveys-table {
-    width: 100%;
-    min-width: 1800px; /* <CRÍTICO> Ancho MÍNIMO de la tabla para asegurar que los datos no se apilen y forzar el scroll */
-    border-collapse: collapse;
-    font-size: 0.875rem; /* 14px */
-    line-height: 1.4;
-}
-
-.surveys-table thead {
-    background-color: var(--secondary-color);
-    color: white;
-    position: sticky;
-    top: 0; /* Fija el encabezado si el wrapper es escroleable verticalmente */
-    z-index: 10;
-}
-
-.surveys-table th {
-    padding: var(--spacing-md) var(--spacing-lg);
-    text-align: left;
-    white-space: nowrap; /* Evita que los encabezados se envuelvan */
-}
-
-.surveys-table td {
-    padding: var(--spacing-sm) var(--spacing-lg);
-    border-bottom: 1px solid var(--card-border-color);
-    color: var(--text-dark);
-    vertical-align: top; /* Alinea el contenido de la celda en la parte superior */
-}
-
-.surveys-table tbody tr:hover {
-    background-color: #f5f5f5;
-}
-
-/* Estado de Validación (Estilos de texto) */
-.validation-status {
-    font-weight: 700;
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-    font-size: 0.75rem; /* 12px */
-    display: inline-block;
-}
-
-.status-validado {
-    background-color: #4CAF50; /* Verde */
-    color: white;
-}
-
-.status-pendiente {
-    background-color: #FFC107; /* Amarillo */
-    color: var(--text-dark);
-}
-
-/* ------------------------------------
-   Columna de Acciones (Botones CRUD)
------------------------------------- */
-
-.actions-cell {
-    display: flex;
-    gap: var(--spacing-sm);
-    white-space: nowrap; /* Mantiene los botones en una sola línea */
-    min-width: 280px; /* Reserva espacio suficiente */
-    padding-top: var(--spacing-md); /* Espaciado extra para alinear con el contenido */
-    padding-bottom: var(--spacing-md);
-}
-
-.btn-action {
-    padding: 6px 10px;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 0.8rem; /* 13px */
-    font-weight: 600;
-    transition: all var(--transition-fast);
-}
-
-.btn-edit {
-    background-color: #03a9f4; /* Azul */
-    color: white;
-}
-
-.btn-validate {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.btn-delete {
-    background-color: #f44336; /* Rojo */
-    color: white;
-}
-
-.btn-action:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
-}
-
-/* ------------------------------------
-   Estados (Carga/Error/Sin Datos)
------------------------------------- */
-.table-empty-state {
-    font-size: 1rem; /* 16px */
-    color: var(--text-light);
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 300px;
-}
-
-/* Estilos para el encabezado fijo (copia de la plantilla) */
+/* ========== HEADER FIJO ========== */
 .dashboard-header {
     position: fixed;
     top: 0;
@@ -217,6 +69,7 @@
     z-index: 200;
     background-color: var(--primary-color);
     box-shadow: var(--shadow-header);
+    height: 60px; 
 }
 
 .header-top-bar {
@@ -225,24 +78,25 @@
     justify-content: space-between;
     padding: var(--spacing-sm) var(--spacing-lg);
     gap: var(--spacing-md);
+    height: 100%;
 }
 
 .header-logo-container {
     display: flex;
     align-items: center;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
     flex-shrink: 0;
 }
 
 .header-logo {
-    height: 40px;
+    height: 35px; 
     width: auto;
     display: block;
 }
 
 .logo-name {
     font-weight: 700;
-    font-size: 0.9375rem;
+    font-size: 0.9375rem; 
     color: white;
     white-space: nowrap;
 }
@@ -254,11 +108,278 @@
     text-align: center;
     flex: 1;
     letter-spacing: 0.3px;
-    display: none;
 }
 
-@media (min-width: 768px) {
-    .header-title-main {
-        display: block;
+.btn-logout {
+    background-color: var(--secondary-color);
+    color: white;
+    font-weight: 600;
+    padding: 6px 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.btn-logout:hover {
+    background-color: #173b38;
+    box-shadow: var(--shadow-md);
+}
+
+
+/* Contenido Principal */
+.dashboard-main-content {
+    max-width: 1500px; 
+    margin: 0 auto;
+    padding: var(--spacing-lg) var(--spacing-md);
+}
+
+/* ============================================================
+   ESTILOS DE LA SECCIÓN DE ENCUESTAS (Filtros y Tabla)
+============================================================ */
+.surveys-section h2 {
+    margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* ========== CAJA DE FILTROS ========== */
+.filter-box {
+    background: white;
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--card-border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.filter-box h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-dark);
+}
+
+.filter-grid {
+    /* 5 columnas: 4 filtros + 1 botón de reset */
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); 
+    gap: var(--spacing-md);
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: var(--spacing-xs);
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 8px;
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    transition: border-color var(--transition-fast);
+}
+
+.search-input-group {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.search-input-group input {
+    flex: 1;
+}
+
+.btn-search,
+.btn-reset {
+    padding: 8px 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    font-size: 0.9rem;
+    min-width: 80px;
+}
+
+.btn-search {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-search:hover {
+    background-color: var(--secondary-color);
+}
+
+.btn-reset {
+    background-color: #a8a8a8;
+    color: white;
+    width: 100%;
+    margin-top: 20px; 
+}
+
+
+/* Responsive para Filtros (Mantenido para orden) */
+@media (max-width: 1200px) {
+    .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
+    .filter-group:nth-child(5) { 
+        grid-column: span 2;
+    }
+}
+@media (max-width: 768px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+    .filter-group:nth-child(5) {
+        grid-column: span 1;
+    }
+}
+
+
+/* ========== TABLA DE ENCUESTAS ========== */
+.table-container {
+    /* CRÍTICO: Permite el desplazamiento horizontal de la tabla */
+    overflow-x: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    background: white;
+}
+
+.surveys-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1400px; /* Asegura el ancho mínimo para evitar el colapso */
+}
+
+.surveys-table thead th {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: var(--spacing-md);
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+}
+
+.surveys-table tbody tr {
+    border-bottom: 1px solid var(--card-border-color);
+    transition: background-color var(--transition-fast);
+}
+
+.surveys-table tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.surveys-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+    vertical-align: middle;
+    white-space: nowrap; /* Evita que el texto de la tabla se rompa */
+}
+
+/* Celdas Editables */
+.editable-cell input {
+    width: 100%;
+    min-width: 80px; 
+    padding: 6px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+    font-size: inherit;
+    font-weight: 500;
+    background-color: transparent;
+}
+
+.editable-cell input:hover,
+.editable-cell input:focus {
+    border-color: var(--card-border-color);
+    background-color: #fff;
+}
+
+/* Columna de acciones */
+.actions-cell {
+    text-align: center;
+    min-width: 220px; 
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+/* Estilos específicos de botones de acción */
+.btn-save {
+    background-color: #ff9800; /* Naranja para Guardar */
+    color: white;
+}
+
+.btn-validate {
+    background-color: #4caf50; /* Verde para Validar */
+    color: white;
+}
+
+.btn-delete {
+    background-color: #f44336; /* Rojo para No Validar/Eliminar */
+    color: white;
+}
+
+/* Indicadores de Estado */
+.validation-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-pendiente {
+    background-color: #fff3e0;
+    color: #ff9800;
+}
+
+.status-validado {
+    background-color: #e8f5e9;
+    color: #4caf50;
+}
+
+.status-eliminado {
+    background-color: #ffebee;
+    color: #f44336;
+}
+
+.no-results {
+    padding: var(--spacing-xl);
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--text-light);
+}
+
+.error-message {
+    color: #d32f2f;
+    font-weight: 600;
 }
