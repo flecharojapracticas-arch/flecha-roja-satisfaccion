@@ -94,8 +94,6 @@ h1, h2, h3 {
     display: block;
 }
 
-/* ❌ ELIMINADO: .logo-name */
-
 .header-title-main {
     color: white;
     font-size: 1.125rem;
@@ -105,13 +103,14 @@ h1, h2, h3 {
     letter-spacing: 0.3px;
 }
 
-/* 🔄 BOTÓN DE NAVEGACIÓN (Dashboard) */
+/* 🔄 BOTÓN DE NAVEGACIÓN (Regresar al Inicio) */
 .btn-navigate {
-    background-color: #ff9800; /* Color distintivo para navegación */
+    /* Color primario (Verde) */
+    background-color: var(--primary-color); 
     color: white;
     font-weight: 600;
     padding: 6px 14px;
-    border: none;
+    border: 1px solid white; /* Borde blanco para destacarlo un poco */
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all var(--transition-fast);
@@ -121,7 +120,7 @@ h1, h2, h3 {
 }
 
 .btn-navigate:hover {
-    background-color: #e68900;
+    background-color: var(--secondary-color); /* Tono más oscuro al pasar el ratón */
     box-shadow: var(--shadow-md);
 }
 
@@ -136,65 +135,63 @@ h1, h2, h3 {
 /* ============================================================
    ESTILOS DE LA SECCIÓN DE ENCUESTAS (Filtros y Tabla)
 ============================================================ */
-.surveys-section h2 {
-    /* ❌ ELIMINADO: El h2 que decía "Tabla de Encuestas..." */
-}
 
-/* Texto introductorio */
+/* Texto introductorio - AHORA DENTRO DE .filter-box */
 .surveys-intro-text {
-    margin-top: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
+    margin: 0 0 var(--spacing-xl) 0; /* Espaciado inferior */
     font-size: 1rem;
-    font-style: italic;
+    font-weight: 600; /* Texto más fuerte */
+    text-align: center; /* CENTRADO SOLICITADO */
     color: var(--text-dark);
 }
 
-/* ========== CAJA DE FILTROS ========== */
+/* ========== CAJA DE FILTROS - AJUSTADA ========== */
 .filter-box {
-    background: transparent; /* Fondo transparente para integrar */
-    padding: 0;
+    background: white; 
+    padding: var(--spacing-xl);
     margin-bottom: var(--spacing-xl);
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--card-border-color);
+    box-shadow: var(--shadow-md);
+    
+    /* CRÍTICO: Alineación superior y centrado del grid */
+    display: flex; 
+    flex-direction: column; /* Para apilar el texto introductorio y el grid */
+    align-items: center; 
 }
 
-/* ❌ ELIMINADO: .filter-box h3 */
-
 .filter-grid {
-    display: flex; /* Usamos flexbox para más control de separación */
+    display: flex; 
     gap: var(--spacing-md);
     align-items: center;
-    justify-content: flex-start; /* Alineación izquierda */
-    flex-wrap: wrap; /* Para responsive */
+    justify-content: center; 
+    flex-wrap: wrap; 
+    max-width: 100%; 
 }
 
 .filter-group {
-    /* Ajustes para la nueva estructura de filtros */
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-/* ❌ ELIMINADO: .filter-group label */
-
 .filter-group input,
 .filter-group select {
-    padding: 10px 15px; /* Más padding para que parezca botón */
+    padding: 10px 15px; 
     border: 1px solid var(--card-border-color);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
     transition: border-color var(--transition-fast);
+    font-weight: 600; 
 }
 
 /* Estilo para los SELECT que parecen botones */
 .filter-group select {
-    appearance: none; /* Quita el estilo nativo de select */
+    appearance: none; 
     background-image: url('data:image/svg+xml;utf8,<svg fill="%23444" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 8px center;
-    padding-right: 30px; /* Espacio para la flecha */
-    font-weight: 600;
+    padding-right: 30px; 
     min-width: 180px;
     cursor: pointer;
 }
@@ -215,7 +212,7 @@ h1, h2, h3 {
 }
 
 .btn-search {
-    padding: 10px 15px; /* Ajuste para coincidir con el alto */
+    padding: 10px 15px; 
     border: none;
     border-left: 1px solid var(--card-border-color);
     border-radius: 0;
@@ -232,24 +229,24 @@ h1, h2, h3 {
     background-color: var(--secondary-color);
 }
 
-.btn-reset {
-    /* ❌ ELIMINADO: El botón de reset independiente, lo pondremos como un filtro más si es necesario. */
-}
 
-
-/* ========== TABLA DE ENCUESTAS ========== */
+/* ========== TABLA DE ENCUESTAS - SCROLLEABLE Y CABECERA FIJA ========== */
 .table-container {
-    overflow-x: auto;
+    /* CRÍTICO: Permite el desplazamiento horizontal de la tabla */
+    overflow-x: auto; 
+    /* CRÍTICO: Define una altura máxima y permite el scroll vertical */
+    max-height: calc(100vh - 350px); /* Ajusta esta altura según sea necesario, ejemplo 100vh - (Header + Filtros + Margen) */
+    overflow-y: auto; 
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     background: white;
-    /* Color de fondo del thead ajustado a color corporativo */
 }
 
 .surveys-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 2000px; /* Aumentado por las nuevas columnas de comentarios */
+    /* CRÍTICO: Define el ancho mínimo para forzar el scroll horizontal */
+    min-width: 2500px; 
 }
 
 .surveys-table thead th {
@@ -259,10 +256,12 @@ h1, h2, h3 {
     text-align: left;
     font-weight: 700;
     font-size: 0.85rem;
-    text-transform: none; /* Quitar uppercase */
+    text-transform: none; 
     letter-spacing: 0.1px;
-    position: sticky;
+    /* CRÍTICO: Mantiene los encabezados fijos al hacer scroll vertical */
+    position: sticky; 
     top: 0;
+    z-index: 10; /* Asegura que se superponga al cuerpo al hacer scroll */
 }
 
 .surveys-table tbody tr {
@@ -300,24 +299,28 @@ h1, h2, h3 {
     background-color: #fff;
 }
 
-/* Columna de acciones */
+/* Columna de acciones - Ajustada para ICONOS */
 .actions-cell {
     text-align: center;
-    min-width: 220px; 
+    min-width: 120px; /* Reducido al usar iconos */
     display: flex;
-    gap: 4px;
+    gap: 8px; /* Espacio entre iconos */
     justify-content: center;
     align-items: center;
 }
 
 .action-button {
-    padding: 6px 10px;
+    padding: 8px; /* Aumentado para un área de clic más grande y cuadrada */
+    width: 34px; /* Ancho fijo para botones cuadrados de iconos */
+    height: 34px; /* Alto fijo */
     border: none;
     border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 1rem; /* Tamaño del icono */
     cursor: pointer;
     transition: all var(--transition-fast);
+    display: flex; /* Para centrar el icono */
+    justify-content: center;
+    align-items: center;
 }
 
 /* Estilos específicos de botones de acción */
@@ -336,7 +339,8 @@ h1, h2, h3 {
     color: white;
 }
 
-/* Indicadores de Estado */
+/* ... (El resto de los estilos se mantienen) ... */
+
 .validation-status {
     padding: 4px 8px;
     border-radius: 4px;
