@@ -4,7 +4,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Pie, Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
+import { 
+    Chart as ChartJS, 
+    ArcElement, 
+    Tooltip, 
+    Legend, 
+    CategoryScale, 
+    LinearScale, 
+    BarElement, 
+    Title 
+} from 'chart.js';
 
 import './Analisis.css'; 
 
@@ -19,9 +28,10 @@ ChartJS.register(
     Title
 );
 
-const API_BASE_URL = 'https://flecha-roja-satisfaccion.onrender.com/api'; // Usaremos el endpoint /data
+// 🟢 CRÍTICO: ENDPOINT PÚBLICO para Análisis (No requiere token)
+const API_ANALYSIS_URL = 'https://flecha-roja-satisfaccion.onrender.com/api/analysis/general'; 
 
-// --- Constantes ---
+// --- Constantes de Diseño y Datos ---
 const PRIMARY_COLOR = '#2a655f';
 const SECONDARY_COLOR = '#1f4e4a';
 const RATING_OPTIONS = ['Muy Buena', 'Buena', 'Regular', 'Mala', 'Muy Mala'];
@@ -72,24 +82,20 @@ const Analisis: React.FC = () => {
     const [vsQuestionKey, setVsQuestionKey] = useState<keyof Survey>('califExperienciaCompra');
 
     // ----------------------------------------------------
-    // --- Lógica de Obtención de Datos ---
+    // --- Lógica de Obtención de Datos (PÚBLICA) ---
     // ----------------------------------------------------
 
     const fetchAllSurveys = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            // Nota: Se asume que GET /api/data devuelve TODAS las encuestas.
-            // Se usa el token, aunque la tabla de encuestas lo omitía para GET.
-            const token = localStorage.getItem('aut-token');
-            const headers = token ? { Authorization: `Bearer ${token}` } : {};
-            
-            const response = await axios.get(`${API_BASE_URL}/data`, { headers });
+            // 🟢 Solicitud directa a la ruta pública, sin headers de autenticación
+            const response = await axios.get(API_ANALYSIS_URL);
             setSurveys(response.data);
             
         } catch (err) {
-            console.error('Error al cargar datos de análisis:', err);
-            setError('Error al cargar los datos para el análisis. Asegúrate de iniciar sesión y que el servidor de Render esté activo.');
+            console.error('Error al cargar datos de análisis público:', err);
+            setError('❌ Error al cargar los datos para el análisis. Asegúrate que el nuevo endpoint /api/analysis/general esté desplegado y funcionando en Render.');
             setSurveys([]);
         } finally {
             setLoading(false);
@@ -97,6 +103,7 @@ const Analisis: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        // Se ejecuta una sola vez al cargar el componente
         fetchAllSurveys();
     }, [fetchAllSurveys]);
 
@@ -105,10 +112,21 @@ const Analisis: React.FC = () => {
     // ----------------------------------------------------
 
     /**
-     * Procesa los datos generales de una pregunta para el gráfico.
-     * @param key La clave del campo de la encuesta (e.g., 'califExperienciaCompra').
-     * @param ratings Las opciones de respuesta esperadas.
-     * @returns Un objeto con etiquetas (labels) y datos (data) para Chart.js.
+     * Define una paleta de colores para las calificaciones.
+     */
+    const getChartColors = (labels: string[]) => labels.map(label => {
+        switch(label) {
+            case 'Muy Buena': return 'rgba(42, 101, 95, 1)'; 
+            case 'Buena': return 'rgba(78, 148, 140, 1)'; 
+            case 'Regular': return 'rgba(120, 190, 180, 1)';
+            case 'Mala': return 'rgba(170, 220, 210, 1)';
+            case 'Muy Mala': return 'rgba(215, 240, 235, 1)'; 
+            default: return 'rgba(150, 150, 150, 1)';
+        }
+    });
+
+    /**
+     * Procesa los datos generales de una pregunta.
      */
     const processDataForChart = (key: keyof Survey, ratings: string[]): { labels: string[], data: number[], backgroundColors: string[] } => {
         const counts = ratings.reduce((acc, rating) => ({ ...acc, [rating]: 0 }), {} as Record<string, number>);
@@ -122,24 +140,13 @@ const Analisis: React.FC = () => {
 
         const labels = ratings;
         const data = labels.map(label => counts[label]);
-        
-        // Define una paleta de colores para las calificaciones
-        const backgroundColors = labels.map(label => {
-            switch(label) {
-                case 'Muy Buena': return 'rgba(42, 101, 95, 1)'; // primary-color
-                case 'Buena': return 'rgba(76, 175, 80, 1)';    // success-color (verde más claro)
-                case 'Regular': return 'rgba(255, 193, 7, 1)';   // warning-color (amarillo)
-                case 'Mala': return 'rgba(255, 152, 0, 1)';     // warning-color (naranja)
-                case 'Muy Mala': return 'rgba(244, 67, 54, 1)';  // danger-color (rojo)
-                default: return 'rgba(150, 150, 150, 1)';
-            }
-        });
+        const backgroundColors = getChartColors(labels);
         
         return { labels, data, backgroundColors };
     };
 
     /**
-     * Prepara los datos para la Gráfica de Barras de la pregunta seleccionada.
+     * Prepara los datos para la Gráfica de Barras (Detalle).
      */
     const getBarChartData = (questionKey: keyof Survey) => {
         const { labels, data, backgroundColors } = processDataForChart(questionKey, RATING_OPTIONS);
@@ -159,20 +166,19 @@ const Analisis: React.FC = () => {
     };
 
     /**
-     * Prepara los datos para la Gráfica Circular de la pregunta seleccionada (resumen).
+     * Prepara los datos para la Gráfica Circular (Resumen).
      */
     const getPieChartData = (questionKey: keyof Survey) => {
         const { labels, data, backgroundColors } = processDataForChart(questionKey, RATING_OPTIONS);
         
-        // Puedes agrupar las respuestas o mantener el detalle. Usaremos el detalle.
         return {
             labels: labels,
             datasets: [
                 {
                     label: '# de Encuestas',
                     data: data,
-                    backgroundColor: backgroundColors.map(color => color.replace('1)', '0.8)')), // Ligeramente transparente
-                    borderColor: 'white', // Borde blanco para separar las rebanadas
+                    backgroundColor: getChartColors(labels), 
+                    borderColor: 'white', 
                     borderWidth: 2,
                 },
             ],
@@ -200,18 +206,17 @@ const Analisis: React.FC = () => {
     const getVsChartData = () => {
         const data1 = filterAndProcessVsData(vsTerminal1, vsQuestionKey);
         const data2 = filterAndProcessVsData(vsTerminal2, vsQuestionKey);
-        const questionTitle = QUESTION_MAP[Object.keys(QUESTION_MAP).find(k => QUESTION_MAP[k].key === vsQuestionKey) || 'pregunta1']?.title || 'Pregunta de Comparación';
         
         return {
             labels: RATING_OPTIONS,
             datasets: [
                 {
-                    label: vsTerminal1,
+                    label: `${vsTerminal1} (Origen 1)`,
                     data: data1,
                     backgroundColor: PRIMARY_COLOR,
                 },
                 {
-                    label: vsTerminal2,
+                    label: `${vsTerminal2} (Origen 2)`,
                     data: data2,
                     backgroundColor: SECONDARY_COLOR,
                 },
@@ -336,6 +341,7 @@ const Analisis: React.FC = () => {
                                     value={vsTerminal2} 
                                     onChange={(e) => setVsTerminal2(e.target.value)}
                                 >
+                                    {/* Evita que Origen 2 sea el mismo que Origen 1 */}
                                     {TERMINALES.filter(t => t !== vsTerminal1).map(t => (
                                         <option key={t} value={t}>{t} (Origen 2)</option>
                                     ))}
@@ -359,7 +365,7 @@ const Analisis: React.FC = () => {
 
                         <div className="vs-chart-area">
                             {surveys.length > 0 ? (
-                                <div style={{ width: '90%', height: '500px' }}>
+                                <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', height: '500px' }}>
                                     <Bar data={vsChartData} options={vsBarOptions} />
                                 </div>
                             ) : (
@@ -405,8 +411,10 @@ const Analisis: React.FC = () => {
                                 key={qKey}
                                 className={`btn-question ${selectedQuestion === qKey ? 'active' : ''}`}
                                 onClick={() => setSelectedQuestion(qKey)}
+                                title={QUESTION_MAP[qKey].title}
                             >
-                                {QUESTION_MAP[qKey].title.split(':')[0]}
+                                {/* Muestra solo el número de la pregunta o el título corto */}
+                                {QUESTION_MAP[qKey].title.split('.')[0]}
                             </button>
                         ))}
                         
