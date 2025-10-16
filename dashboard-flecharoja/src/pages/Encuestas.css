@@ -94,12 +94,7 @@ h1, h2, h3 {
     display: block;
 }
 
-.logo-name {
-    font-weight: 700;
-    font-size: 0.9375rem; 
-    color: white;
-    white-space: nowrap;
-}
+/* ❌ ELIMINADO: .logo-name */
 
 .header-title-main {
     color: white;
@@ -110,8 +105,9 @@ h1, h2, h3 {
     letter-spacing: 0.3px;
 }
 
-.btn-logout {
-    background-color: var(--secondary-color);
+/* 🔄 BOTÓN DE NAVEGACIÓN (Dashboard) */
+.btn-navigate {
+    background-color: #ff9800; /* Color distintivo para navegación */
     color: white;
     font-weight: 600;
     padding: 6px 14px;
@@ -124,8 +120,8 @@ h1, h2, h3 {
     flex-shrink: 0;
 }
 
-.btn-logout:hover {
-    background-color: #173b38;
+.btn-navigate:hover {
+    background-color: #e68900;
     box-shadow: var(--shadow-md);
 }
 
@@ -141,79 +137,93 @@ h1, h2, h3 {
    ESTILOS DE LA SECCIÓN DE ENCUESTAS (Filtros y Tabla)
 ============================================================ */
 .surveys-section h2 {
-    margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
-    font-size: 1.5rem;
-    font-weight: 700;
+    /* ❌ ELIMINADO: El h2 que decía "Tabla de Encuestas..." */
+}
+
+/* Texto introductorio */
+.surveys-intro-text {
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--text-dark);
 }
 
 /* ========== CAJA DE FILTROS ========== */
 .filter-box {
-    background: white;
-    padding: var(--spacing-lg);
+    background: transparent; /* Fondo transparente para integrar */
+    padding: 0;
     margin-bottom: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--card-border-color);
-    box-shadow: var(--shadow-md);
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
 }
 
-.filter-box h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-lg);
-    color: var(--text-dark);
-}
+/* ❌ ELIMINADO: .filter-box h3 */
 
 .filter-grid {
-    /* 5 columnas: 4 filtros + 1 botón de reset */
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); 
+    display: flex; /* Usamos flexbox para más control de separación */
     gap: var(--spacing-md);
-    align-items: end;
+    align-items: center;
+    justify-content: flex-start; /* Alineación izquierda */
+    flex-wrap: wrap; /* Para responsive */
 }
 
 .filter-group {
+    /* Ajustes para la nueva estructura de filtros */
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
 }
 
-.filter-group label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-light);
-    margin-bottom: var(--spacing-xs);
-}
+/* ❌ ELIMINADO: .filter-group label */
 
 .filter-group input,
 .filter-group select {
-    padding: 8px;
+    padding: 10px 15px; /* Más padding para que parezca botón */
     border: 1px solid var(--card-border-color);
     border-radius: var(--radius-sm);
     font-size: 0.9rem;
     transition: border-color var(--transition-fast);
 }
 
+/* Estilo para los SELECT que parecen botones */
+.filter-group select {
+    appearance: none; /* Quita el estilo nativo de select */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23444" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 30px; /* Espacio para la flecha */
+    font-weight: 600;
+    min-width: 180px;
+    cursor: pointer;
+}
+
 .search-input-group {
     display: flex;
-    gap: var(--spacing-xs);
+    gap: 0;
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
 }
 
 .search-input-group input {
+    border: none;
     flex: 1;
+    padding: 10px 15px;
+    font-weight: 600;
 }
 
-.btn-search,
-.btn-reset {
-    padding: 8px 12px;
+.btn-search {
+    padding: 10px 15px; /* Ajuste para coincidir con el alto */
     border: none;
-    border-radius: var(--radius-sm);
+    border-left: 1px solid var(--card-border-color);
+    border-radius: 0;
     font-weight: 600;
     cursor: pointer;
     transition: background-color var(--transition-fast);
     font-size: 0.9rem;
     min-width: 80px;
-}
-
-.btn-search {
     background-color: var(--primary-color);
     color: white;
 }
@@ -223,45 +233,23 @@ h1, h2, h3 {
 }
 
 .btn-reset {
-    background-color: #a8a8a8;
-    color: white;
-    width: 100%;
-    margin-top: 20px; 
-}
-
-
-/* Responsive para Filtros (Mantenido para orden) */
-@media (max-width: 1200px) {
-    .filter-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .filter-group:nth-child(5) { 
-        grid-column: span 2;
-    }
-}
-@media (max-width: 768px) {
-    .filter-grid {
-        grid-template-columns: 1fr;
-    }
-    .filter-group:nth-child(5) {
-        grid-column: span 1;
-    }
+    /* ❌ ELIMINADO: El botón de reset independiente, lo pondremos como un filtro más si es necesario. */
 }
 
 
 /* ========== TABLA DE ENCUESTAS ========== */
 .table-container {
-    /* CRÍTICO: Permite el desplazamiento horizontal de la tabla */
     overflow-x: auto;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     background: white;
+    /* Color de fondo del thead ajustado a color corporativo */
 }
 
 .surveys-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1400px; /* Asegura el ancho mínimo para evitar el colapso */
+    min-width: 2000px; /* Aumentado por las nuevas columnas de comentarios */
 }
 
 .surveys-table thead th {
@@ -271,8 +259,8 @@ h1, h2, h3 {
     text-align: left;
     font-weight: 700;
     font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    text-transform: none; /* Quitar uppercase */
+    letter-spacing: 0.1px;
     position: sticky;
     top: 0;
 }
@@ -290,7 +278,7 @@ h1, h2, h3 {
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: 0.9rem;
     vertical-align: middle;
-    white-space: nowrap; /* Evita que el texto de la tabla se rompa */
+    white-space: nowrap; 
 }
 
 /* Celdas Editables */

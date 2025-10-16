@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import axios, { AxiosError } from 'axios';
+// Importamos useNavigate para la navegación
+import { useNavigate } from 'react-router-dom'; 
 import './Encuestas.css'; 
-// Importa el logo y las utilidades necesarias
 
 const API_BASE_URL = 'https://flecha-roja-satisfaccion.onrender.com/api/dashboard';
 
@@ -17,11 +18,17 @@ interface Survey {
     destinoFinal: string;
     cumplioExpectativas: string;
     califExperienciaCompra: string;
+    comentExperienciaCompra: string; // Nuevo Campo
     califServicioConductor: string;
+    comentServicioConductor: string; // Nuevo Campo
     califComodidad: string;
+    comentComodidad: string; // Nuevo Campo
     califLimpieza: string;
+    comentLimpieza: string; // Nuevo Campo
     califSeguridad: string;
+    especifSeguridad: string; // Nuevo Campo
     validado?: 'VALIDADO' | 'PENDIENTE' | 'ELIMINADO' | string; 
+    timestampServidor: string; // Usado para 'Marca Temporal'
     [key: string]: any; 
 }
 
@@ -44,30 +51,47 @@ const destinos = [
 
 const expectativas = ['Muy Buena', 'Buena', 'Regular', 'Mala', 'Muy Mala'];
 
-// Mapeo de columnas para la tabla
+// 🚨 NUEVOS ENCABEZADOS DE LA TABLA - ORDEN EXACTO SOLICITADO
 const tableHeaders = [
-    'ID', 'Fecha', 'Boleto', 'Origen', 'Destino', 'Expectativa', 
-    'Compra', 'Conductor', 'Comodidad', 'Limpieza', 'Seguridad', 
-    'Estado', 'Acciones'
+    'Marca Temporal', 'Clave de encuestador', 'Fecha', 'No. Eco', 'No. Boleto', 
+    'Terminal', 'Destino', 'Medio de Adquisición', 
+    '1. Evalúe su experiencia de compra', '¿Por qué?', 
+    '2. Evalúe el servicio del conductor', '¿Por qué?2', 
+    '5. ¿Cómo califica la comodidad a bordo?', '¿Por qué?4', 
+    '6. ¿Cómo califica la limpieza a bordo?', '¿Por qué?5', 
+    '7. ¿Qué tan seguro consideró su viaje?', 'Especifique', 
+    '8. Conforme a nuestra promesa de viaje, ¿se cumplió con sus expectativas de salida?', 
+    'Especifique 6', 'Estado', 'Acciones'
 ];
 
+// 🚨 MAPEO DE CAMPOS ACTUALIZADO
 const tableFieldMap: { [key: string]: keyof Survey } = {
-    'ID': '_id',
+    'Marca Temporal': 'timestampServidor', // Usaremos el timestamp del servidor para la hora
+    'Clave de encuestador': 'claveEncuestador',
     'Fecha': 'fecha',
-    'Boleto': 'folioBoleto',
-    'Origen': 'origenViaje',
+    'No. Eco': 'noEco',
+    'No. Boleto': 'folioBoleto',
+    'Terminal': 'origenViaje',
     'Destino': 'destinoFinal',
-    'Expectativa': 'cumplioExpectativas',
-    'Compra': 'califExperienciaCompra',
-    'Conductor': 'califServicioConductor',
-    'Comodidad': 'califComodidad',
-    'Limpieza': 'califLimpieza',
-    'Seguridad': 'califSeguridad',
+    'Medio de Adquisición': 'medioAdquisicion',
+    '1. Evalúe su experiencia de compra': 'califExperienciaCompra',
+    '¿Por qué?': 'comentExperienciaCompra',
+    '2. Evalúe el servicio del conductor': 'califServicioConductor',
+    '¿Por qué?2': 'comentServicioConductor',
+    '5. ¿Cómo califica la comodidad a bordo?': 'califComodidad',
+    '¿Por qué?4': 'comentComodidad',
+    '6. ¿Cómo califica la limpieza a bordo?': 'califLimpieza',
+    '¿Por qué?5': 'comentLimpieza',
+    '7. ¿Qué tan seguro consideró su viaje?': 'califSeguridad',
+    'Especifique': 'especifSeguridad',
+    '8. Conforme a nuestra promesa de viaje, ¿se cumplió con sus expectativas de salida?': 'cumplioExpectativas',
+    'Especifique 6': 'especificarMotivo', // Asumo que el campo especifidad de cumplioExpectativas es 'especificarMotivo'
     'Estado': 'validado',
 };
 
 
 const Encuestas: React.FC = () => {
+    const navigate = useNavigate(); // Hook para la navegación
     const [surveys, setSurveys] = useState<Survey[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -87,6 +111,7 @@ const Encuestas: React.FC = () => {
         
         if (!token) {
             console.error("TOKEN (aut-token) NO ENCONTRADO para operación de CRUD. Inicia sesión.");
+            // No se interrumpe la ejecución, pero PUT fallará (Error 401/403)
             return { headers: {} }; 
         }
 
@@ -105,7 +130,6 @@ const Encuestas: React.FC = () => {
 
         try {
             const params = new URLSearchParams();
-            // Mapeo a los nombres de variables del Backend (routes/surveys.js)
             if (folioSearch) params.append('folioBoleto', folioSearch);
             if (filterTerminal) params.append('filterTerminal', filterTerminal); 
             if (filterDestino) params.append('filterDestino', filterDestino);
@@ -113,12 +137,10 @@ const Encuestas: React.FC = () => {
             
             const url = `${API_BASE_URL}/encuestas?${params.toString()}`;
             
-            // Petición GET sin header de autorización (Soluciona el error 403)
             const response = await axios.get(url); 
             
             const initialSurveys = response.data.map((s: Survey) => ({
                 ...s,
-                // Asegurar que el campo 'validado' exista, por defecto 'PENDIENTE'
                 validado: s.validado || 'PENDIENTE', 
             }));
             
@@ -164,7 +186,7 @@ const Encuestas: React.FC = () => {
         const updates: { [key: string]: any } = {};
         
         Object.values(tableFieldMap).forEach(key => {
-            if (key === '_id') return; 
+            if (key === 'timestampServidor' || key === 'fecha') return; // Excluir campos no editables
 
             const editableKey = `${id}_${key}`;
             const editableValue = editableData[editableKey];
@@ -252,6 +274,26 @@ const Encuestas: React.FC = () => {
             default: return 'status-pendiente';
         }
     };
+    
+    // Función para formatear la Marca Temporal (ISO string a Fecha/Hora)
+    const formatTimestamp = (isoString: string) => {
+        if (!isoString) return 'N/A';
+        try {
+            const date = new Date(isoString);
+            return date.toLocaleString('es-MX', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(',', ''); 
+        } catch (e) {
+            return isoString;
+        }
+    };
+
 
     const renderActions = (survey: Survey) => {
         const isModified = Object.keys(editableData).some(key => key.startsWith(survey._id) && editableData[key] !== undefined);
@@ -300,7 +342,7 @@ const Encuestas: React.FC = () => {
                 <table className="surveys-table">
                     <thead>
                         <tr>
-                            {tableHeaders.map(header => (
+                            {tableHeaders.map((header) => (
                                 <th key={header}>{header}</th>
                             ))}
                         </tr>
@@ -315,7 +357,11 @@ const Encuestas: React.FC = () => {
                                     if (header === 'Acciones') return <td key={header} className="actions-cell">{renderActions(survey)}</td>;
 
                                     const originalValue = survey[field] || 'N/A';
-                                    const displayValue = header === 'ID' ? String(survey._id).slice(-5) : originalValue;
+                                    
+                                    // Columna de Marca Temporal
+                                    if (header === 'Marca Temporal') {
+                                        return <td key={header}>{formatTimestamp(originalValue as string)}</td>;
+                                    }
 
                                     // Columna de Estado
                                     if (header === 'Estado') {
@@ -328,15 +374,15 @@ const Encuestas: React.FC = () => {
                                         );
                                     }
 
-                                    // Celdas Editables
+                                    // Celdas Editables (Todos los demás campos)
                                     return (
                                         <td key={header} className="editable-cell">
                                             <input
                                                 type="text"
                                                 value={getEditableValue(survey._id, field, originalValue as string)}
                                                 onChange={(e) => handleEditChange(survey._id, field, e.target.value)}
-                                                // Deshabilitar la edición para ID y Fecha, aunque el backend también lo ignora.
-                                                disabled={header === 'ID' || header === 'Fecha'} 
+                                                // Deshabilitar la edición para Fecha y Clave (ya que son campos de registro inalterables)
+                                                disabled={header === 'Fecha' || header === 'Clave de encuestador' || header === 'No. Boleto'} 
                                             />
                                         </td>
                                     );
@@ -349,7 +395,7 @@ const Encuestas: React.FC = () => {
         );
     };
 
-    const logoUrl = '/assets/logo.png'; 
+    const logoUrl = '/logo_flecha_roja.png'; // Ruta corregida según tu indicación
 
     return (
         <div className="dashboard-container">
@@ -357,19 +403,15 @@ const Encuestas: React.FC = () => {
             <header className="dashboard-header">
                 <div className="header-top-bar">
                     <div className="header-logo-container">
-                        {/* Asegúrate de que la ruta /assets/logo.png sea accesible */}
                         <img src={logoUrl} alt="Logo Flecha Roja" className="header-logo" />
-                        <span className="logo-name">Flecha Roja S.A. de C.V.</span>
+                        {/* ❌ ELIMINADO: <span className="logo-name">Flecha Roja S.A. de C.V.</span> */}
                     </div>
-                    <h1 className="header-title-main">ADMINISTRACIÓN DE ENCUESTAS</h1>
+                    <h1 className="header-title-main">ENCUESTAS REALIZADAS GENERALES</h1>
                     <button 
-                        className="btn-logout" 
-                        onClick={() => { 
-                            localStorage.removeItem('aut-token'); 
-                            window.location.reload(); 
-                        }}
+                        className="btn-navigate" 
+                        onClick={() => navigate('/dashboard')} // Navegación al dashboard.tsx
                     >
-                        Cerrar Sesión
+                        Dashboard
                     </button>
                 </div>
             </header>
@@ -377,19 +419,21 @@ const Encuestas: React.FC = () => {
             <main className="dashboard-main-content">
                 <div className="surveys-section">
                     
+                    <p className="surveys-intro-text">
+                        En este apartado se muestran las **Encuestas Realizadas generales** para Validar o No validar.
+                    </p>
+
                     {/* Contenedor de Filtros */}
                     <div className="filter-box">
-                        <h3>Filtros de Encuestas</h3>
                         <div className="filter-grid">
                             
-                            {/* 1. FILTRO POR FOLIO DE BOLETO */}
+                            {/* 1. FILTRO POR FOLIO DE BOLETO Y BOTÓN DE BÚSQUEDA */}
                             <div className="filter-group">
-                                <label htmlFor="folioSearch">Buscar por Folio de Boleto</label>
                                 <div className="search-input-group">
                                     <input
                                         id="folioSearch"
                                         type="text"
-                                        placeholder="Escribe el folio..."
+                                        placeholder="BUSCAR BOLETO"
                                         value={folioSearch}
                                         onChange={(e) => setFolioSearch(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && fetchSurveys()}
@@ -399,20 +443,20 @@ const Encuestas: React.FC = () => {
                                         onClick={fetchSurveys}
                                         title="Buscar por folio exacto"
                                     >
-                                        Buscar
+                                        BUSCAR
                                     </button>
                                 </div>
                             </div>
 
                             {/* 2. FILTRO POR TERMINAL (ORIGEN) */}
                             <div className="filter-group">
-                                <label htmlFor="filterTerminal">Todas las Terminales (Origen)</label>
                                 <select
                                     id="filterTerminal"
                                     value={filterTerminal}
                                     onChange={(e) => setFilterTerminal(e.target.value)}
+                                    // Cambiado el texto del placeholder
                                 >
-                                    <option value="">-- Todas las Terminales --</option>
+                                    <option value="">TODAS LAS TERMINALES</option>
                                     {terminales.map(t => (
                                         <option key={t} value={t}>{t}</option>
                                     ))}
@@ -421,13 +465,12 @@ const Encuestas: React.FC = () => {
 
                             {/* 3. FILTRO POR DESTINO */}
                             <div className="filter-group">
-                                <label htmlFor="filterDestino">Todos los Destinos</label>
                                 <select
                                     id="filterDestino"
                                     value={filterDestino}
                                     onChange={(e) => setFilterDestino(e.target.value)}
                                 >
-                                    <option value="">-- Todos los Destinos --</option>
+                                    <option value="">TODOS LOS DESTINOS</option>
                                     {destinos.map(d => (
                                         <option key={d} value={d}>{d}</option>
                                     ))}
@@ -436,30 +479,22 @@ const Encuestas: React.FC = () => {
 
                             {/* 4. FILTRO POR EXPERIENCIA (EXPECTATIVAS) */}
                             <div className="filter-group">
-                                <label htmlFor="filterExpectativa">Todas las Experiencias</label>
                                 <select
                                     id="filterExpectativa"
                                     value={filterExpectativa}
                                     onChange={(e) => setFilterExpectativa(e.target.value)}
                                 >
-                                    <option value="">-- Todas las Experiencias --</option>
+                                    <option value="">TODAS LAS EXPERIENCIAS</option>
                                     {expectativas.map(e => (
                                         <option key={e} value={e}>{e}</option>
                                     ))}
                                 </select>
                             </div>
                             
-                            {/* BOTÓN DE REINICIAR */}
-                            <div className="filter-group">
-                                <button className="btn-reset" onClick={handleResetFilters}>
-                                    Reiniciar Filtros
-                                </button>
-                            </div>
-
+                            {/* BOTÓN DE REINICIAR - lo ocultamos, se puede usar el 'TODOS' de los select */}
                         </div>
                     </div>
 
-                    <h2>Tabla de Encuestas de Satisfacción</h2>
                     {renderTable()}
                 </div>
             </main>
