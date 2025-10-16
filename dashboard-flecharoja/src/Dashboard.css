@@ -1,330 +1,273 @@
 /* ============================================================
-    SISTEMA DE DISEÑO - VARIABLES GLOBALES
+    SISTEMA DE DISEÑO - VARIABLES GLOBALES OPTIMIZADAS
     
-    Este archivo define todas las variables CSS personalizadas
-    que se utilizan en todo el dashboard para mantener
-    consistencia visual y facilitar el mantenimiento.
+    Variables ajustadas para mejor aprovechamiento del espacio
+    manteniendo legibilidad y armonía visual.
 ============================================================ */
 :root {
   /* ========== PALETA DE COLORES ========== */
-  /* Color principal del tema institucional verde */
   --primary-color: #2a655f;
-  /* Color secundario para estados hover y elementos destacados */
   --secondary-color: #1f4e4a;
-  /* Color de fondo general de la aplicación */
   --background-color: #f8f8f8;
-  /* Color para las barras de gráficas */
   --chart-bar-color: #56c5b6;
-  /* Color de bordes para tarjetas y contenedores */
   --card-border-color: #e0e0e0;
-  /* Colores de texto */
-  --text-dark: #444; /* Texto principal */
-  --text-light: #888; /* Texto secundario/subtítulos */
+  --text-dark: #444;
+  --text-light: #888;
 
-  /* ========== SISTEMA DE ESPACIADO ========== */
-  /* <AJUSTE> Escala de espaciado - Reduce estos valores para hacer todo más compacto */
-  --spacing-xs: 4px; /* Extra pequeño - espacios mínimos */
-  --spacing-sm: 8px; /* Pequeño - espacios compactos */
-  --spacing-md: 12px; /* Mediano - espaciado estándar */
-  --spacing-lg: 16px; /* Grande - separación entre secciones */
-  --spacing-xl: 20px; /* Extra grande - márgenes principales */
-  --spacing-2xl: 24px; /* Doble extra grande - separaciones mayores */
+  /* ========== SISTEMA DE ESPACIADO OPTIMIZADO ========== */
+  --spacing-xs: 4px;
+  --spacing-sm: 6px;
+  --spacing-md: 10px;
+  --spacing-lg: 14px;
+  --spacing-xl: 18px;
+  --spacing-2xl: 22px;
 
   /* ========== RADIOS DE BORDE ========== */
-  /* Valores consistentes para esquinas redondeadas */
-  --radius-sm: 6px; /* Pequeño - botones y elementos pequeños */
-  --radius-md: 8px; /* Mediano - tarjetas secundarias */
-  --radius-lg: 10px; /* Grande - tarjetas principales */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
 
   /* ========== SISTEMA DE SOMBRAS ========== */
-  /* Jerarquía de elevación visual mediante sombras */
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06); /* Sombra sutil */
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08); /* Sombra media */
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12); /* Sombra pronunciada */
-  --shadow-header: 0 2px 8px rgba(0, 0, 0, 0.15); /* Sombra específica para header */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 3px 10px rgba(0, 0, 0, 0.12);
+  --shadow-header: 0 2px 6px rgba(0, 0, 0, 0.15);
 
   /* ========== TRANSICIONES ========== */
-  /* Duraciones estándar para animaciones suaves */
-  --transition-fast: 0.2s ease; /* Transición rápida - hover, clicks */
-  --transition-medium: 0.3s ease; /* Transición media - cambios de estado */
+  --transition-fast: 0.2s ease;
+  --transition-medium: 0.3s ease;
 }
 
 /* ============================================================
     ESTILOS BASE GLOBALES
-    
-    Reset básico y estilos fundamentales aplicados a toda
-    la aplicación para garantizar consistencia cross-browser.
 ============================================================ */
 * {
-  /* Asegura que padding y border se incluyan en el ancho total */
   box-sizing: border-box;
 }
 
 body {
-  /* Fuente principal con fallbacks del sistema */
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
   padding: 0;
   background-color: var(--background-color);
   color: var(--text-dark);
-  line-height: 1.5; /* <AJUSTE> Altura de línea más compacta */
-
-  /* Suavizado de fuentes para mejor renderizado */
+  line-height: 1.4;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* Reset de márgenes para todos los encabezados */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   margin: 0;
-  line-height: 1.2; /* Altura de línea más compacta para títulos */
+  line-height: 1.2;
 }
 
 /* ============================================================
-    CONTENEDOR PRINCIPAL DEL DASHBOARD
-    
-    Contenedor raíz que envuelve todo el contenido del dashboard.
-    El padding-top compensa la altura del header fijo.
+    CONTENEDOR PRINCIPAL - OPTIMIZADO PARA 100VH
 ============================================================ */
 .dashboard-container {
-  min-height: 100vh; /* Ocupa al menos toda la altura de la ventana */
+  min-height: 100vh;
+  height: 100vh;
   background-color: var(--background-color);
-  /* <AJUSTE> Padding superior - Ajusta según altura del header */
-  padding-top: 90px; /* Espacio para header fijo de dos niveles (barra + tabs) */
+  padding-top: 75px; /* Reducido para header más compacto */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ============================================================
-    HEADER FIJO - ESTRUCTURA DE DOS NIVELES
-    
-    El header está dividido en dos secciones:
-    1. Barra superior: Logo, título y botón de cerrar sesión
-    2. Barra de navegación: Tabs para cambiar entre secciones
-    
-    Ambas permanecen fijas en la parte superior al hacer scroll.
+    HEADER FIJO - COMPACTO Y EFICIENTE
 ============================================================ */
 .dashboard-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 200; /* Asegura que esté sobre todo el contenido */
+  z-index: 200;
   background-color: var(--primary-color);
   box-shadow: var(--shadow-header);
 }
 
-/* ========== BARRA SUPERIOR DEL HEADER ========== */
+/* ========== BARRA SUPERIOR - MÁS COMPACTA ========== */
 .header-top-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Logo a la izquierda, logout a la derecha */
-  /* <AJUSTE> Padding del header - Reduce para hacer más compacto */
+  justify-content: space-between;
   padding: var(--spacing-sm) var(--spacing-lg);
   gap: var(--spacing-md);
+  min-height: 48px;
 }
 
-/* Contenedor del logo y nombre de la institución */
 .header-logo-container {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
-  flex-shrink: 0; /* Evita que se comprima en pantallas pequeñas */
+  gap: var(--spacing-md);
+  flex-shrink: 0;
 }
 
-/* <AJUSTE> Altura del logo - Reduce para hacer header más compacto */
 .header-logo {
-  height: 40px;
-  width: auto; /* Mantiene proporción de aspecto */
+  height: 32px;
+  width: auto;
   display: block;
 }
 
-/* <AJUSTE> Tamaño de fuente del nombre - Ajusta para compactar */
 .logo-name {
   font-weight: 700;
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.875rem;
   color: white;
-  white-space: nowrap; /* Evita saltos de línea */
+  white-space: nowrap;
 }
 
-/* Título principal centrado (oculto en móvil) */
-/* <AJUSTE> Tamaño del título principal - Reduce para compactar */
 .header-title-main {
   color: white;
-  font-size: 1.125rem; /* 18px */
+  font-size: 1rem;
   font-weight: 700;
   text-align: center;
-  flex: 1; /* Ocupa el espacio disponible para centrarse */
+  flex: 1;
   letter-spacing: 0.3px;
-  display: none; /* Oculto por defecto en móvil */
+  display: none;
 }
 
-/* Muestra el título en tablets y escritorio */
 @media (min-width: 768px) {
   .header-title-main {
     display: block;
   }
 }
 
-/* ========== BOTÓN DE CERRAR SESIÓN ========== */
-/* <AJUSTE> Padding y tamaño del botón - Reduce para compactar */
+/* ========== BOTÓN DE CERRAR SESIÓN - COMPACTO ========== */
 .btn-logout {
   background-color: var(--secondary-color);
   color: white;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 6px 14px;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.8125rem;
   white-space: nowrap;
-  flex-shrink: 0; /* Mantiene tamaño fijo */
+  flex-shrink: 0;
 }
 
-/* Efecto hover con elevación */
 .btn-logout:hover {
-  background-color: #173b38; /* Versión más oscura */
-  transform: translateY(-2px); /* Eleva el botón */
+  background-color: #173b38;
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-/* Efecto al hacer click */
 .btn-logout:active {
-  transform: translateY(0); /* Vuelve a posición original */
+  transform: translateY(0);
 }
 
 /* ============================================================
-    BARRA DE NAVEGACIÓN (TABS)
-    
-    Segunda fila del header que contiene los botones de
-    navegación entre diferentes secciones del dashboard.
+    BARRA DE NAVEGACIÓN - COMPACTA
 ============================================================ */
 .nav-bar {
   display: flex;
-  justify-content: center; /* Centra los tabs horizontalmente */
+  justify-content: center;
   align-items: center;
   gap: var(--spacing-sm);
-  /* <AJUSTE> Padding de la barra de navegación - Reduce para compactar */
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-md);
   background-color: white;
   box-shadow: var(--shadow-sm);
+  min-height: 36px;
 }
 
-/* ========== BOTONES DE NAVEGACIÓN ========== */
-/* <AJUSTE> Padding y tamaño de los tabs - Reduce para compactar */
 .nav-button {
   background-color: var(--primary-color);
   color: white;
   font-weight: 600;
-  padding: 8px 20px;
+  padding: 6px 16px;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.8125rem;
   white-space: nowrap;
 }
 
-/* Hover solo para botones no activos */
 .nav-button:hover:not(.active) {
   background-color: var(--secondary-color);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-/* Efecto click para botones no activos */
 .nav-button:active:not(.active) {
   transform: translateY(0);
 }
 
-/* Estado activo del tab seleccionado */
 .nav-button.active {
-  background-color: #e6e6e6; /* Fondo claro */
-  color: var(--primary-color); /* Texto en color primario */
+  background-color: #e6e6e6;
+  color: var(--primary-color);
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px); /* Permanece elevado */
+  transform: translateY(-2px);
 }
 
 /* ============================================================
-    CONTENIDO PRINCIPAL
-    
-    Contenedor que envuelve todo el contenido debajo del header.
-    Centrado con ancho máximo para mejor legibilidad.
+    CONTENIDO PRINCIPAL - OPTIMIZADO PARA VIEWPORT
 ============================================================ */
 .dashboard-main-content {
-  max-width: 1400px; /* Limita ancho en pantallas muy grandes */
-  margin: 0 auto; /* Centra horizontalmente */
-  /* <AJUSTE> Padding del contenido principal - Reduce para compactar */
-  padding: var(--spacing-lg) var(--spacing-md);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-md) var(--spacing-lg);
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ============================================================
-    CAJA DE BIENVENIDA
-    
-    Tarjeta destacada en la parte superior que muestra
-    el mensaje de bienvenida al usuario.
+    CAJA DE BIENVENIDA - COMPACTA
 ============================================================ */
 .welcome-box {
   background: white;
-  /* <AJUSTE> Padding de la caja de bienvenida - Reduce para compactar */
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
   border-radius: var(--radius-lg);
   border: 1px solid var(--card-border-color);
   box-shadow: var(--shadow-md);
   text-align: center;
   transition: all var(--transition-fast);
+  flex-shrink: 0;
 }
 
-/* <AJUSTE> Tamaño del título de bienvenida - Reduce para compactar */
 .welcome-title {
-  font-size: 1.75rem; /* 28px */
+  font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: var(--spacing-xs);
   color: var(--primary-color);
-  letter-spacing: -0.3px; /* Ajuste tipográfico para títulos grandes */
+  letter-spacing: -0.3px;
 }
 
-/* <AJUSTE> Tamaño del subtítulo - Reduce para compactar */
 .welcome-subtitle {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.875rem;
   font-weight: 400;
   color: var(--text-dark);
   margin: 0;
 }
 
 /* ============================================================
-    GRID PRINCIPAL - LAYOUT DE DOS COLUMNAS
-    
-    Estructura principal que organiza el contenido en:
-    - Columna izquierda: Tarjetas de métricas
-    - Columna derecha (flexible): Área de gráficas
-    
-    En móvil se apila verticalmente.
+    GRID PRINCIPAL - OPTIMIZADO PARA ESPACIO
 ============================================================ */
-/* <AJUSTE> Ancho de la columna de métricas - Reduce para compactar */
 .main-layout-grid-extended {
   display: grid;
   gap: var(--spacing-lg);
-  grid-template-columns: 260px 1fr; /* Sidebar más estrecho + contenido flexible */
-  align-items: start; /* Alinea al inicio para diferentes alturas */
+  grid-template-columns: 240px 1fr;
+  align-items: start;
+  flex: 1;
+  min-height: 0;
 }
 
-/* Responsive: Apila en una columna en tablets y móviles */
 @media (max-width: 1024px) {
   .main-layout-grid-extended {
-    grid-template-columns: 1fr; /* Una sola columna */
+    grid-template-columns: 1fr;
   }
 
-  /* Reordena: métricas primero, luego gráfica */
   .sidebar-metrics {
     order: 1;
-    max-width: 600px; /* Limita ancho en tablets */
-    margin: 0 auto; /* Centra */
+    max-width: 600px;
+    margin: 0 auto;
     width: 100%;
   }
 
@@ -334,78 +277,63 @@ h6 {
 }
 
 /* ============================================================
-    CONTENEDOR DE MÉTRICAS (SIDEBAR)
-    
-    Columna izquierda que contiene todas las tarjetas de
-    métricas apiladas verticalmente.
+    CONTENEDOR DE MÉTRICAS - COMPACTO
 ============================================================ */
 .sidebar-metrics {
   display: flex;
-  flex-direction: column; /* Apila las tarjetas verticalmente */
-  /* <AJUSTE> Espaciado entre tarjetas - Reduce para compactar */
+  flex-direction: column;
   gap: var(--spacing-md);
+  height: 100%;
+  overflow-y: auto;
 }
 
 /* ============================================================
-    TARJETA DE MÉTRICA INDIVIDUAL
-    
-    Cada tarjeta muestra una métrica específica con:
-    - Banda de encabezado con el nombre de la métrica
-    - Cuerpo con el valor numérico grande
-    - Texto descriptivo debajo del valor
+    TARJETA DE MÉTRICA - OPTIMIZADA
 ============================================================ */
 .sidebar-card {
   background: white;
   border-radius: var(--radius-lg);
   border: 1px solid var(--card-border-color);
   box-shadow: var(--shadow-md);
-  overflow: hidden; /* Asegura que el contenido no sobresalga */
+  overflow: hidden;
   color: var(--primary-color);
   display: flex;
   flex-direction: column;
   transition: all var(--transition-fast);
 }
 
-/* ========== BANDA DE ENCABEZADO ========== */
-/* <AJUSTE> Tamaño y padding del encabezado - Reduce para compactar */
 .card-header-band {
   background-color: var(--primary-color);
   color: white;
   font-weight: 700;
-  font-size: 0.75rem; /* 12px */
-  text-transform: uppercase; /* Texto en mayúsculas */
+  font-size: 0.6875rem;
+  text-transform: uppercase;
   text-align: center;
-  padding: var(--spacing-sm) var(--spacing-md);
-  letter-spacing: 0.8px; /* Espaciado entre letras para mayúsculas */
+  padding: var(--spacing-xs) var(--spacing-sm);
+  letter-spacing: 0.8px;
 }
 
-/* ========== CUERPO DE LA TARJETA ========== */
-/* <AJUSTE> Padding y altura mínima - Reduce para compactar */
 .card-content-body {
-  flex: 1; /* Ocupa el espacio restante */
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Centra verticalmente */
-  align-items: center; /* Centra horizontalmente */
-  padding: var(--spacing-lg) var(--spacing-md);
-  min-height: 140px; /* Altura mínima consistente */
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-sm);
+  min-height: 110px;
 }
 
-/* ========== VALOR DE LA MÉTRICA ========== */
-/* <AJUSTE> Tamaño del valor de métrica - Reduce para compactar */
 .metric-value {
-  font-size: 2.75rem; /* 44px - Número grande y prominente */
+  font-size: 2.25rem;
   font-weight: 900;
   color: var(--text-dark);
   margin: var(--spacing-xs) 0;
-  line-height: 1; /* Altura de línea compacta */
+  line-height: 1;
   transition: color var(--transition-medium);
 }
 
-/* ========== TEXTO DESCRIPTIVO ========== */
-/* <AJUSTE> Tamaño del texto descriptivo - Reduce para compactar */
 .metric-subtext {
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--primary-color);
   text-align: center;
@@ -413,139 +341,141 @@ h6 {
 }
 
 /* ============================================================
-    ÁREA DE GRÁFICA
-    
-    Contenedor principal para las visualizaciones de datos
-    (gráficas, charts, etc.). Ocupa la columna derecha del grid.
+    ÁREA DE GRÁFICA - OPTIMIZADA PARA VIEWPORT
 ============================================================ */
-/* <AJUSTE> Padding y altura mínima - Reduce para compactar */
 .chart-container-wrapper {
   background: white;
   padding: var(--spacing-lg);
   border-radius: var(--radius-lg);
   border: 1px solid var(--card-border-color);
   box-shadow: var(--shadow-md);
-  height: 100%; /* Ocupa toda la altura disponible */
-  min-height: 400px; /* Altura mínima para la gráfica */
+  height: 100%;
   display: flex;
   flex-direction: column;
   transition: all var(--transition-fast);
+  min-height: 0;
 }
 
-/* Contenedor interno para el canvas o SVG de la gráfica */
 .chart-area {
   width: 100%;
-  flex: 1; /* Ocupa todo el espacio disponible */
+  flex: 1;
+  min-height: 0;
+  position: relative;
 }
 
 /* ========== ESTADOS DE CARGA Y ERROR ========== */
-/* <AJUSTE> Tamaño de fuente y altura - Reduce para compactar */
 .loading-state,
 .error-state,
 .no-data-state {
-  font-size: 1rem; /* 16px */
+  font-size: 0.9375rem;
   color: var(--text-light);
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 300px;
+  min-height: 200px;
   flex: 1;
 }
 
 /* ============================================================
     ANIMACIONES Y EFECTOS HOVER
-    
-    Efectos de elevación suaves al pasar el mouse sobre
-    elementos interactivos para mejorar la experiencia de usuario.
 ============================================================ */
 .sidebar-card:hover,
 .chart-container-wrapper:hover,
 .welcome-box:hover {
-  transform: translateY(-3px); /* Eleva el elemento */
-  box-shadow: var(--shadow-lg); /* Aumenta la sombra */
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 /* ============================================================
     ESTADOS DE PUNTAJE - COLORES DINÁMICOS
-    
-    Clases que se aplican dinámicamente al valor de la métrica
-    según el rango del puntaje para indicar visualmente
-    el rendimiento (alto, medio, bajo).
 ============================================================ */
-
-/* Puntaje alto - Verde (éxito) */
 .metric-value.high-score {
   color: #2a655f;
 }
 
-/* Puntaje medio - Amarillo/Naranja (advertencia) */
 .metric-value.medium-score {
   color: #f9a825;
 }
 
-/* Puntaje bajo - Rojo (crítico) */
 .metric-value.low-score {
   color: #e74c3c;
 }
 
 /* ============================================================
     RESPONSIVE DESIGN - MÓVILES
-    
-    Ajustes específicos para pantallas pequeñas (móviles)
-    para garantizar una experiencia óptima en todos los dispositivos.
 ============================================================ */
 @media (max-width: 768px) {
-  /* Aumenta padding superior para compensar header más alto en móvil */
   .dashboard-container {
-    padding-top: 110px;
+    padding-top: 90px;
   }
 
-  /* Reduce padding del header en móvil */
   .header-top-bar {
     padding: var(--spacing-xs) var(--spacing-sm);
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan si es necesario */
+    flex-wrap: wrap;
+    min-height: 44px;
   }
 
-  /* Reduce espaciado entre logo y nombre */
   .header-logo-container {
     gap: var(--spacing-sm);
   }
 
-  /* Logo más pequeño en móvil */
   .header-logo {
-    height: 36px;
+    height: 28px;
   }
 
-  /* Permite que los tabs se envuelvan en múltiples líneas */
   .nav-bar {
     flex-wrap: wrap;
     gap: var(--spacing-xs);
   }
 
-  /* Botones de navegación más compactos */
   .nav-button {
-    padding: 6px 14px;
-    font-size: 0.8125rem; /* 13px */
+    padding: 5px 12px;
+    font-size: 0.75rem;
   }
 
-  /* Título de bienvenida más pequeño */
   .welcome-title {
-    font-size: 1.5rem; /* 24px */
+    font-size: 1.25rem;
   }
 
-  /* Subtítulo más pequeño */
   .welcome-subtitle {
-    font-size: 0.875rem; /* 14px */
+    font-size: 0.8125rem;
   }
 
-  /* Valor de métrica más pequeño */
   .metric-value {
-    font-size: 2.25rem; /* 36px */
+    font-size: 1.875rem;
   }
 
-  /* Reduce padding del contenido principal */
   .dashboard-main-content {
-    padding: var(--spacing-md) var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
   }
+
+  .card-content-body {
+    min-height: 90px;
+    padding: var(--spacing-sm);
+  }
+}
+
+/* ============================================================
+    SCROLLBAR PERSONALIZADO (OPCIONAL)
+============================================================ */
+.dashboard-main-content::-webkit-scrollbar,
+.sidebar-metrics::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-main-content::-webkit-scrollbar-track,
+.sidebar-metrics::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-main-content::-webkit-scrollbar-thumb,
+.sidebar-metrics::-webkit-scrollbar-thumb {
+  background: var(--card-border-color);
+  border-radius: 3px;
+}
+
+.dashboard-main-content::-webkit-scrollbar-thumb:hover,
+.sidebar-metrics::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
 }
