@@ -159,10 +159,10 @@ const Encuestas: React.FC = () => {
    * Obtiene los headers de autorización para operaciones de CRUD (PUT)
    */
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("aut-token")
+    const token = localStorage.getItem("auth-token")
 
     if (!token) {
-      console.error("TOKEN (aut-token) NO ENCONTRADO para operación de CRUD. Inicia sesión.")
+      console.error("TOKEN (auth-token) NO ENCONTRADO para operación de CRUD. Inicia sesión.")
       return { headers: {} }
     }
 

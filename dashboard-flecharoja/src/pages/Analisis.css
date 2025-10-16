@@ -1,0 +1,299 @@
+/* ============================================================
+   SISTEMA DE DISEÑO - VARIABLES GLOBALES (Copiadas del código proporcionado)
+============================================================ */
+:root {
+  /* ========== PALETA DE COLORES ========== */
+  --primary-color: #2a655f;
+  --secondary-color: #1f4e4a;
+  --background-color: #f8f8f8;
+  --card-border-color: #e0e0e0;
+  --text-dark: #444;
+  --text-light: #888;
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --danger-color: #f44336;
+
+  /* ========== SISTEMA DE ESPACIADO ========== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+
+  /* ========== RADIOS DE BORDE ========== */
+  --radius-sm: 6px;
+  --radius-lg: 10px;
+
+  /* ========== SISTEMA DE SOMBRAS ========== */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-header: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  /* ========== TRANSICIONES ========== */
+  --transition-fast: 0.2s ease;
+}
+
+/* ============================================================
+   ESTILOS BASE GLOBALES Y ESTRUCTURA DE PANTALLA
+============================================================ */
+* {
+  box-sizing: border-box;
+  font-size: 15px;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-dark);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+  color: var(--primary-color);
+}
+
+.dashboard-container {
+  min-height: 100vh;
+  background-color: var(--background-color);
+  padding-top: 70px; /* Increased space for fixed header */
+}
+
+/* ========== HEADER FIJO ========== */
+.dashboard-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background-color: var(--primary-color);
+  box-shadow: var(--shadow-header);
+  height: 70px;
+}
+
+.header-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-xl);
+  gap: var(--spacing-lg);
+  height: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.header-logo-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.header-logo {
+  height: 45px;
+  width: auto;
+  display: block;
+}
+
+.header-title-main {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  flex: 1;
+  letter-spacing: 0.5px;
+}
+
+/* BOTÓN DE NAVEGACIÓN (Regresar al Inicio) */
+.btn-navigate {
+  background-color: white;
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 10px 20px;
+  border: 2px solid white;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-navigate:hover {
+  background-color: var(--secondary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Contenido Principal */
+.dashboard-main-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+/* ============================================================
+   ESTILOS ESPECÍFICOS DE ANÁLISIS
+============================================================ */
+
+/* CAJA DE INTRODUCCIÓN Y FILTROS */
+.analysis-intro-box {
+  background: white;
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border-color);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.analysis-intro-text {
+  margin-bottom: var(--spacing-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-dark);
+}
+
+/* Menú de Preguntas (Botones) */
+.question-menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.btn-question {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.btn-question.active,
+.btn-question:hover {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Contenedor de Gráficos */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+.chart-card {
+  background: white;
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--card-border-color);
+  height: 100%; /* Asegura que la tarjeta ocupe todo el espacio en altura */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.chart-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: var(--spacing-sm);
+}
+
+/* Mensaje de carga/error para gráficos */
+.chart-message {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+/* ========== MODAL PARA ANÁLISIS POR ROL (VS) ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: var(--spacing-xl);
+}
+
+.modal-content-vs {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 1200px; /* Más ancho para el VS */
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+.modal-header-vs {
+    background-color: var(--primary-color);
+    color: white;
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title-vs {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: white;
+}
+
+.modal-body-vs {
+    padding: var(--spacing-xl);
+}
+
+.vs-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+    justify-content: center;
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-md);
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--radius-sm);
+}
+
+.vs-chart-area {
+    min-height: 500px; /* Altura mínima para gráficos */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Utiliza los estilos de select e input ya definidos en la sección de filtros */

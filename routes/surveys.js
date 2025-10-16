@@ -3,7 +3,6 @@
 const express = require("express")
 const router = express.Router()
 const { ObjectId } = require("mongodb")
-const authenticateToken = require("../middleware/authMiddleware")
 
 // RUTA GET (Lectura y Filtrado) - SIN AUTENTICACIÓN
 router.get("/", async (req, res) => {
@@ -42,7 +41,8 @@ router.get("/", async (req, res) => {
   }
 })
 
-router.put("/:id", authenticateToken, async (req, res) => {
+// RUTA PUT (Actualizar/Validar/No Validar) - AHORA SIN AUTENTICACIÓN
+router.put("/:id", async (req, res) => {
   const updates = req.body
 
   // Si la solicitud es para "No Validar" y se pide ELIMINACIÓN PERMANENTE
