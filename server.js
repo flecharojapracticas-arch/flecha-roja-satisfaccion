@@ -10,8 +10,8 @@ const bcrypt = require('bcryptjs');
 // Importar los módulos de ruta y middleware
 const authRouter = require('./routes/auth');
 const authenticateToken = require('./middleware/authMiddleware');
-const analysisRouter = require("./routes/analysis")
-const dashboardRouter = require("./routes/dashboard")
+// const analysisRouter = require("./routes/analysis")
+// const dashboardRouter = require("./routes/dashboard")
 const metricsRouter = require('./routes/metrics');
 const surveysRouter = require('./routes/surveys');
 
@@ -98,9 +98,8 @@ app.use('/api/metrics', authenticateToken, injectDbMiddleware, metricsRouter);
 // 🚨 CRÍTICO: No se usa authenticateToken aquí para permitir la carga de la tabla (GET)
 app.use('/api/dashboard/encuestas', injectDbMiddleware, surveysRouter);
 
-// Montar el Roapp.use("/api/analysis", analysisRouter)
-app.use("/api/analysis", analysisRouter)
-app.use("/api/dashboard", dashboardRouter)
+// app.use("/api/analysis", analysisRouter)
+// app.use("/api/dashboard", dashboardRouter)
 
 // RUTA POST: Recibir datos del formulario (Pública)
 app.post('/api/save_data', async (req, res) => {
