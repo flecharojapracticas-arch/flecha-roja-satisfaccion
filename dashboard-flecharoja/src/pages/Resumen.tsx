@@ -185,8 +185,8 @@ const SatisfactionPieChart: React.FC<{
           {data.map((item, index) => {
             const angle = (item.value / 100) * 360
 
-            // Caso especial para 100% (Círculo completo)
-            if (angle >= 359.9) {
+            // Caso especial para 100% o categoría única
+            if (data.length === 1 || angle >= 359.5) {
               return (
                 <g key={index}>
                   <circle cx="140" cy="140" r="100" fill={item.color} stroke="white" strokeWidth="3" />
@@ -292,8 +292,8 @@ const QuestionSatisfactionPieChart: React.FC<{
           {data.map((item, index) => {
             const angle = (item.value / 100) * 360
 
-            // Caso especial para 100% (Círculo completo)
-            if (angle >= 359.9) {
+            // Caso especial para 100% o categoría única
+            if (data.length === 1 || angle >= 359.5) {
               return (
                 <g key={index}>
                   <circle cx="160" cy="160" r="120" fill={item.color} stroke="white" strokeWidth="3" />

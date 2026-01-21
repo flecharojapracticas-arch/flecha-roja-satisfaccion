@@ -201,9 +201,31 @@ const RatingPieChartCard: React.FC<RatingPieChartCardProps> = ({
         {dataForChart.map((item, index) => {
           const percentage = (item.value / total) * 100
           const angle = (percentage / 100) * 360
+
+          // Caso especial para 100% o categoría única
+          if (dataForChart.length === 1 || angle >= 359.5) {
+            return (
+              <g key={index}>
+                <circle cx="160" cy="160" r="120" fill={item.color} stroke="white" strokeWidth="3" />
+                <text
+                  x="160"
+                  y="160"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="white"
+                  fontSize="24"
+                  fontWeight="700"
+                  style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}
+                >
+                  100.0%
+                </text>
+              </g>
+            )
+          }
+
           const startAngle = currentAngle
           const endAngle = currentAngle + angle
-
+          // ... rest of the arc logic ...
           const startX = 160 + 120 * Math.cos(((startAngle - 90) * Math.PI) / 180)
           const startY = 160 + 120 * Math.sin(((startAngle - 90) * Math.PI) / 180)
           const endX = 160 + 120 * Math.cos(((endAngle - 90) * Math.PI) / 180)
@@ -225,7 +247,7 @@ const RatingPieChartCard: React.FC<RatingPieChartCardProps> = ({
           currentAngle = endAngle
 
           // Aseguramos que el texto blanco sea legible en colores oscuros
-          const isDarkColor = [SECONDARY_COLOR, PRIMARY_COLOR, DANGER_COLOR].includes(item.color);
+          const isDarkColor = [SECONDARY_COLOR, PRIMARY_COLOR, DANGER_COLOR].includes(item.color)
 
           return (
             <g key={index}>

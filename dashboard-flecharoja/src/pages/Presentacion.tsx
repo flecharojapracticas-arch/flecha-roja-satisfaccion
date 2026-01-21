@@ -164,8 +164,8 @@ const SatisfactionPieChart: React.FC<{
           {data.map((item, index) => {
             const angle = (item.value / 100) * 360
 
-            // Caso especial para 100% (Círculo completo)
-            if (angle >= 359.9) {
+            // Caso especial para 100% o categoría única
+            if (data.length === 1 || angle >= 359.5) {
               return (
                 <g key={index}>
                   <circle cx={center} cy={center} r={radius} fill={item.color} stroke="white" strokeWidth="3" />
@@ -271,8 +271,8 @@ const RatingDistributionPieChart: React.FC<{
           const percentage = total > 0 ? (item.value / total) * 100 : 0
           const angle = (percentage / 100) * 360
 
-          // Caso especial para 100% (Círculo completo)
-          if (angle >= 359.9) {
+          // Caso especial para 100% o categoría única
+          if (dataForChart.length === 1 || angle >= 359.5) {
             return (
               <g key={index}>
                 <circle cx={center} cy={center} r={radius} fill={item.color} stroke="white" strokeWidth="3" />
@@ -491,7 +491,6 @@ const Presentacion: React.FC<PresentacionProps> = ({ onLogout }) => {
   const [error, setError] = useState<string | null>(null)
   const [selectedTerminal, setSelectedTerminal] = useState<string | null>(null)
   const [selectedQuestion, setSelectedQuestion] = useState<QuestionConfig | null>(null)
-  const [showSettingsModal, setShowSettingsModal] = useState(false)
 
   // Fetch data
   const fetchSurveys = useCallback(async () => {
@@ -988,9 +987,6 @@ const Presentacion: React.FC<PresentacionProps> = ({ onLogout }) => {
             <img src="/logo_flecha_roja.png" alt="Logo Flecha Roja" className="header-logo" />
           </div>
           <h1 className="header-title-main">SISTEMA DE SATISFACCIÓN AL CLIENTE - FLECHA ROJA</h1>
-          <button onClick={() => setShowSettingsModal(true)} className="btn-settings-header">
-            Ajustes
-          </button>
           <button onClick={onLogout} className="btn-logout">
             Cerrar Sesión
           </button>
