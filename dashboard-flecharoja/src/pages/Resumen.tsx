@@ -73,31 +73,31 @@ const RATING_QUESTIONS: QuestionConfig[] = [
   {
     id: "Q1",
     key: "califExperienciaCompra",
-    title: "1. ¿Cómo califica su experiencia general de compra?",
+    title: "1.- Evalúe su experiencia de compra: (a bordo,taquillas,web o app)",
     description: "Evalúa el proceso completo desde la llegada hasta la obtención del boleto.",
   },
   {
     id: "Q2",
     key: "califServicioConductor",
-    title: "2. ¿Cómo califica el servicio y atención del conductor?",
+    title: "2. Evalúe el servicio del conductor (amabilidad, atención en el servicio)",
     description: "Mide la amabilidad, profesionalismo y trato del personal operativo.",
   },
   {
     id: "Q3",
     key: "califComodidad",
-    title: "5. ¿Cómo califica la comodidad a bordo del autobús?",
+    title: "4. ¿Cómo califica la comodidad a bordo?",
     description: "Analiza el estado de asientos, espacio y confort general.",
   },
   {
     id: "Q4",
     key: "califLimpieza",
-    title: "6. ¿Cómo califica la limpieza a bordo del autobús?",
+    title: "5.- ¿Cómo califica la limpieza a bordo?",
     description: "Evaluación de higiene en áreas comunes y asientos.",
   },
   {
     id: "Q5",
     key: "califSeguridad",
-    title: "7. ¿Qué tan seguro consideró su viaje?",
+    title: "6. ¿Cómo considera la seguridad en su viaje? (conducción)",
     description: "Percepción de seguridad en la conducción y estado del vehículo.",
   },
 ]

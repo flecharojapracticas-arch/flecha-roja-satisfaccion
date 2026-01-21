@@ -55,12 +55,12 @@ const TERMINALES = [
 ]
 
 const QUESTION_MAP: { [key: string]: { key: string; title: string } } = {
-  pregunta1: { key: "califExperienciaCompra", title: "1. Evalúe su experiencia de compra" },
-  pregunta2: { key: "califServicioConductor", title: "2. Evalúe el servicio del conductor" },
-  pregunta3: { key: "califComodidad", title: "5. ¿Cómo califica la comodidad a bordo?" },
-  pregunta4: { key: "califLimpieza", title: "6. ¿Cómo califica la limpieza a bordo?" },
-  pregunta5: { key: "califSeguridad", title: "7. ¿Qué tan seguro consideró su viaje?" },
-  pregunta6: { key: "cumplioExpectativas", title: "8. ¿Se cumplió con sus expectativas de salida?" },
+  pregunta1: { key: "califExperienciaCompra", title: "1.- Evalúe su experiencia de compra: (a bordo,taquillas,web o app)" },
+  pregunta2: { key: "califServicioConductor", title: "2. Evalúe el servicio del conductor (amabilidad, atención en el servicio)" },
+  pregunta3: { key: "califComodidad", title: "4. ¿Cómo califica la comodidad a bordo?" },
+  pregunta4: { key: "califLimpieza", title: "5.- ¿Cómo califica la limpieza a bordo?" },
+  pregunta5: { key: "califSeguridad", title: "6. ¿Cómo considera la seguridad en su viaje? (conducción)" },
+  pregunta6: { key: "cumplioExpectativas", title: "7. ¿Se cumplió con sus expectativas de inicio de viaje?" },
 }
 
 // Interfaz mínima de la encuesta para el análisis
@@ -278,22 +278,6 @@ const Analisis: React.FC = () => {
       }
     })
 
-    // --- INYECCIÓN DE DATOS FICTICIOS PARA P2 (SERVICIO DEL CONDUCTOR) ---
-    if (key === "califServicioConductor") {
-      const dummyCounts: Record<string, number> = {
-        "Muy Buena": 30,
-        "Buena": 53,
-        "Regular": 12,
-        "Mala": 3,
-        "Muy Mala": 2
-      }
-      const labels = ratings
-      const data = labels.map((label) => dummyCounts[label] || 0)
-      const backgroundColors = getChartColors(labels)
-      const percentages = calculatePercentages(data)
-      return { labels, data, backgroundColors, percentages }
-    }
-    // --- FIN INYECCIÓN ---
 
     const labels = ratings
     const data = labels.map((label) => counts[label])
