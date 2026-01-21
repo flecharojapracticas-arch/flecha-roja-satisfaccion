@@ -530,16 +530,6 @@ export default function Resumen() {
         }
       })
 
-      // Dummy fix for P2
-      if (q.key === "califServicioConductor") {
-        const dummyDist: { [calif: string]: number } = { "Muy Buena": 30, "Buena": 53, "Regular": 12, "Mala": 3, "Muy Mala": 2 }
-        totalWeightedScore = 0
-        totalResponses = 100
-        SATISFACTION_ORDER.forEach(c => {
-          distribution[c].value = dummyDist[c] || 0
-          totalWeightedScore += (dummyDist[c] || 0) * (weights[c] || 0)
-        })
-      }
 
       const maxPossible = totalResponses * maxWeight
       const satisfiedPercentage = maxPossible > 0 ? (totalWeightedScore / maxPossible) * 100 : 0
@@ -562,7 +552,6 @@ export default function Resumen() {
     let totalResponsesAll = 0
     validSurveys.forEach(s => {
       RATING_QUESTIONS.forEach(q => {
-        if (q.key === "califServicioConductor") return
         const calif = s[q.key] as string
         if (calif && weights[calif] !== undefined) {
           totalWeightedScoreAll += weights[calif]
@@ -571,12 +560,6 @@ export default function Resumen() {
       })
     })
 
-    // Dummy P2 addition to total
-    const dummyDist: { [calif: string]: number } = { "Muy Buena": 30, "Buena": 53, "Regular": 12, "Mala": 3, "Muy Mala": 2 }
-    Object.entries(dummyDist).forEach(([c, count]) => {
-      totalWeightedScoreAll += count * (weights[c] || 0)
-      totalResponsesAll += count
-    })
 
     const maxScaleAll = totalResponsesAll * maxWeight
     const overallSatisfied = maxScaleAll > 0 ? (totalWeightedScoreAll / maxScaleAll) * 100 : 0

@@ -225,29 +225,7 @@ const Encuestas: React.FC = () => {
         validado: s.validado || "VALIDADO",
       }))
 
-      // --- INYECCIÓN DE DATOS FICTICIOS PARA P2 (SERVICIO DEL CONDUCTOR) ---
-      // Sustituir N/A por la distribución: 30 MB, 53 B, 12 R, 3 M, 2 MM (Total 100)
-      const dummyDistribution = [
-        ...Array(30).fill("Muy Buena"),
-        ...Array(53).fill("Buena"),
-        ...Array(12).fill("Regular"),
-        ...Array(3).fill("Mala"),
-        ...Array(2).fill("Muy Mala")
-      ]
-      let dummyIndex = 0
-
-      const patchedSurveys = initialSurveys.map((s: any) => {
-        // Solo inyectamos si no tiene valor y aún tenemos datos en la distribución dummy
-        if ((!s.califServicioConductor || s.califServicioConductor === "N/A" || s.califServicioConductor === "") && dummyIndex < dummyDistribution.length) {
-          const newVal = dummyDistribution[dummyIndex]
-          dummyIndex++
-          return { ...s, califServicioConductor: newVal }
-        }
-        return s
-      })
-      // --- FIN INYECCIÓN ---
-
-      setAllSurveys(patchedSurveys)
+      setAllSurveys(initialSurveys)
     } catch (err) {
       const axiosError = err as AxiosError
       console.error("Error al cargar encuestas:", axiosError)
