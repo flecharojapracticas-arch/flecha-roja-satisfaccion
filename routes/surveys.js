@@ -73,4 +73,15 @@ router.put("/:id", async (req, res) => {
   }
 })
 
+// RUTA DELETE (Purgar todas las encuestas) - Requiere precaución
+router.delete("/purge", async (req, res) => {
+  try {
+    const result = await req.db.collection(req.COLLECTION_NAME).deleteMany({})
+    res.json({ message: `Se han eliminado ${result.deletedCount} encuestas correctamente.` })
+  } catch (error) {
+    console.error("Error al purgar encuestas:", error)
+    res.status(500).json({ message: "Error al intentar vaciar la base de datos" })
+  }
+})
+
 module.exports = router
