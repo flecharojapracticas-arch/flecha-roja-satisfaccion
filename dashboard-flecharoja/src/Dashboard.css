@@ -1,8 +1,5 @@
 /* ============================================================
     SISTEMA DE DISEÑO - VARIABLES GLOBALES OPTIMIZADAS
-    
-    Variables ajustadas para mejor aprovechamiento del espacio
-    manteniendo legibilidad y armonía visual.
 ============================================================ */
 :root {
   /* ========== PALETA DE COLORES ========== */
@@ -57,26 +54,32 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   line-height: 1.2;
 }
 
 /* ============================================================
-    CONTENEDOR PRINCIPAL - OPTIMIZADO PARA 100VH
+    CONTENEDOR PRINCIPAL
 ============================================================ */
 .dashboard-container {
   min-height: 100vh;
   height: 100vh;
   background-color: var(--background-color);
-  padding-top: 75px; /* Reducido para header más compacto */
+  /* Aumentando padding-top para header más grande */
+  padding-top: 95px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 /* ============================================================
-    HEADER FIJO - COMPACTO Y EFICIENTE
+    HEADER FIJO - MÁS GRANDE
 ============================================================ */
 .dashboard-header {
   position: fixed;
@@ -88,14 +91,14 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--shadow-header);
 }
 
-/* ========== BARRA SUPERIOR - MÁS COMPACTA ========== */
+/* Barra superior más grande */
 .header-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-xl);
   gap: var(--spacing-md);
-  min-height: 48px;
+  min-height: 64px;
 }
 
 .header-logo-container {
@@ -105,8 +108,9 @@ h1, h2, h3, h4, h5, h6 {
   flex-shrink: 0;
 }
 
+/* Logo más grande */
 .header-logo {
-  height: 32px;
+  height: 42px;
   width: auto;
   display: block;
 }
@@ -118,9 +122,10 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
 }
 
+/* Título del header más grande */
 .header-title-main {
   color: white;
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   text-align: center;
   flex: 1;
@@ -134,7 +139,6 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* ========== BOTÓN DE CERRAR SESIÓN - COMPACTO ========== */
 .btn-logout {
   background-color: var(--secondary-color);
   color: white;
@@ -160,30 +164,32 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================================
-    BARRA DE NAVEGACIÓN - COMPACTA
+    BARRA DE NAVEGACIÓN - BOTONES MÁS GRANDES
 ============================================================ */
 .nav-bar {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-xs) var(--spacing-md);
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
   background-color: white;
   box-shadow: var(--shadow-sm);
-  min-height: 36px;
+  min-height: 48px;
 }
 
+/* Botones de navegación más grandes */
 .nav-button {
   background-color: var(--primary-color);
   color: white;
   font-weight: 600;
-  padding: 6px 16px;
+  padding: 10px 24px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .nav-button:hover:not(.active) {
@@ -204,26 +210,27 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================================
-    CONTENIDO PRINCIPAL - OPTIMIZADO PARA VIEWPORT
+    CONTENIDO PRINCIPAL
 ============================================================ */
 .dashboard-main-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-xl) var(--spacing-2xl);
   width: 100%;
   flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-2xl);
 }
 
 /* ============================================================
-    CAJA DE BIENVENIDA - COMPACTA
+    CAJA DE BIENVENIDA - MÁS GRANDE
 ============================================================ */
+/* Caja "Panel de Control" más grande */
 .welcome-box {
   background: white;
-  padding: var(--spacing-md) var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-2xl) var(--spacing-xl);
   border-radius: var(--radius-lg);
   border: 1px solid var(--card-border-color);
   box-shadow: var(--shadow-md);
@@ -233,27 +240,28 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .welcome-title {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
   color: var(--primary-color);
   letter-spacing: -0.3px;
 }
 
 .welcome-subtitle {
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 400;
   color: var(--text-dark);
   margin: 0;
 }
 
 /* ============================================================
-    GRID PRINCIPAL - OPTIMIZADO PARA ESPACIO
+    GRID PRINCIPAL - ESTRUCTURA PROFESIONAL
 ============================================================ */
+/* Nueva estructura de grid más profesional */
 .main-layout-grid-extended {
   display: grid;
-  gap: var(--spacing-lg);
-  grid-template-columns: 240px 1fr;
+  gap: var(--spacing-2xl);
+  grid-template-columns: 1fr;
   align-items: start;
   flex: 1;
   min-height: 0;
@@ -263,32 +271,27 @@ h1, h2, h3, h4, h5, h6 {
   .main-layout-grid-extended {
     grid-template-columns: 1fr;
   }
-
-  .sidebar-metrics {
-    order: 1;
-    max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .chart-container-wrapper {
-    order: 2;
-  }
 }
 
 /* ============================================================
-    CONTENEDOR DE MÉTRICAS - COMPACTO
+    CONTENEDOR DE MÉTRICAS - GRID 2x2
 ============================================================ */
+/* Tarjetas en grid 2x2 para mejor distribución */
 .sidebar-metrics {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  height: 100%;
-  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-xl);
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .sidebar-metrics {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ============================================================
-    TARJETA DE MÉTRICA - OPTIMIZADA
+    TARJETA DE MÉTRICA - MEJOR ESPACIADO
 ============================================================ */
 .sidebar-card {
   background: white;
@@ -306,10 +309,10 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--primary-color);
   color: white;
   font-weight: 700;
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   text-transform: uppercase;
   text-align: center;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-sm);
   letter-spacing: 0.8px;
 }
 
@@ -319,21 +322,21 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: var(--spacing-md) var(--spacing-sm);
-  min-height: 110px;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  min-height: 140px;
 }
 
 .metric-value {
-  font-size: 2.25rem;
+  font-size: 2.75rem;
   font-weight: 900;
   color: var(--text-dark);
-  margin: var(--spacing-xs) 0;
+  margin: var(--spacing-md) 0;
   line-height: 1;
   transition: color var(--transition-medium);
 }
 
 .metric-subtext {
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   font-weight: 500;
   color: var(--primary-color);
   text-align: center;
@@ -341,15 +344,28 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================================
-    ÁREA DE GRÁFICA - OPTIMIZADA PARA VIEWPORT
+    ÁREA DE GRÁFICA Y INSIGHTS
 ============================================================ */
+.chart-and-insights-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-2xl);
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .chart-and-insights-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Gráfico más pequeño */
 .chart-container-wrapper {
   background: white;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xl);
   border-radius: var(--radius-lg);
   border: 1px solid var(--card-border-color);
   box-shadow: var(--shadow-md);
-  height: 100%;
   display: flex;
   flex-direction: column;
   transition: all var(--transition-fast);
@@ -361,6 +377,75 @@ h1, h2, h3, h4, h5, h6 {
   flex: 1;
   min-height: 0;
   position: relative;
+}
+
+/* Insights en color verde del tema */
+.insights-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7f6 100%);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--primary-color);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-fast);
+}
+
+.insights-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(42, 101, 95, 0.2);
+}
+
+.insights-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.insights-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.insights-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: white;
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--primary-color);
+  transition: all var(--transition-fast);
+}
+
+.insight-item:hover {
+  background: #f0f7f6;
+  transform: translateX(4px);
+}
+
+.insight-bullet {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: 900;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.insight-text {
+  font-size: 0.9375rem;
+  color: var(--text-dark);
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 500;
 }
 
 /* ========== ESTADOS DE CARGA Y ERROR ========== */
@@ -407,13 +492,13 @@ h1, h2, h3, h4, h5, h6 {
 ============================================================ */
 @media (max-width: 768px) {
   .dashboard-container {
-    padding-top: 90px;
+    padding-top: 110px;
   }
 
   .header-top-bar {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-md);
     flex-wrap: wrap;
-    min-height: 44px;
+    min-height: 56px;
   }
 
   .header-logo-container {
@@ -421,43 +506,61 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .header-logo {
-    height: 28px;
+    height: 36px;
   }
 
   .nav-bar {
     flex-wrap: wrap;
-    gap: var(--spacing-xs);
-  }
-
-  .nav-button {
-    padding: 5px 12px;
-    font-size: 0.75rem;
-  }
-
-  .welcome-title {
-    font-size: 1.25rem;
-  }
-
-  .welcome-subtitle {
-    font-size: 0.8125rem;
-  }
-
-  .metric-value {
-    font-size: 1.875rem;
-  }
-
-  .dashboard-main-content {
+    gap: var(--spacing-sm);
     padding: var(--spacing-sm) var(--spacing-md);
   }
 
+  .nav-button {
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+  }
+
+  .welcome-title {
+    font-size: 1.375rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .metric-value {
+    font-size: 2.25rem;
+  }
+
+  .dashboard-main-content {
+    padding: var(--spacing-md) var(--spacing-lg);
+    gap: var(--spacing-lg);
+  }
+
   .card-content-body {
-    min-height: 90px;
-    padding: var(--spacing-sm);
+    min-height: 120px;
+    padding: var(--spacing-lg);
+  }
+
+  .insights-card {
+    padding: var(--spacing-lg);
+  }
+
+  .insight-text {
+    font-size: 0.875rem;
+  }
+
+  .sidebar-metrics {
+    gap: var(--spacing-lg);
+  }
+
+  .chart-and-insights-container {
+    gap: var(--spacing-lg);
   }
 }
 
 /* ============================================================
-    SCROLLBAR PERSONALIZADO (OPCIONAL)
+    SCROLLBAR PERSONALIZADO
 ============================================================ */
 .dashboard-main-content::-webkit-scrollbar,
 .sidebar-metrics::-webkit-scrollbar {

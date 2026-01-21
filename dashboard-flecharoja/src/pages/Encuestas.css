@@ -33,9 +33,6 @@
   --transition-fast: 0.2s ease;
 }
 
-/* ============================================================
-   ESTILOS BASE GLOBALES Y ESTRUCTURA DE PANTALLA
-============================================================ */
 * {
   box-sizing: border-box;
   font-size: 15px;
@@ -63,10 +60,9 @@ h3 {
 .dashboard-container {
   min-height: 100vh;
   background-color: var(--background-color);
-  padding-top: 70px; /* Increased space for fixed header */
+  padding-top: 70px;
 }
 
-/* ========== HEADER FIJO ========== */
 .dashboard-header {
   position: fixed;
   top: 0;
@@ -75,7 +71,7 @@ h3 {
   z-index: 200;
   background-color: var(--primary-color);
   box-shadow: var(--shadow-header);
-  height: 70px; /* Increased height for better proportions */
+  height: 70px;
 }
 
 .header-top-bar {
@@ -85,7 +81,7 @@ h3 {
   padding: var(--spacing-md) var(--spacing-xl);
   gap: var(--spacing-lg);
   height: 100%;
-  max-width: 1600px; /* Added max-width for better centering */
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -97,26 +93,25 @@ h3 {
 }
 
 .header-logo {
-  height: 45px; /* Increased logo size */
+  height: 45px;
   width: auto;
   display: block;
 }
 
 .header-title-main {
   color: white;
-  font-size: 1.25rem; /* Slightly larger title */
+  font-size: 1.25rem;
   font-weight: 700;
   text-align: center;
   flex: 1;
   letter-spacing: 0.5px;
 }
 
-/* 🔄 BOTÓN DE NAVEGACIÓN (Regresar al Inicio) */
 .btn-navigate {
-  background-color: white; /* White background for contrast */
-  color: var(--primary-color); /* Green text */
+  background-color: white;
+  color: var(--primary-color);
   font-weight: 600;
-  padding: 10px 20px; /* Better padding */
+  padding: 10px 20px;
   border: 2px solid white;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -129,22 +124,16 @@ h3 {
 .btn-navigate:hover {
   background-color: var(--secondary-color);
   color: white;
-  transform: translateY(-1px); /* Subtle lift effect */
+  transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
-/* Contenido Principal */
 .dashboard-main-content {
-  max-width: 1600px; /* Increased max-width for better table display */
+  max-width: 1600px;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-lg);
 }
 
-/* ============================================================
-   ESTILOS DE LA SECCIÓN DE ENCUESTAS (Filtros y Tabla)
-============================================================ */
-
-/* Agregando estilos para el nuevo título de la sección */
 .surveys-section-title {
   margin: 0 0 var(--spacing-md) 0;
   font-size: 1.4rem;
@@ -155,7 +144,6 @@ h3 {
   text-transform: uppercase;
 }
 
-/* Texto introductorio */
 .surveys-intro-text {
   margin: 0 0 var(--spacing-xl) 0;
   font-size: 0.95rem;
@@ -165,7 +153,6 @@ h3 {
   line-height: 1.6;
 }
 
-/* ========== CAJA DE FILTROS - MEJORADA ========== */
 .filter-box {
   background: white;
   padding: var(--spacing-xl);
@@ -185,7 +172,7 @@ h3 {
   justify-content: center;
   flex-wrap: wrap;
   width: 100%;
-  max-width: 1400px; /* Added max-width for better control */
+  max-width: 1400px;
 }
 
 .filter-group {
@@ -201,25 +188,24 @@ h3 {
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
   transition: all var(--transition-fast);
-  font-weight: 500; /* Lighter weight */
+  font-weight: 500;
   background-color: white;
 }
 
 .filter-group input:focus,
 .filter-group select:focus {
   outline: none;
-  border-color: var(--primary-color); /* Green focus border */
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(42, 101, 95, 0.1);
 }
 
-/* Estilo para los SELECT que parecen botones */
 .filter-group select {
   appearance: none;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="%232a655f" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); /* Green arrow */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%232a655f" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
   background-repeat: no-repeat;
   background-position: right 8px center;
   padding-right: 35px;
-  min-width: 200px; /* Slightly wider */
+  min-width: 200px;
   cursor: pointer;
 }
 
@@ -232,7 +218,7 @@ h3 {
 
 .search-icon {
   position: absolute;
-  right: 12px; /* Moved icon to the right side */
+  right: 12px;
   color: var(--text-light);
   pointer-events: none;
   z-index: 1;
@@ -240,7 +226,7 @@ h3 {
 
 .search-input-subtle {
   width: 100%;
-  padding: 10px 40px 10px 15px; /* Adjusted padding to accommodate right-aligned icon */
+  padding: 10px 40px 10px 15px;
   border: 1px solid var(--card-border-color);
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
@@ -264,10 +250,10 @@ h3 {
   color: var(--primary-color);
 }
 
-/* ========== TABLA DE ENCUESTAS - MEJORADA ========== */
+/* TABLA OPTIMIZADA */
 .table-container {
   overflow-x: auto;
-  max-height: calc(100vh - 280px); /* Better height calculation */
+  max-height: calc(100vh - 280px);
   overflow-y: auto;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
@@ -275,7 +261,6 @@ h3 {
   border: 1px solid var(--card-border-color);
 }
 
-/* Custom scrollbar styling for better appearance */
 .table-container::-webkit-scrollbar {
   height: 10px;
   width: 10px;
@@ -298,27 +283,28 @@ h3 {
 .surveys-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 2200px; /* Reduced min-width slightly */
+  min-width: unset;
 }
 
 .surveys-table thead th {
   background-color: var(--secondary-color);
   color: white;
-  padding: var(--spacing-md) var(--spacing-sm); /* Adjusted padding */
+  padding: var(--spacing-md) var(--spacing-sm);
   text-align: left;
-  font-weight: 600; /* Slightly lighter weight */
-  font-size: 0.8rem; /* Slightly smaller for better fit */
+  font-weight: 600;
+  font-size: 0.85rem;
   text-transform: none;
   letter-spacing: 0.3px;
   position: sticky;
   top: 0;
   z-index: 10;
   white-space: nowrap;
-  border-right: 1px solid rgba(255, 255, 255, 0.1); /* Subtle column separators */
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .surveys-table thead th:last-child {
   border-right: none;
+  text-align: center;
 }
 
 .surveys-table tbody tr {
@@ -327,64 +313,32 @@ h3 {
 }
 
 .surveys-table tbody tr:hover {
-  background-color: rgba(42, 101, 95, 0.05); /* Green tinted hover */
+  background-color: rgba(42, 101, 95, 0.05);
 }
 
 .surveys-table td {
-  padding: var(--spacing-sm) var(--spacing-sm); /* More compact padding */
-  font-size: 0.85rem; /* Slightly smaller text */
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.9rem;
   vertical-align: middle;
   white-space: nowrap;
-  border-right: 1px solid #f5f5f5; /* Subtle column separators */
+  border-right: 1px solid #f5f5f5;
 }
 
 .surveys-table td:last-child {
   border-right: none;
 }
 
-/* Celdas Editables */
-.editable-cell input {
-  width: 100%;
-  min-width: 80px;
-  padding: 6px 8px; /* Adjusted padding */
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
-  font-size: inherit;
-  font-weight: 500;
-  background-color: transparent;
-}
-
-.editable-cell input:hover {
-  border-color: var(--card-border-color);
-  background-color: #fafafa;
-}
-
-.editable-cell input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  background-color: #fff;
-  box-shadow: 0 0 0 3px rgba(42, 101, 95, 0.1);
-}
-
-.editable-cell input:disabled {
-  background-color: #f9f9f9;
-  color: var(--text-light);
-  cursor: not-allowed;
-}
-
-/* Improved action buttons column */
+/* BOTONES DE ACCIÓN */
 .actions-cell {
   text-align: center;
-  min-width: 180px; /* Increased width to accommodate new detail button */
+  min-width: 100px;
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
   align-items: center;
   padding: var(--spacing-sm) !important;
 }
 
-/* Completely redesigned action buttons */
 .action-button {
   padding: 0;
   width: 36px;
@@ -401,11 +355,13 @@ h3 {
   box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .action-button:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  z-index: 2;
 }
 
 .action-button:active {
@@ -418,27 +374,11 @@ h3 {
   transform: none !important;
 }
 
-/* Icon-based button styles with text labels */
-.action-button::before {
-  font-size: 1.1rem;
-}
-
-/* Estilos específicos de botones de acción */
 .btn-save {
   background-color: #2a655f;
   color: white;
 }
-
 .btn-save:hover {
-  background-color: #1f4e4a;
-}
-
-.btn-validate {
-  background-color: #2a655f;
-  color: white;
-}
-
-.btn-validate:hover {
   background-color: #1f4e4a;
 }
 
@@ -446,7 +386,6 @@ h3 {
   background-color: #2a655f;
   color: white;
 }
-
 .btn-delete:hover {
   background-color: #1f4e4a;
 }
@@ -455,15 +394,13 @@ h3 {
   background-color: #2a655f;
   color: white;
 }
-
 .btn-detail:hover {
   background-color: #1f4e4a;
 }
 
-/* Improved validation status badges */
 .validation-status {
   padding: 5px 12px;
-  border-radius: 20px; /* More rounded pill shape */
+  border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -490,7 +427,6 @@ h3 {
   border: 1px solid #e57373;
 }
 
-/* Improved no results and error messages */
 .no-results {
   padding: calc(var(--spacing-xl) * 2);
   text-align: center;
@@ -510,58 +446,10 @@ h3 {
   border-left: 4px solid var(--danger-color);
 }
 
-/* Responsive adjustments */
-@media (max-width: 1400px) {
-  .header-title-main {
-    font-size: 1.1rem;
-  }
-
-  .filter-grid {
-    gap: var(--spacing-sm);
-  }
-
-  .filter-group select {
-    min-width: 180px;
-  }
-}
-
-@media (max-width: 768px) {
-  .header-top-bar {
-    flex-direction: column;
-    height: auto;
-    padding: var(--spacing-md);
-  }
-
-  .dashboard-header {
-    height: auto;
-  }
-
-  .dashboard-container {
-    padding-top: 120px;
-  }
-
-  .header-title-main {
-    font-size: 1rem;
-  }
-
-  .filter-grid {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .filter-group,
-  .search-input-group {
-    width: 100%;
-  }
-
-  .filter-group select {
-    width: 100%;
-  }
-}
-
 /* ============================================================
-   MODAL DE DETALLE DE ENCUESTA
+   MODAL STYLES
 ============================================================ */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -573,97 +461,112 @@ h3 {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: var(--spacing-xl);
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  padding: var(--spacing-sm);
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   background: white;
   border-radius: var(--radius-lg);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  max-width: 900px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  max-width: 96%;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease;
+  height: 92vh;
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.3s ease-out;
 }
 
-@keyframes slideUp {
+@keyframes modalSlideIn {
   from {
-    transform: translateY(30px);
     opacity: 0;
+    transform: translateY(20px);
   }
   to {
-    transform: translateY(0);
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .modal-header {
-  background-color: var(--primary-color);
-  color: white;
-  padding: var(--spacing-xl);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 2px solid var(--card-border-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  flex-shrink: 0;
 }
 
 .modal-title {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin: 0;
   color: white;
+  margin: 0;
+  letter-spacing: 0.5px;
 }
 
 .modal-close-btn {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.2);
   border: none;
   color: white;
   font-size: 1.5rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
   transition: all var(--transition-fast);
+  font-weight: 300;
 }
 
 .modal-close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
   transform: rotate(90deg);
 }
 
 .modal-body {
   padding: var(--spacing-xl);
+  overflow-y: auto;
+  flex: 1;
+  background-color: #fff;
 }
+
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+}
+
+/* ============================================================
+   DETAIL MODAL STYLES
+============================================================ */
 
 .detail-section {
   margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: #fafafa;
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--primary-color);
 }
 
 .detail-section-title {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--primary-color);
-  margin: 0 0 var(--spacing-md) 0;
-  padding-bottom: var(--spacing-sm);
-  border-bottom: 2px solid var(--primary-color);
+  margin: 0 0 var(--spacing-lg) 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -689,93 +592,449 @@ h3 {
 }
 
 .detail-value {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   color: var(--text-dark);
-  padding: var(--spacing-sm);
-  background-color: #f9f9f9;
-  border-radius: var(--radius-sm);
-  border-left: 3px solid var(--primary-color);
-  min-height: 40px;
-  display: flex;
-  align-items: center;
+  word-wrap: break-word;
 }
 
 .detail-value.long-text {
-  white-space: pre-wrap;
-  word-break: break-word;
   line-height: 1.6;
+  padding: var(--spacing-sm);
+  background: white;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--card-border-color);
 }
 
 .detail-status-badge {
-  display: inline-block;
-  padding: 8px 16px;
+  padding: 6px 14px;
   border-radius: 20px;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: inline-block;
+  width: fit-content;
 }
 
 .detail-status-badge.validado {
   background-color: #e8f5e9;
   color: #2e7d32;
-  border: 2px solid #81c784;
+  border: 1px solid #81c784;
 }
 
 .detail-status-badge.pendiente {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  border: 2px solid #81c784;
+  background-color: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ffb74d;
 }
 
 .detail-status-badge.eliminado {
   background-color: #ffebee;
   color: #c62828;
-  border: 2px solid #e57373;
+  border: 1px solid #e57373;
 }
 
-/* Custom scrollbar for modal */
-.modal-content::-webkit-scrollbar {
-  width: 8px;
+/* ============================================================
+   EDIT MODAL STYLES
+============================================================ */
+
+.edit-input,
+.edit-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--card-border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+  background-color: white;
 }
 
-.modal-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.edit-input:focus,
+.edit-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(42, 101, 95, 0.1);
 }
 
-.modal-content::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 10px;
+.edit-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
 }
 
-.modal-content::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-color);
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-top: 2px solid var(--card-border-color);
+  background: #fafafa;
+  flex-shrink: 0;
 }
 
-/* Responsive modal */
+.btn-save-modal {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-save-modal:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-save-modal:active {
+  transform: translateY(0);
+}
+
+/* ============================================================
+   INVALID SURVEYS MODAL STYLES
+============================================================ */
+
+.invalid-modal {
+  /* Hereda el max-width del modal-content general */
+}
+
+.invalid-filter-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: #f5f5f5;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--card-border-color);
+}
+
+.invalid-filter-label {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.invalid-filter-select {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid var(--card-border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color: white;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%232a655f" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 35px;
+}
+
+.invalid-filter-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(42, 101, 95, 0.1);
+}
+
+.invalid-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+  border-bottom: 2px solid var(--card-border-color);
+}
+
+.invalid-tab {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-light);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  bottom: -2px;
+}
+
+.invalid-tab:hover {
+  color: var(--primary-color);
+  background: rgba(42, 101, 95, 0.05);
+}
+
+.invalid-tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.invalid-charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-xl) * 1.5);
+}
+
+.chart-card {
+  background: white;
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.chart-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.chart-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0 0 var(--spacing-lg) 0;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.invalid-table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--card-border-color);
+}
+
+.invalid-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.invalid-table thead th {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: var(--spacing-md);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.invalid-table tbody tr {
+  border-bottom: 1px solid var(--card-border-color);
+  transition: background-color var(--transition-fast);
+}
+
+.invalid-table tbody tr:hover {
+  background-color: rgba(42, 101, 95, 0.05);
+}
+
+.invalid-table td {
+  padding: var(--spacing-md);
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   INVALID REASON MODAL STYLES
+============================================================ */
+
+.invalid-reason-modal {
+  max-width: 600px;
+  height: auto; /* Excepción para el modal pequeño */
+}
+
+.invalid-reason-text {
+  font-size: 1rem;
+  color: var(--text-dark);
+  margin: 0 0 var(--spacing-xl) 0;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.invalid-reason-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.invalid-reason-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: #fafafa;
+  border: 2px solid var(--card-border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.invalid-reason-option:hover {
+  background: #f0f0f0;
+  border-color: var(--primary-color);
+}
+
+.invalid-reason-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+}
+
+.invalid-reason-option span {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  flex: 1;
+}
+
+.invalid-reason-option:has(input:checked) {
+  background: rgba(42, 101, 95, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(42, 101, 95, 0.1);
+}
+
+.invalid-reason-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  padding-top: var(--spacing-lg);
+  border-top: 2px solid var(--card-border-color);
+}
+
+.btn-cancel,
+.btn-confirm {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-cancel {
+  background-color: #f5f5f5;
+  color: var(--text-dark);
+}
+
+.btn-cancel:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-confirm {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-confirm:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-confirm:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+.btn-confirm:active,
+.btn-cancel:active {
+  transform: translateY(0);
+}
+
+/* ============================================================
+   BUTTON FOR INVALID SURVEYS
+============================================================ */
+
+.btn-invalid-surveys {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.btn-invalid-surveys:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-invalid-surveys:active {
+  transform: translateY(0);
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+============================================================ */
+
 @media (max-width: 768px) {
-  .modal-overlay {
-    padding: var(--spacing-md);
+  .header-top-bar {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+  }
+
+  .header-title-main {
+    font-size: 1rem;
+  }
+
+  .filter-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-group select,
+  .search-input-wrapper {
+    width: 100%;
+    min-width: unset;
   }
 
   .modal-content {
-    max-height: 95vh;
-  }
-
-  .modal-header {
-    padding: var(--spacing-lg);
-  }
-
-  .modal-title {
-    font-size: 1.1rem;
-  }
-
-  .modal-body {
-    padding: var(--spacing-lg);
+    max-width: 95%;
+    margin: var(--spacing-sm);
+    height: 90vh;
   }
 
   .detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .invalid-charts-container {
+    gap: var(--spacing-xl);
+  }
+
+  .chart-card {
+    padding: var(--spacing-md);
   }
 }
