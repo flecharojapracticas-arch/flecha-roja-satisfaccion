@@ -28,7 +28,7 @@ interface Survey {
   califComodidad: "Muy Buena" | "Buena" | "Regular" | "Mala" | "Muy Mala" | string
   califLimpieza: "Muy Buena" | "Buena" | "Regular" | "Mala" | "Muy Mala" | string
   califSeguridad: "Muy Buena" | "Buena" | "Regular" | "Mala" | "Muy Mala" | string
-  cumplioExpectativas: string
+  cumplioExpectativas: "Muy Buena" | "Buena" | "Regular" | "Mala" | "Muy Mala" | string
 }
 
 interface RatingDistribution {
@@ -96,11 +96,42 @@ const DEFAULT_TERMINALES = [
 type QuestionConfig = { id: string; key: keyof Survey; title: string; description: string }
 
 const RATING_QUESTIONS: QuestionConfig[] = [
-  { id: "Q1", key: "califExperienciaCompra", title: "Experiencia de Compra", description: "Evalúa la satisfacción del cliente con el proceso de compra." },
-  { id: "Q2", key: "califServicioConductor", title: "Servicio del Conductor", description: "Mide la calidad del servicio brindado por el conductor." },
-  { id: "Q3", key: "califComodidad", title: "Comodidad", description: "Analiza el nivel de confort durante el viaje." },
-  { id: "Q4", key: "califLimpieza", title: "Limpieza", description: "Evalúa las condiciones de higiene y limpieza." },
-  { id: "Q5", key: "califSeguridad", title: "Seguridad", description: "Mide la percepción del cliente sobre la seguridad." },
+  {
+    id: "Q1",
+    key: "califExperienciaCompra",
+    title: "1.- Evalúe su experiencia de compra: (a bordo,taquillas,web o app)",
+    description: "Evalúa el proceso completo desde la llegada hasta la obtención del boleto.",
+  },
+  {
+    id: "Q2",
+    key: "califServicioConductor",
+    title: "2. Evalúe el servicio del conductor (amabilidad, atención en el servicio)",
+    description: "Mide la amabilidad, profesionalismo y trato del personal operativo.",
+  },
+  {
+    id: "Q3",
+    key: "califComodidad",
+    title: "4. ¿Cómo califica la comodidad a bordo?",
+    description: "Analiza el estado de asientos, espacio y confort general.",
+  },
+  {
+    id: "Q4",
+    key: "califLimpieza",
+    title: "5.- ¿Cómo califica la limpieza a bordo?",
+    description: "Evaluación de higiene en áreas comunes y asientos.",
+  },
+  {
+    id: "Q5",
+    key: "califSeguridad",
+    title: "6. ¿Cómo considera la seguridad en su viaje? (conducción)",
+    description: "Percepción de seguridad en la conducción y estado del vehículo.",
+  },
+  {
+    id: "Q6",
+    key: "cumplioExpectativas",
+    title: "7. ¿Se cumplió con sus expectativas de inicio de viaje?",
+    description: "Mide si el servicio cumplió con lo esperado por el cliente.",
+  },
 ]
 
 // =================================================================
@@ -132,6 +163,28 @@ const SatisfactionPieChart: React.FC<{
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           {data.map((item, index) => {
             const angle = (item.value / 100) * 360
+
+            // Caso especial para 100% (Círculo completo)
+            if (angle >= 359.9) {
+              return (
+                <g key={index}>
+                  <circle cx={center} cy={center} r={radius} fill={item.color} stroke="white" strokeWidth="3" />
+                  <text
+                    x={center}
+                    y={center}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill="white"
+                    fontSize="16"
+                    fontWeight="700"
+                    style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}
+                  >
+                    100.0%
+                  </text>
+                </g>
+              )
+            }
+
             const startAngle = currentAngle
             const endAngle = currentAngle + angle
 
@@ -217,6 +270,28 @@ const RatingDistributionPieChart: React.FC<{
         {dataForChart.map((item, index) => {
           const percentage = total > 0 ? (item.value / total) * 100 : 0
           const angle = (percentage / 100) * 360
+
+          // Caso especial para 100% (Círculo completo)
+          if (angle >= 359.9) {
+            return (
+              <g key={index}>
+                <circle cx={center} cy={center} r={radius} fill={item.color} stroke="white" strokeWidth="3" />
+                <text
+                  x={center}
+                  y={center}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="white"
+                  fontSize="16"
+                  fontWeight="700"
+                  style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}
+                >
+                  100.0%
+                </text>
+              </g>
+            )
+          }
+
           const startAngle = currentAngle
           const endAngle = currentAngle + angle
 
@@ -529,13 +604,29 @@ const Presentacion: React.FC<PresentacionProps> = ({ onLogout }) => {
     : []
 
   // Calcular estadisticas generales
-  const totalEncuestasGeneral = terminalStats.reduce((acc: number, stat: any) => acc + stat.totalEncuestas, 0)
+  const validSurveys = surveys.filter((s) => s.validado !== "ELIMINADO" && s.validado !== "ELIMINADO_Y_BORRAR")
+  const totalEncuestasGeneral = validSurveys.length
   const metaGeneral = getMetaGeneral()
-  const terminalesSatisfechas = terminalStats.filter((stat: any) => stat.isOverallSatisfied).length
-  const terminalesInsatisfechas = terminalStats.filter((stat: any) => !stat.isOverallSatisfied).length
-  const promedioSatisfaccionGeneral = terminalStats.length > 0
-    ? terminalStats.reduce((acc: number, stat: any) => acc + stat.overallSatisfiedPercentage, 0) / terminalStats.length
-    : 0
+  const terminalesSatisfechas = terminalStats.filter((stat: any) => stat.totalEncuestas > 0 && stat.isOverallSatisfied).length
+  const terminalesInsatisfechas = terminalStats.filter((stat: any) => stat.totalEncuestas > 0 && !stat.isOverallSatisfied).length
+
+  // Calcular promedio global basado en encuestas reales (como en Resumen.tsx)
+  let totalWeightedGlobal = 0
+  let totalResponsesGlobal = 0
+  const maxWeight = Math.max(...Object.values(DEFAULT_WEIGHTS))
+
+  validSurveys.forEach((s) => {
+    RATING_QUESTIONS.forEach((q) => {
+      const calif = s[q.key] as string
+      if (calif && DEFAULT_WEIGHTS[calif] !== undefined) {
+        totalWeightedGlobal += DEFAULT_WEIGHTS[calif]
+        totalResponsesGlobal += 1
+      }
+    })
+  })
+
+  const maxPossibleGlobal = totalResponsesGlobal * maxWeight
+  const promedioSatisfaccionGeneral = maxPossibleGlobal > 0 ? (totalWeightedGlobal / maxPossibleGlobal) * 100 : 0
 
   // Renderizar vista de selección de terminales
   const renderTerminalSelection = () => (
@@ -714,6 +805,49 @@ const Presentacion: React.FC<PresentacionProps> = ({ onLogout }) => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* VISTA DETALLADA COMPLETA (Gráficas por pregunta) */}
+        <div className="full-analysis-section">
+          <h2 className="section-title-large">Análisis Detallado por Pregunta</h2>
+          <div className="full-analysis-grid">
+            {RATING_QUESTIONS.map((q, index) => {
+              const summary = selectedTerminalData.questionSummaries.find(s => s.questionKey === q.key);
+              if (!summary) return null;
+              return (
+                <div key={q.id} className="analysis-card-full">
+                  <div className="analysis-card-header">
+                    <span className="question-index">P{index + 1}</span>
+                    <h3>{q.title}</h3>
+                  </div>
+                  <div className="analysis-card-body">
+                    <div className="analysis-chart-box">
+                      <RatingDistributionPieChart
+                        distribution={summary.distribution}
+                        totalValid={summary.totalResponses}
+                        size={240}
+                      />
+                    </div>
+                    <div className="analysis-stats-box">
+                      <div className={`analysis-status-indicator ${summary.isSatisfied ? 'satisfied' : 'unsatisfied'}`}>
+                        {summary.isSatisfied ? "✓ SATISFECHO" : "✗ INSATISFECHO"} ({summary.satisfiedPercentage.toFixed(1)}%)
+                      </div>
+                      <table className="analysis-mini-table">
+                        <tbody>
+                          {SATISFACTION_ORDER.map(calif => (
+                            <tr key={calif}>
+                              <td>{calif}</td>
+                              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{summary.distribution[calif]?.value || 0}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

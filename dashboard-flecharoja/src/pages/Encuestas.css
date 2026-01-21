@@ -1000,7 +1000,7 @@ h3 {
    BOTÓN DE DEPURAR
 ============================================================ */
 .btn-depurar {
-  background-color: var(--danger-color);
+  background-color: #1f4e4a;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -1015,7 +1015,7 @@ h3 {
 }
 
 .btn-depurar:hover {
-  background-color: #d32f2f;
+  background-color: #143633;
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }

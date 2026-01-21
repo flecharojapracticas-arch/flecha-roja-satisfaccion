@@ -184,6 +184,28 @@ const SatisfactionPieChart: React.FC<{
         <svg width="280" height="280" viewBox="0 0 280 280">
           {data.map((item, index) => {
             const angle = (item.value / 100) * 360
+
+            // Caso especial para 100% (Círculo completo)
+            if (angle >= 359.9) {
+              return (
+                <g key={index}>
+                  <circle cx="140" cy="140" r="100" fill={item.color} stroke="white" strokeWidth="3" />
+                  <text
+                    x="140"
+                    y="140"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill="white"
+                    fontSize="18"
+                    fontWeight="700"
+                    style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}
+                  >
+                    100.0%
+                  </text>
+                </g>
+              )
+            }
+
             const startAngle = currentAngle
             const endAngle = currentAngle + angle
 
@@ -269,6 +291,28 @@ const QuestionSatisfactionPieChart: React.FC<{
         <svg width="320" height="320" viewBox="0 0 320 320">
           {data.map((item, index) => {
             const angle = (item.value / 100) * 360
+
+            // Caso especial para 100% (Círculo completo)
+            if (angle >= 359.9) {
+              return (
+                <g key={index}>
+                  <circle cx="160" cy="160" r="120" fill={item.color} stroke="white" strokeWidth="3" />
+                  <text
+                    x="160"
+                    y="160"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill="white"
+                    fontSize="20"
+                    fontWeight="700"
+                    style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}
+                  >
+                    100.0%
+                  </text>
+                </g>
+              )
+            }
+
             const startAngle = currentAngle
             const endAngle = currentAngle + angle
 
