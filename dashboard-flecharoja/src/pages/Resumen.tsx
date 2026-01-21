@@ -35,6 +35,7 @@ interface Survey {
   califComodidad: "Muy Buena" | "Buena" | "Regular" | "Mala" | "Muy Mala" | string
   califLimpieza: "Muy Buena" | "Buena" | "Regular" | "Mala" | "Muy Mala" | string
   califSeguridad: "Muy Buena" | "Buena" | "Regular" | "Mala" | "Muy Mala" | string
+  cumplioExpectativas: "Muy Buena" | "Buena" | "Regular" | "Mala" | "Muy Mala" | string
 }
 
 const TERMINALES = [
@@ -99,6 +100,12 @@ const RATING_QUESTIONS: QuestionConfig[] = [
     key: "califSeguridad",
     title: "6. ¿Cómo considera la seguridad en su viaje? (conducción)",
     description: "Percepción de seguridad en la conducción y estado del vehículo.",
+  },
+  {
+    id: "Q6",
+    key: "cumplioExpectativas",
+    title: "7. ¿Se cumplió con sus expectativas de inicio de viaje?",
+    description: "Mide si el servicio cumplió con lo esperado por el cliente.",
   },
 ]
 
