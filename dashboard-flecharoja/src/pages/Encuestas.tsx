@@ -35,10 +35,7 @@ const tabRoutes: { [key: string]: string } = {
 // =======================================================
 
 // Determinar la URL base de la API dinámicamente
-const isLocal = typeof window !== "undefined" && window.location.hostname === "localhost"
-const API_BASE_URL = isLocal
-  ? "http://localhost:3000/api/dashboard"
-  : "https://flecha-roja-satisfaccion.onrender.com/api/dashboard"
+const API_BASE_URL = "https://flecha-roja-satisfaccion.onrender.com/api/dashboard"
 
 // INTERFAZ EXACTA BASADA EN TU SERVER.JS
 interface Survey {
@@ -407,6 +404,10 @@ const Encuestas: React.FC = () => {
     try {
       const url = `${API_BASE_URL}/encuestas/purge`
       const response = await axios.delete(url, getAuthHeaders())
+
+      // También limpiar los periodos guardados localmente para una depuración TOTAL
+      localStorage.removeItem("periodos_evaluacion")
+
       alert(response.data.message || "Sistema depurado correctamente.")
       fetchSurveys()
     } catch (err) {

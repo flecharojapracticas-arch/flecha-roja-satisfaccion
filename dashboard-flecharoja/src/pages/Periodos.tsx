@@ -601,6 +601,16 @@ const Periodos: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     }
   }
 
+  const handleDepurarPeriodos = () => {
+    if (window.confirm("¿Seguro que quiere eliminar todos los bimestres guardados? Esta acción no se puede deshacer.")) {
+      if (window.confirm("¡ATENCIÓN! Se borrará todo el historial de bimestres. ¿Desea continuar?")) {
+        localStorage.removeItem("periodos_evaluacion")
+        setPeriodos([])
+        alert("Bimestres depurados correctamente.")
+      }
+    }
+  }
+
   const filtrarEncuestasPorFechas = (inicio: string, fin: string): Survey[] => {
     const fechaInicioDate = new Date(inicio)
     const fechaFinDate = new Date(fin)
@@ -982,6 +992,10 @@ const Periodos: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
               <span>Comparar Bimestres</span>
             </button>
           )}
+          <button onClick={handleDepurarPeriodos} className="btn-depurar-periodos">
+            <Trash2 size={18} />
+            <span>Depurar Bimestres</span>
+          </button>
         </div>
 
         <div className="periodos-list-container">

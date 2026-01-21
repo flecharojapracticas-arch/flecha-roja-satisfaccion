@@ -24,11 +24,7 @@ const tabRoutes: { [key: string]: string } = {
 // 2. CONSTANTES, TIPOS Y CONFIGURACIÓN DE API
 // =================================================================
 
-// Determinar la URL base de la API dinámicamente
-const isLocal = typeof window !== "undefined" && window.location.hostname === "localhost"
-const API_SURVEYS_ENDPOINT = isLocal
-  ? "http://localhost:3000/api/analysis/general"
-  : "https://flecha-roja-satisfaccion.onrender.com/api/analysis/general"
+const API_SURVEYS_ENDPOINT = "https://flecha-roja-satisfaccion.onrender.com/api/analysis/general"
 
 interface Survey {
   _id: string

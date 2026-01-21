@@ -30,6 +30,33 @@
   --shadow-header: 0 2px 6px rgba(0, 0, 0, 0.15);
   --transition-fast: 0.2s ease;
   --transition-medium: 0.3s ease;
+  --danger-color: #dc3545;
+}
+
+.btn-depurar-periodos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--danger-color);
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-depurar-periodos:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-depurar-periodos:active {
+  transform: translateY(0);
 }
 
 * {
