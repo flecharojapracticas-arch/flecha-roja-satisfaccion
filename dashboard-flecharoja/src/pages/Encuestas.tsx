@@ -34,7 +34,11 @@ const tabRoutes: { [key: string]: string } = {
 }
 // =======================================================
 
-const API_BASE_URL = "https://flecha-roja-satisfaccion.onrender.com/api/dashboard"
+// Determinar la URL base de la API dinámicamente
+const isLocal = typeof window !== "undefined" && window.location.hostname === "localhost"
+const API_BASE_URL = isLocal
+  ? "http://localhost:3000/api/dashboard"
+  : "https://flecha-roja-satisfaccion.onrender.com/api/dashboard"
 
 // INTERFAZ EXACTA BASADA EN TU SERVER.JS
 interface Survey {
@@ -390,6 +394,25 @@ const Encuestas: React.FC = () => {
       alert(
         `Error al no validar. **Error ${axiosError.response?.status || "Desconocido"}: Necesitas un token de sesión VÁLIDO para hacer cambios.**`,
       )
+    }
+  }
+
+  const handlePurge = async () => {
+    const confirm1 = window.confirm("¿Seguro que quiere eliminar todas las encuestas? Esta acción no se puede deshacer.")
+    if (!confirm1) return
+
+    const confirm2 = window.confirm("¡ATENCIÓN! Está a punto de borrar TODA la información del sistema. ¿Realmente desea continuar con la depuración total?")
+    if (!confirm2) return
+
+    try {
+      const url = `${API_BASE_URL}/encuestas/purge`
+      const response = await axios.delete(url, getAuthHeaders())
+      alert(response.data.message || "Sistema depurado correctamente.")
+      fetchSurveys()
+    } catch (err) {
+      const axiosError = err as AxiosError
+      console.error("Error al purgar encuestas:", axiosError)
+      alert(`Error al depurar: ${axiosError.response?.status || "Desconocido"}`)
     }
   }
 
@@ -1524,6 +1547,12 @@ const Encuestas: React.FC = () => {
                 <button className="btn-invalid-surveys" onClick={() => setShowInvalidModal(true)}>
                   Ver Encuestas No Validadas (
                   {allSurveys.filter((s) => s.validado === "ELIMINADO" || s.validado === "ELIMINADO_Y_BORRAR").length})
+                </button>
+              </div>
+
+              <div className="filter-group">
+                <button className="btn-depurar" onClick={handlePurge}>
+                  Depurar Sistema
                 </button>
               </div>
             </div>
