@@ -87,11 +87,30 @@ router.post('/change-credentials', async (req, res) => {
         const database = mongoClient.db('flecha_roja_db');
         const usersCollection = database.collection('users');
 
-        // 1. Buscar usuario actual
-        const user = await usersCollection.findOne({ username });
+        // 1. Buscar usuario actual (insensible a mayúsculas y espacios)
+        const searchUsername = username ? username.trim() : "";
+        let user = await usersCollection.findOne({
+            username: { $regex: new RegExp(`^${searchUsername}$`, "i") }
+        });
+
+        // -- CASO ESPECIAL: Si es el usuario bypass y no está en la DB todavía o el nombre varió ligeramente --
+        if (!user && searchUsername.toLowerCase() === 'usuario' && currentPassword === '12345') {
+            console.log("🛠️ Sincronizando usuario bypass 'usuario' con la base de datos...");
+            const salt = await bcrypt.genSalt(10);
+            const initialHash = await bcrypt.hash("12345", salt);
+            const newUser = {
+                username: "usuario",
+                passwordHash: initialHash,
+                role: 'user',
+                createdAt: new Date()
+            };
+            await usersCollection.insertOne(newUser);
+            user = await usersCollection.findOne({ username: "usuario" });
+        }
 
         if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado.' });
+            console.error(`❌ Intento de cambio de credenciales fallido: Usuario '${searchUsername}' no encontrado.`);
+            return res.status(404).json({ message: 'Usuario no encontrado. Asegúrate de haber escrito bien el nombre actual.' });
         }
 
         // 2. Verificar contraseña actual

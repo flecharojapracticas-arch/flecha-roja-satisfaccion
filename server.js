@@ -196,11 +196,11 @@ async function runServer() {
         const usersCollection = database.collection(USERS_COLLECTION);
 
         // --- Lógica para asegurar que siempre haya usuarios básicos ---
-        const userCount = await usersCollection.countDocuments({});
-        if (userCount === 0) {
-            const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(10);
 
-            // Administrador
+        // 1. Asegurar Admin
+        const adminExists = await usersCollection.findOne({ username: DEFAULT_ADMIN_USER });
+        if (!adminExists) {
             const adminHash = await bcrypt.hash(DEFAULT_ADMIN_PASS, salt);
             await usersCollection.insertOne({
                 username: DEFAULT_ADMIN_USER,
@@ -208,9 +208,12 @@ async function runServer() {
                 role: 'admin',
                 createdAt: new Date()
             });
-            console.log(`✅ Usuario Admin creado: ${DEFAULT_ADMIN_USER}`);
+            console.log(`✅ Usuario Admin creado.`);
+        }
 
-            // Usuario de visualización
+        // 2. Asegurar Usuario de Visualización
+        const userExists = await usersCollection.findOne({ username: "usuario" });
+        if (!userExists) {
             const userHash = await bcrypt.hash("12345", salt);
             await usersCollection.insertOne({
                 username: "usuario",
@@ -218,8 +221,9 @@ async function runServer() {
                 role: 'user',
                 createdAt: new Date()
             });
-            console.log(`✅ Usuario estándar creado: usuario / 12345`);
+            console.log(`✅ Usuario estándar (bypass) creado.`);
         }
+        // -------------------------------------------------------------------
         // -------------------------------------------------------------------
 
         // --- Lógica para asegurar configuración inicial ---

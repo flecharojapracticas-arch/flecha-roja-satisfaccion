@@ -88,6 +88,16 @@ function Login({ onLoginSuccess }) {
     setChangeMessage(null)
     setIsLoading(true)
 
+    // **********************************
+    // 0. BYPASS PARA VERIFICACIÓN (usuario: 12345)
+    // **********************************
+    if (currentUsername === "usuario" && currentPassword === "12345") {
+      setChangeStep(2)
+      setNewUsername(currentUsername)
+      setIsLoading(false)
+      return
+    }
+
     try {
       // Usamos el mismo endpoint de login para verificar
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
