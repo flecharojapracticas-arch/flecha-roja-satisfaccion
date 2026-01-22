@@ -195,20 +195,30 @@ async function runServer() {
         const database = client.db(DB_NAME);
         const usersCollection = database.collection(USERS_COLLECTION);
 
-        // --- Lógica para asegurar que siempre haya un usuario admin ---
-        const adminCount = await usersCollection.countDocuments({});
-        if (adminCount === 0) {
-            console.log(`\n⚠️ CREANDO USUARIO ADMINISTRADOR POR DEFECTO: ${DEFAULT_ADMIN_USER}`);
+        // --- Lógica para asegurar que siempre haya usuarios básicos ---
+        const userCount = await usersCollection.countDocuments({});
+        if (userCount === 0) {
             const salt = await bcrypt.genSalt(10);
-            const passwordHash = await bcrypt.hash(DEFAULT_ADMIN_PASS, salt);
 
+            // Administrador
+            const adminHash = await bcrypt.hash(DEFAULT_ADMIN_PASS, salt);
             await usersCollection.insertOne({
                 username: DEFAULT_ADMIN_USER,
-                passwordHash: passwordHash,
+                passwordHash: adminHash,
                 role: 'admin',
                 createdAt: new Date()
             });
-            console.log(`✅ Usuario Admin creado. Credenciales: Usuario=${DEFAULT_ADMIN_USER} / Contraseña=${DEFAULT_ADMIN_PASS}`);
+            console.log(`✅ Usuario Admin creado: ${DEFAULT_ADMIN_USER}`);
+
+            // Usuario de visualización
+            const userHash = await bcrypt.hash("12345", salt);
+            await usersCollection.insertOne({
+                username: "usuario",
+                passwordHash: userHash,
+                role: 'user',
+                createdAt: new Date()
+            });
+            console.log(`✅ Usuario estándar creado: usuario / 12345`);
         }
         // -------------------------------------------------------------------
 
