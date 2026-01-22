@@ -1,7 +1,9 @@
 /* Colores de referencia */
 :root {
-  --color-primary: rgba(42, 101, 95); /* Tu nuevo color azul */
-  --color-secondary: rgba(42, 101, 95); /* Tono más oscuro para hover */
+  --color-primary: rgba(42, 101, 95);
+  /* Tu nuevo color azul */
+  --color-secondary: rgba(42, 101, 95);
+  /* Tono más oscuro para hover */
   --color-text-dark: #333;
   --color-background-light: #f9f9f9;
 }
@@ -26,13 +28,15 @@
   width: 100%;
   position: absolute;
   top: 0;
-  background-color: rgba(42, 101, 95); /* Fondo blanco para el header */
+  background-color: rgba(42, 101, 95);
+  /* Fondo blanco para el header */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   z-index: 10;
 }
 
 .main-header img {
-  max-height: 75px; /* Tamaño del logo en el header */
+  max-height: 75px;
+  /* Tamaño del logo en el header */
   padding: 10px 20px;
 }
 
@@ -40,7 +44,8 @@
 .login-box {
   width: 190%;
   /* Ajuste del tamaño de la caja */
-  max-width: 540px; /* AJUSTA ESTE VALOR: Aumenta para hacer la caja más grande, disminuye para hacerla más pequeña */
+  max-width: 540px;
+  /* AJUSTA ESTE VALOR: Aumenta para hacer la caja más grande, disminuye para hacerla más pequeña */
   padding: 20px 35px;
   background-color: white;
   border-radius: 10px;
@@ -48,12 +53,14 @@
   border: 1px solid #ddd;
   text-align: center;
   /* Agregado margen izquierdo para mover solo la caja a la derecha */
-  margin-left: 42%; /* AJUSTA ESTE VALOR: Aumenta para mover más a la derecha, disminuye para mover a la izquierda */
+  margin-left: 42%;
+  /* AJUSTA ESTE VALOR: Aumenta para mover más a la derecha, disminuye para mover a la izquierda */
 }
 
 /* Encabezados y logo dentro de la caja de login */
 .logo-box-img {
-  max-width: 250px; /* Tamaño del logo dentro de la caja de login */
+  max-width: 250px;
+  /* Tamaño del logo dentro de la caja de login */
   height: auto;
   display: block;
   margin: 0 auto;
@@ -62,13 +69,15 @@
 
 /* Títulos dentro de la caja */
 .login-box h1 {
-  display: none; /* Ocultamos los h1 para usar solo el subtitulo y logo */
+  display: none;
+  /* Ocultamos los h1 para usar solo el subtitulo y logo */
 }
 
 .login-box p.subtitle {
   font-size: 1.1em;
   font-weight: bold;
-  color: var(--color-text-dark); /* Color más neutro para el texto del sistema */
+  color: var(--color-text-dark);
+  /* Color más neutro para el texto del sistema */
   margin-bottom: 5px;
 }
 
@@ -132,18 +141,95 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 15px;
+  margin-bottom: 20px;
   font-size: 0.9em;
 }
 
-.options-group a {
+.btn-forgot-password {
+  background: none;
+  border: none;
   color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
   cursor: pointer;
+  padding: 0;
+  font-size: 0.9em;
 }
 
-.options-group a:hover {
+.btn-forgot-password:hover {
   text-decoration: underline;
+}
+
+/* Estilos para el Modal de Cambio de Credenciales */
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.login-modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: modalIn 0.3s ease-out;
+  text-align: left;
+  /* Asegurar alineación a la izquierda */
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-modal-content h3 {
+  margin: 0 0 10px 0;
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.login-modal-content p {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.change-step-container .form-group {
+  margin-bottom: 15px;
 }
 
 /* Mensajes de error */
@@ -153,10 +239,12 @@
   border-radius: 5px;
   font-weight: 600;
 }
+
 .message-box.error {
   background-color: #fdd;
   color: #d00;
 }
+
 .message-box.success {
   background-color: #ddf;
   color: var(--color-primary);

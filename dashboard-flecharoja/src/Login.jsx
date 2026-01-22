@@ -65,26 +65,89 @@ function Login({ onLoginSuccess }) {
   }
 
   // **********************************
-  // 2. FUNCIÓN DE RECUPERACIÓN DE CONTRASEÑA (Simulación)
+  // 3. FUNCIONES PARA CAMBIO DE CREDENCIALES
   // **********************************
-  const handleForgotPassword = async () => {
-    setMessage(null)
+  const [showChangeModal, setShowChangeModal] = useState(false)
+  const [changeStep, setChangeStep] = useState(1) // 1: Verificar, 2: Nuevos datos
+  const [currentUsername, setCurrentUsername] = useState("")
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newUsername, setNewUsername] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmNewPassword, setConfirmNewPassword] = useState("")
+  const [changeMessage, setChangeMessage] = useState(null)
+
+  const handleOpenChangeModal = () => {
+    setShowChangeModal(true)
+    setChangeStep(1)
+    setCurrentUsername(username) // Pre-llenar con lo que esté en el login principal
+    setChangeMessage(null)
+  }
+
+  const handleVerifyCurrent = async (e) => {
+    e.preventDefault()
+    setChangeMessage(null)
+    setIsLoading(true)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+      // Usamos el mismo endpoint de login para verificar
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: currentUsername, password: currentPassword }),
+      })
+
+      if (response.ok) {
+        setChangeStep(2)
+        setNewUsername(currentUsername)
+      } else {
+        const data = await response.json()
+        setChangeMessage({ text: data.message || "Usuario o contraseña actual incorrecta.", type: "error" })
+      }
+    } catch (error) {
+      setChangeMessage({ text: "Error de conexión.", type: "error" })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleFinalChange = async (e) => {
+    e.preventDefault()
+    setChangeMessage(null)
+
+    if (newPassword && newPassword !== confirmNewPassword) {
+      setChangeMessage({ text: "Las contraseñas no coinciden.", type: "error" })
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/change-credentials`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: currentUsername,
+          currentPassword,
+          newUsername,
+          newPassword
+        }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        setMessage({ text: data.message, type: "success" })
+        setChangeMessage({ text: "¡Cambio exitoso! Ya puedes iniciar sesión.", type: "success" })
+        setTimeout(() => {
+          setShowChangeModal(false)
+          setUsername(newUsername)
+          setPassword("")
+        }, 2000)
       } else {
-        setMessage({ text: data.message || "Error al procesar la solicitud.", type: "error" })
+        setChangeMessage({ text: data.message || "Error al actualizar.", type: "error" })
       }
     } catch (error) {
-      console.error("Error de red durante la recuperación:", error)
-      setMessage({ text: "No se pudo contactar al servidor para la recuperación.", type: "error" })
+      setChangeMessage({ text: "Error de conexión.", type: "error" })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -136,6 +199,13 @@ function Login({ onLoginSuccess }) {
             <label>
               <input type="checkbox" /> Recordarme
             </label>
+            <button
+              type="button"
+              className="btn-forgot-password"
+              onClick={handleOpenChangeModal}
+            >
+              ¿Cambiar contraseña o usuario?
+            </button>
           </div>
 
           <button type="submit" className="btn-login" disabled={isLoading}>
@@ -146,6 +216,90 @@ function Login({ onLoginSuccess }) {
         {/* Área para mensajes de éxito/error */}
         {message && <div className={`message-box ${message.type}`}>{message.text}</div>}
       </div>
+
+      {/* Modal de Cambio de Credenciales */}
+      {showChangeModal && (
+        <div className="login-modal-overlay">
+          <div className="login-modal-content">
+            <button className="close-btn" onClick={() => setShowChangeModal(false)}>&times;</button>
+
+            {changeStep === 1 ? (
+              <div className="change-step-container">
+                <h3>Verificar Datos Actuales</h3>
+                <p>Por seguridad, ingrese sus credenciales actuales.</p>
+                <form onSubmit={handleVerifyCurrent}>
+                  <div className="form-group">
+                    <label>Nombre de Usuario Actual</label>
+                    <input
+                      type="text"
+                      value={currentUsername}
+                      onChange={(e) => setCurrentUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Contraseña Actual</label>
+                    <input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn-login" disabled={isLoading}>
+                    {isLoading ? "Verificando..." : "Siguiente"}
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="change-step-container">
+                <h3>Nuevas Credenciales</h3>
+                <p>Establezca su nuevo usuario y/o contraseña.</p>
+                <form onSubmit={handleFinalChange}>
+                  <div className="form-group">
+                    <label>Nuevo Nombre de Usuario</label>
+                    <input
+                      type="text"
+                      value={newUsername}
+                      onChange={(e) => setNewUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Nueva Contraseña</label>
+                    <input
+                      type="password"
+                      placeholder="Dejar vacío si no desea cambiarla"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                  </div>
+                  {newPassword && (
+                    <div className="form-group">
+                      <label>Confirmar Nueva Contraseña</label>
+                      <input
+                        type="password"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+                  <button type="submit" className="btn-login" disabled={isLoading}>
+                    {isLoading ? "Actualizando..." : "Confirmar Cambios"}
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {changeMessage && (
+              <div className={`message-box ${changeMessage.type}`} style={{ marginTop: '15px' }}>
+                {changeMessage.text}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
