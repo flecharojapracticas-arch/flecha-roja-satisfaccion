@@ -40,7 +40,7 @@ app.use(express.json());
 // 🟢 CORRECCIÓN DE CORS: Configuración explícita para evitar errores de preflight desde localhost
 app.use(cors({
     // Permitimos explícitamente el origen de desarrollo local (Vite/React) y el propio dominio de Render.
-    origin: ['http://localhost:5173', 'https://flecha-roja-satisfaccion.onrender.com'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://flecha-roja-satisfaccion.onrender.com'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
 }));
