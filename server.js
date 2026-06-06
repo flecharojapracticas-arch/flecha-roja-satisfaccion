@@ -22,7 +22,7 @@ const app = express();
 // *****************************************************************
 // *** CONFIGURACIÓN CRÍTICA DIRECTA ***
 // *****************************************************************
-const uri = "mongodb+srv://flecharojapracticas_db_user:flecharojapracticas_db_user@flecharoja-satisfaccion.ohop4mb.mongodb.net/?retryWrites=true&w=majority&appName=FlechaRoja-Satisfaccion-DB";
+const uri = "mongodb+srv://flecharojapracticas_db_user:AdminFlecha123@flecharoja-satisfaccion.ohop4mb.mongodb.net/?retryWrites=true&w=majority&appName=FlechaRoja-Satisfaccion-DB";
 const port = 3000;
 const USER_SECRET = "FlechaRoja_SATISFACCION-Key-R3d-s3cr3t-2025-Qh7gKx9zP5bYt1mJ";
 const DB_NAME = 'flecha_roja_db';
